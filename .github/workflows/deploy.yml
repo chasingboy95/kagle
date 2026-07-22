@@ -2,7 +2,7 @@ name: Deploy React App to GitHub Pages
 
 on:
   push:
-    branches: [ main ] # 监听 main 分支推送
+    branches: [ main ] # 监听 main 分支
 
 permissions:
   contents: write
@@ -14,16 +14,19 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install Node.js
-        uses: actions/setup-node@v4
+      # 安装 Bun
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
         with:
-          node-version: 20
+          bun-version: latest
 
+      # 使用 Bun 安装依赖并打包
       - name: Install and Build
         run: |
-          npm ci
-          npm run build
+          bun install
+          bun run build
 
+      # 部署到 GitHub Pages
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4
         with:
