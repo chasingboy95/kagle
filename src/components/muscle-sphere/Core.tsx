@@ -28,7 +28,7 @@ export default function Core({ phase }: LayerProps) {
         isIdle ? IDLE : isHold ? HOLD : isRelease ? RELEASE : SPRING
       }
     >
-      <img src="/muscle-sphere/core.svg" className="w-full h-full" alt="" />
+      <img src={`${import.meta.env.BASE_URL}muscle-sphere/core.svg`} className="w-full h-full" alt="" />
     </motion.div>
   );
 }

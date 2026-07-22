@@ -28,7 +28,7 @@ export default function Fibers({ phase }: LayerProps) {
         isIdle ? IDLE : isHold ? HOLD : isRelease ? RELEASE : SPRING
       }
     >
-      <img src="/muscle-sphere/fibers.svg" className="w-full h-full" alt="" />
+      <img src={`${import.meta.env.BASE_URL}muscle-sphere/fibers.svg`} className="w-full h-full" alt="" />
     </motion.div>
   );
 }

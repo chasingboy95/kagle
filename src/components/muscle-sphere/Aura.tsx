@@ -28,7 +28,7 @@ export default function Aura({ phase }: LayerProps) {
         isIdle ? IDLE : isHold ? HOLD : isRelease ? RELEASE : SPRING
       }
     >
-      <img src="/muscle-sphere/aura.svg" className="w-full h-full" alt="" />
+      <img src={`${import.meta.env.BASE_URL}muscle-sphere/aura.svg`} className="w-full h-full" alt="" />
     </motion.div>
   );
 }
