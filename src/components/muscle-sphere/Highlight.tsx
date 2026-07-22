@@ -44,7 +44,7 @@ export default function Highlight({ phase }: LayerProps) {
               : SPRING
       }
     >
-      <img src="/muscle-sphere/highlight.svg" className="w-full h-full" alt="" />
+      <img src={`${import.meta.env.BASE_URL}muscle-sphere/highlight.svg`} className="w-full h-full" alt="" />
     </motion.div>
   );
 }

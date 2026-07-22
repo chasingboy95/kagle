@@ -48,7 +48,7 @@ export default function Particles({ phase }: LayerProps) {
         transition={isIdle ? IDLE_Y : isHold ? HOLD_T : { duration: 0.4, ease: 'easeOut' }}
         className="w-full h-full"
       >
-        <img src="/muscle-sphere/particles.svg" className="w-full h-full" alt="" />
+        <img src={`${import.meta.env.BASE_URL}muscle-sphere/particles.svg`} className="w-full h-full" alt="" />
       </motion.div>
     </motion.div>
   );

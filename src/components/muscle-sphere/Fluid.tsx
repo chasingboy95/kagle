@@ -28,7 +28,7 @@ export default function Fluid({ phase }: LayerProps) {
         isIdle ? IDLE : isHold ? HOLD : isRelease ? RELEASE : SPRING
       }
     >
-      <img src="/muscle-sphere/fluid.svg" className="w-full h-full" alt="" />
+      <img src={`${import.meta.env.BASE_URL}muscle-sphere/fluid.svg`} className="w-full h-full" alt="" />
     </motion.div>
   );
 }
