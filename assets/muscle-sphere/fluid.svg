@@ -1,47 +1,82 @@
-<!-- 3. FLUID -->
 <svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <radialGradient id="fluidGradA" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#E0FBFF" stop-opacity="0.85"/>
-      <stop offset="45%" stop-color="#AEE4F5" stop-opacity="0.55"/>
-      <stop offset="75%" stop-color="#7FC7E8" stop-opacity="0.25"/>
-      <stop offset="100%" stop-color="#7FC7E8" stop-opacity="0"/>
+    <radialGradient id="tissueGradCore" cx="50%" cy="45%" r="60%">
+      <stop offset="0%" stop-color="#F2B4BC" stop-opacity="0.75"/>
+      <stop offset="45%" stop-color="#E092A0" stop-opacity="0.5"/>
+      <stop offset="78%" stop-color="#C97086" stop-opacity="0.22"/>
+      <stop offset="100%" stop-color="#C97086" stop-opacity="0"/>
     </radialGradient>
-    <radialGradient id="fluidGradB" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#D8F8FF" stop-opacity="0.75"/>
-      <stop offset="50%" stop-color="#9FDCF2" stop-opacity="0.45"/>
-      <stop offset="80%" stop-color="#6FBCE0" stop-opacity="0.18"/>
-      <stop offset="100%" stop-color="#6FBCE0" stop-opacity="0"/>
+
+    <radialGradient id="tissueGradA" cx="45%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#F0AEB8" stop-opacity="0.65"/>
+      <stop offset="50%" stop-color="#DD93A2" stop-opacity="0.4"/>
+      <stop offset="80%" stop-color="#C77E8F" stop-opacity="0.16"/>
+      <stop offset="100%" stop-color="#C77E8F" stop-opacity="0"/>
     </radialGradient>
-    <radialGradient id="fluidGradCore" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#EEFDFF" stop-opacity="0.9"/>
-      <stop offset="40%" stop-color="#BDEBF7" stop-opacity="0.6"/>
-      <stop offset="72%" stop-color="#8AD0EA" stop-opacity="0.28"/>
-      <stop offset="100%" stop-color="#8AD0EA" stop-opacity="0"/>
+
+    <radialGradient id="tissueGradB" cx="55%" cy="50%" r="58%">
+      <stop offset="0%" stop-color="#EAA6B2" stop-opacity="0.6"/>
+      <stop offset="50%" stop-color="#D6889A" stop-opacity="0.36"/>
+      <stop offset="80%" stop-color="#BE7385" stop-opacity="0.14"/>
+      <stop offset="100%" stop-color="#BE7385" stop-opacity="0"/>
     </radialGradient>
   </defs>
 
   <g id="fluid">
-    <g id="fluid-blob-center">
-      <path d="M256,196 C284,196 308,218 310,248 C312,278 290,304 258,308 C226,312 200,290 198,258 C196,226 220,198 256,196 Z" fill="url(#fluidGradCore)"/>
+    <g id="fluid-tissue-center" transform="translate(0,0)">
+      <path d="M256,180 C276,176 296,186 306,204 C318,222 320,246 312,266
+               C322,280 320,300 304,312 C288,326 264,328 246,318
+               C224,326 200,316 192,296 C182,280 186,258 200,244
+               C192,222 200,198 220,188 C232,180 244,178 256,180 Z"
+            fill="url(#tissueGradCore)"/>
     </g>
-    <g id="fluid-blob-top">
-      <path d="M256,108 C280,106 302,122 306,146 C310,170 292,192 266,196 C240,200 216,184 212,160 C208,136 228,110 256,108 Z" fill="url(#fluidGradA)"/>
+
+    <g id="fluid-tissue-top" transform="translate(0,0)">
+      <path d="M244,96 C262,90 282,98 292,114 C304,128 304,148 292,162
+               C300,174 296,190 282,198 C266,208 246,206 232,196
+               C216,202 198,194 194,178 C190,164 198,150 212,144
+               C204,128 212,110 228,102 C233,99 239,97 244,96 Z"
+            fill="url(#tissueGradA)"/>
     </g>
-    <g id="fluid-blob-bottom">
-      <path d="M256,318 C280,316 304,332 308,356 C312,380 292,402 266,406 C240,410 216,394 212,370 C208,346 228,320 256,318 Z" fill="url(#fluidGradA)"/>
+
+    <g id="fluid-tissue-bottom" transform="translate(0,0)">
+      <path d="M266,314 C284,310 302,320 310,336 C320,352 318,372 304,384
+               C310,398 304,414 288,420 C272,428 252,424 240,412
+               C222,418 204,408 202,390 C200,376 210,362 224,358
+               C218,342 228,326 244,320 C251,317 259,315 266,314 Z"
+            fill="url(#tissueGradA)"/>
     </g>
-    <g id="fluid-blob-left">
-      <path d="M164,204 C186,196 210,206 220,228 C230,250 220,274 198,284 C176,294 152,284 142,262 C132,240 142,212 164,204 Z" fill="url(#fluidGradB)"/>
+
+    <g id="fluid-tissue-left" transform="translate(0,0)">
+      <path d="M146,196 C164,188 184,196 194,212 C206,226 206,246 194,260
+               C202,272 198,288 184,296 C168,304 148,300 136,288
+               C120,294 104,284 102,268 C100,252 110,238 124,234
+               C118,218 128,202 142,198 Z"
+            fill="url(#tissueGradB)"/>
     </g>
-    <g id="fluid-blob-right">
-      <path d="M348,204 C370,196 392,208 400,230 C408,252 396,276 374,284 C352,292 330,280 322,258 C314,236 326,212 348,204 Z" fill="url(#fluidGradB)"/>
+
+    <g id="fluid-tissue-right" transform="translate(0,0)">
+      <path d="M366,200 C384,194 402,204 410,220 C420,234 418,254 404,266
+               C412,278 406,294 390,300 C374,308 354,302 344,290
+               C328,294 312,282 312,266 C312,250 324,238 338,236
+               C334,220 346,204 360,200 Z"
+            fill="url(#tissueGradB)"/>
     </g>
-    <g id="fluid-blob-upper-left">
-      <path d="M186,150 C204,140 226,146 236,164 C246,182 238,204 220,214 C202,224 180,218 170,200 C160,182 168,160 186,150 Z" fill="url(#fluidGradB)" opacity="0.85"/>
+
+    <g id="fluid-tissue-upper-left" transform="translate(0,0)">
+      <path d="M182,140 C196,132 212,138 220,150 C230,162 228,178 216,188
+               C222,198 216,210 202,214 C188,220 172,214 164,202
+               C152,206 140,196 140,182 C140,170 150,160 162,158
+               C158,148 168,138 180,140 Z"
+            fill="url(#tissueGradA)" opacity="0.85"/>
     </g>
-    <g id="fluid-blob-upper-right">
-      <path d="M326,150 C344,140 366,146 376,164 C386,182 378,204 360,214 C342,224 320,218 310,200 C300,182 308,160 326,150 Z" fill="url(#fluidGradB)" opacity="0.85"/>
+
+    <g id="fluid-tissue-upper-right" transform="translate(0,0)">
+      <path d="M330,140 C344,132 360,138 368,150 C378,162 376,178 364,188
+               C370,198 364,210 350,214 C336,220 320,214 312,202
+               C300,206 288,196 288,182 C288,170 298,160 310,158
+               C306,148 316,138 328,140 Z"
+            fill="url(#tissueGradA)" opacity="0.85"/>
     </g>
   </g>
 </svg>
