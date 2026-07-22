@@ -1,0 +1,275 @@
+
+        // ─── Const & DOM refs ─────────────────────────────────
+        var coreWrap = document.getElementById('coreWrap');
+        var coreShape = document.getElementById('coreShape');
+        var statusText = document.getElementById('statusText');
+        var phaseLabel = document.getElementById('phaseLabel');
+        var groupInfo = document.getElementById('groupInfo');
+        var stageInfo = document.getElementById('stageInfo');
+        var remainInfo = document.getElementById('remainInfo');
+        var holdTimeInput = document.getElementById('holdTime');
+        var relaxTimeInput = document.getElementById('relaxTime');
+        var totalRepsInput = document.getElementById('totalReps');
+        var btnRow = document.getElementById('btnRow');
+
+        // ─── State ────────────────────────────────────────────
+        var timer = 0;
+        var isRunning = false;
+        var isPaused = false;
+        var currentPhase = 'idle';   // idle | countdown | hold | relax | done
+        var currentGroup = 0;
+        var stageMs = 0;        // total ms for current hold/relax stage
+        var elapsedMs = 0;      // ms already spent in current stage
+        var preferredVoice = null;
+        var _wake = null;       // external resolve for delay()
+
+        // ─── localStorage ────────────────────────────────────
+        function loadParams() {
+            try {
+                var raw = localStorage.getItem('kegel_params');
+                if (!raw) return;
+                var p = JSON.parse(raw);
+                if (p.hold) holdTimeInput.value = p.hold;
+                if (p.relax) relaxTimeInput.value = p.relax;
+                if (p.reps) totalRepsInput.value = p.reps;
+            } catch(e) {}
+        }
+        function saveParams() {
+            try {
+                localStorage.setItem('kegel_params', JSON.stringify({
+                    hold: parseInt(holdTimeInput.value) || 3,
+                    relax: parseInt(relaxTimeInput.value) || 3,
+                    reps: parseInt(totalRepsInput.value) || 10
+                }));
+            } catch(e) {}
+        }
+
+        // ─── Voice ────────────────────────────────────────────
+        function initVoice() {
+            var voices = window.speechSynthesis.getVoices();
+            if (!voices.length) return;
+            preferredVoice = voices.find(function(v) {
+                return v.lang.includes('zh') && (
+                    v.name.includes('Natural') || v.name.includes('Xiaoxiao') ||
+                    v.name.includes('Yunxi') || v.name.includes('Tingting') ||
+                    v.name.includes('Yating') || v.name.includes('Lili')
+                );
+            }) || voices.find(function(v) { return v.lang.includes('zh') || v.lang.includes('CN'); });
+        }
+        window.speechSynthesis.onvoiceschanged = initVoice;
+        initVoice();
+        function speak(text) {
+            window.speechSynthesis.cancel();
+            var msg = new SpeechSynthesisUtterance(text);
+            msg.lang = 'zh-CN';
+            msg.rate = 0.85;
+            if (preferredVoice) msg.voice = preferredVoice;
+            window.speechSynthesis.speak(msg);
+        }
+
+        // ─── Vibration ────────────────────────────────────────
+        function vibrateDone() {
+            if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 400]);
+        }
+
+        // ─── UI buttons ───────────────────────────────────────
+        function lockSettings(locked) {
+            holdTimeInput.disabled = relaxTimeInput.disabled = totalRepsInput.disabled = locked;
+        }
+        function showTrainButtons() {
+            btnRow.innerHTML = 
+                '<button class="btn-pause" id="btnPause" onclick="togglePause()">暂停</button>';
+        }
+
+        function showIdleButtons() {
+            btnRow.innerHTML =
+                '<button class="btn-start" onclick="startWorkout()">开始训练</button>' +
+                '<button class="btn-stop" disabled style="opacity:0.3">停止</button>';
+        }
+
+        // ─── Delay with external wake ─────────────────────────
+        function delay(ms) {
+            return new Promise(function(resolve) {
+                _wake = resolve;
+                timer = setTimeout(function() {
+                    _wake = null;
+                    resolve();
+                }, ms);
+            });
+        }
+        // Force the currently pending delay() to resolve immediately
+        function wakeDelay() {
+            if (timer) { clearTimeout(timer); timer = 0; }
+            if (_wake) { var r = _wake; _wake = null; r(); }
+        }
+
+        // ─── Core helpers ──────────────────────────────────────
+        function setCore(scaleY, color) {
+            coreWrap.style.transition = 'transform 0.35s cubic-bezier(0.4, 0, 0.2, 1)';
+            coreShape.style.transition = 'fill 0.35s cubic-bezier(0.4, 0, 0.2, 1)';
+            coreWrap.style.transform = 'scale(1, ' + scaleY + ')';
+            if (color) coreShape.style.fill = color;
+        }
+
+        // ─── State helpers ────────────────────────────────────
+        function setIdle() {
+            currentPhase = 'idle';
+            setCore(1.0, '#94A3B8');
+            statusText.textContent = '准备就绪';
+            phaseLabel.textContent = '凯格尔训练';
+            groupInfo.textContent = stageInfo.textContent = remainInfo.textContent = '\u2014';
+            showIdleButtons();
+        }
+        function setDone() {
+            currentPhase = 'done';
+            setCore(1.0, '#10B981');
+            statusText.textContent = '训练完成！';
+            phaseLabel.textContent = '做得很好';
+            groupInfo.textContent = stageInfo.textContent = remainInfo.textContent = '\u2014';
+            vibrateDone();
+            showIdleButtons();
+        }
+
+        // ─── Countdown (not pausable) ─────────────────────────
+        async function doCountdown() {
+            currentPhase = 'countdown';
+            var nums = ['3', '2', '1'];
+            for (var ci = 0; ci < nums.length; ci++) {
+                if (!isRunning) return;
+                statusText.textContent = nums[ci];
+                phaseLabel.textContent = '准备';
+                groupInfo.textContent = stageInfo.textContent = remainInfo.textContent = '\u2014';
+                speak(nums[ci]);
+
+                setCore(0.8, '#F59E0B');
+                await delay(400);
+                if (!isRunning) return;
+
+                setCore(1.0, '#F59E0B');
+                await delay(600);
+                if (!isRunning) return;
+            }
+            if (!isRunning) return;
+
+            statusText.textContent = '开始！';
+            phaseLabel.textContent = '训练开始';
+            speak('开始');
+            setCore(1.0, '#10B981');
+            await delay(800);
+        }
+
+        // ─── Stage with pause support ─────────────────────────
+        async function doStage(ms, isHold) {
+            if (!isRunning) return;
+            currentPhase = isHold ? 'hold' : 'relax';
+            stageMs = ms;
+            elapsedMs = 0;
+            var sec = Math.round(ms / 1000);
+            var total = parseInt(totalRepsInput.value);
+            var label = isHold ? '收缩并保持' : '放松';
+            var stage = isHold ? '收缩' : '放松';
+            var scale = isHold ? 0.7 : 1.0;
+            var color = isHold ? '#EF4444' : '#3B82F6';
+
+            statusText.textContent = label;
+            phaseLabel.textContent = '\u7b2c ' + currentGroup + '/' + total + ' \u7ec4';
+            groupInfo.textContent = currentGroup + '/' + total;
+            stageInfo.textContent = stage;
+            remainInfo.textContent = sec + 's';
+            speak(label);
+
+            // Set character state
+            setCore(scale, color);
+
+            // Poll with pause support
+            var lastRemain = sec;
+            while (elapsedMs < ms) {
+                if (!isRunning) return;
+                await delay(80);
+                if (!isRunning) return;
+                if (isPaused) {
+                    // Character stays in its state; just wait for resume
+                    while (isPaused) {
+                        await delay(80);
+                        if (!isRunning) return;
+                    }
+                    continue;
+                }
+                elapsedMs += 80;
+                var remain = Math.ceil((ms - elapsedMs) / 1000);
+                if (remain < 0) remain = 0;
+                if (remain !== lastRemain) {
+                    lastRemain = remain;
+                    if (remain > 0) remainInfo.textContent = remain + 's';
+                }
+            }
+        }
+
+        // ─── Main ─────────────────────────────────────────────
+        async function startWorkout() {
+            if (isRunning) return;
+            saveParams();
+            lockSettings(true);
+            isRunning = true;
+            isPaused = false;
+            showTrainButtons();
+
+            var holdMs = parseInt(holdTimeInput.value) * 1000;
+            var relaxMs = parseInt(relaxTimeInput.value) * 1000;
+            var total = parseInt(totalRepsInput.value);
+
+            await doCountdown();
+
+            for (var i = 1; i <= total && isRunning; i++) {
+                currentGroup = i;
+                await doStage(holdMs, true);
+                if (!isRunning) break;
+                await doStage(relaxMs, false);
+            }
+
+            if (isRunning) {
+                setDone();
+                speak('训练完成，做得很好');
+                isRunning = false;
+            }
+            lockSettings(false);
+        }
+
+        function togglePause() {
+            if (!isRunning) return;
+            if (currentPhase === 'countdown') return; // cannot pause during countdown
+            var btn = document.getElementById('btnPause');
+            if (!btn) return;
+            if (!isPaused) {
+                isPaused = true;
+                wakeDelay();
+                window.speechSynthesis.cancel();
+                statusText.textContent = '已暂停';
+                phaseLabel.textContent = '训练暂停中';
+                btnRow.innerHTML = '<button class="btn-pause" id="btnPause" onclick="togglePause()">继续</button>' + '<button class="btn-stop" onclick="stopWorkout()">停止</button>';
+            } else {
+                isPaused = false;
+                btnRow.innerHTML = '<button class="btn-pause" id="btnPause" onclick="togglePause()">暂停</button>';
+            }
+        }
+
+        function toggleSettings() {
+            var panel = document.getElementById('settingsPanel');
+            var toggle = document.getElementById('settingsToggle');
+            panel.classList.toggle('hidden');
+            toggle.classList.toggle('open');
+        }
+
+        function stopWorkout() {
+            isRunning = false;
+            isPaused = false;
+            wakeDelay();
+            window.speechSynthesis.cancel();
+            lockSettings(false);
+            setIdle();
+        }
+
+        // ─── Init ─────────────────────────────────────────────
+        loadParams();
+        setIdle();
+    

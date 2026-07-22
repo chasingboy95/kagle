@@ -1,0 +1,47 @@
+<!-- 3. FLUID -->
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="fluidGradA" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#E0FBFF" stop-opacity="0.85"/>
+      <stop offset="45%" stop-color="#AEE4F5" stop-opacity="0.55"/>
+      <stop offset="75%" stop-color="#7FC7E8" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#7FC7E8" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="fluidGradB" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#D8F8FF" stop-opacity="0.75"/>
+      <stop offset="50%" stop-color="#9FDCF2" stop-opacity="0.45"/>
+      <stop offset="80%" stop-color="#6FBCE0" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#6FBCE0" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="fluidGradCore" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#EEFDFF" stop-opacity="0.9"/>
+      <stop offset="40%" stop-color="#BDEBF7" stop-opacity="0.6"/>
+      <stop offset="72%" stop-color="#8AD0EA" stop-opacity="0.28"/>
+      <stop offset="100%" stop-color="#8AD0EA" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <g id="fluid">
+    <g id="fluid-blob-center">
+      <path d="M256,196 C284,196 308,218 310,248 C312,278 290,304 258,308 C226,312 200,290 198,258 C196,226 220,198 256,196 Z" fill="url(#fluidGradCore)"/>
+    </g>
+    <g id="fluid-blob-top">
+      <path d="M256,108 C280,106 302,122 306,146 C310,170 292,192 266,196 C240,200 216,184 212,160 C208,136 228,110 256,108 Z" fill="url(#fluidGradA)"/>
+    </g>
+    <g id="fluid-blob-bottom">
+      <path d="M256,318 C280,316 304,332 308,356 C312,380 292,402 266,406 C240,410 216,394 212,370 C208,346 228,320 256,318 Z" fill="url(#fluidGradA)"/>
+    </g>
+    <g id="fluid-blob-left">
+      <path d="M164,204 C186,196 210,206 220,228 C230,250 220,274 198,284 C176,294 152,284 142,262 C132,240 142,212 164,204 Z" fill="url(#fluidGradB)"/>
+    </g>
+    <g id="fluid-blob-right">
+      <path d="M348,204 C370,196 392,208 400,230 C408,252 396,276 374,284 C352,292 330,280 322,258 C314,236 326,212 348,204 Z" fill="url(#fluidGradB)"/>
+    </g>
+    <g id="fluid-blob-upper-left">
+      <path d="M186,150 C204,140 226,146 236,164 C246,182 238,204 220,214 C202,224 180,218 170,200 C160,182 168,160 186,150 Z" fill="url(#fluidGradB)" opacity="0.85"/>
+    </g>
+    <g id="fluid-blob-upper-right">
+      <path d="M326,150 C344,140 366,146 376,164 C386,182 378,204 360,214 C342,224 320,218 310,200 C300,182 308,160 326,150 Z" fill="url(#fluidGradB)" opacity="0.85"/>
+    </g>
+  </g>
+</svg>
