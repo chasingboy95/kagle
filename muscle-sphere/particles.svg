@@ -1,0 +1,61 @@
+<!-- 7. PARTICLES -->
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="particleGradA" cx="35%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#FCE4E8" stop-opacity="0.95"/>
+      <stop offset="60%" stop-color="#EBA9B4" stop-opacity="0.7"/>
+      <stop offset="100%" stop-color="#DE93A0" stop-opacity="0.3"/>
+    </radialGradient>
+    <radialGradient id="particleGradB" cx="35%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#E4F8FC" stop-opacity="0.9"/>
+      <stop offset="60%" stop-color="#A9D4E8" stop-opacity="0.65"/>
+      <stop offset="100%" stop-color="#8FC0DC" stop-opacity="0.25"/>
+    </radialGradient>
+    <radialGradient id="particleGradC" cx="35%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#FBEFF7" stop-opacity="0.9"/>
+      <stop offset="60%" stop-color="#D8AED0" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#C494BC" stop-opacity="0.25"/>
+    </radialGradient>
+  </defs>
+
+  <g id="particles">
+    <g id="particles-set-a">
+      <circle cx="168" cy="120" r="4.2" fill="url(#particleGradA)"/>
+      <circle cx="262" cy="82" r="5.0" fill="url(#particleGradC)"/>
+      <circle cx="352" cy="128" r="4.6" fill="url(#particleGradB)"/>
+      <circle cx="408" cy="216" r="4.8" fill="url(#particleGradA)"/>
+      <circle cx="414" cy="320" r="4.1" fill="url(#particleGradC)"/>
+      <circle cx="358" cy="406" r="4.4" fill="url(#particleGradB)"/>
+      <circle cx="262" cy="440" r="5.2" fill="url(#particleGradA)"/>
+      <circle cx="164" cy="408" r="4.3" fill="url(#particleGradC)"/>
+      <circle cx="100" cy="326" r="4.9" fill="url(#particleGradB)"/>
+      <circle cx="96" cy="218" r="4.0" fill="url(#particleGradA)"/>
+    </g>
+    <g id="particles-set-b">
+      <circle cx="214" cy="94" r="3.1" fill="url(#particleGradB)"/>
+      <circle cx="312" cy="98" r="3.6" fill="url(#particleGradA)"/>
+      <circle cx="384" cy="168" r="3.3" fill="url(#particleGradC)"/>
+      <circle cx="420" cy="268" r="3.5" fill="url(#particleGradB)"/>
+      <circle cx="392" cy="368" r="3.8" fill="url(#particleGradA)"/>
+      <circle cx="314" cy="430" r="3.2" fill="url(#particleGradC)"/>
+      <circle cx="210" cy="432" r="3.7" fill="url(#particleGradB)"/>
+      <circle cx="128" cy="372" r="3.4" fill="url(#particleGradA)"/>
+      <circle cx="90" cy="272" r="3.6" fill="url(#particleGradC)"/>
+      <circle cx="120" cy="168" r="3.3" fill="url(#particleGradB)"/>
+    </g>
+    <g id="particles-set-c">
+      <circle cx="188" cy="160" r="2.8" fill="url(#particleGradC)"/>
+      <circle cx="240" cy="140" r="3.4" fill="url(#particleGradA)"/>
+      <circle cx="300" cy="150" r="2.9" fill="url(#particleGradB)"/>
+      <circle cx="344" cy="188" r="3.1" fill="url(#particleGradC)"/>
+      <circle cx="366" cy="240" r="2.7" fill="url(#particleGradA)"/>
+      <circle cx="362" cy="298" r="3.3" fill="url(#particleGradB)"/>
+      <circle cx="332" cy="346" r="2.9" fill="url(#particleGradC)"/>
+      <circle cx="284" cy="376" r="3.5" fill="url(#particleGradA)"/>
+      <circle cx="228" cy="380" r="2.8" fill="url(#particleGradB)"/>
+      <circle cx="178" cy="356" r="3.2" fill="url(#particleGradC)"/>
+      <circle cx="146" cy="310" r="2.6" fill="url(#particleGradA)"/>
+      <circle cx="144" cy="254" r="3.0" fill="url(#particleGradB)"/>
+    </g>
+  </g>
+</svg>
