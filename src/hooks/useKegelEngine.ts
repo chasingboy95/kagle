@@ -169,14 +169,44 @@ export function useKegelEngine(): UseKegelEngineReturn {
     }, 100);
   }, [advance, pushState]);
 
-  // 清理 tick
-  useEffect(() => {
-    return () => stopTick();
-  }, [stopTick]);
+ // 清理 tick
+ useEffect(() => {
+   return () => stopTick();
+ }, [stopTick]);
 
-  const start = useCallback(() => {
-    const e = eng.current;
-    e.status = 'running';
+  /* ── Screen Wake Lock ──────────────────────────────────────── */
+  // 训练时阻止手机自动熄屏
+  useEffect(() => {
+    let wakeLock: WakeLockSentinel | null = null;
+ 
+    async function acquire() {
+      try {
+        wakeLock = await navigator.wakeLock.request('screen');
+        wakeLock.addEventListener('release', () => { wakeLock = null; });
+      } catch {
+        /* API 不支持或权限不足 —— 静默忽略 */
+      }
+    }
+ 
+    async function release() {
+      if (wakeLock) {
+        try { await wakeLock.release(); } catch { /* ignore */ }
+        wakeLock = null;
+      }
+    }
+ 
+    if (state.status === 'running') {
+      acquire();
+    } else {
+      release();
+    }
+ 
+    return () => { release(); };
+  }, [state.status]);
+
+ const start = useCallback(() => {
+   const e = eng.current;
+   e.status = 'running';
     e.phase = 'contract';
     e.round = 0;
     e.phaseStartedAt = performance.now();
