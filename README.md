@@ -1,32 +1,65 @@
-# React + Vite
+# Kagle — Kegel Training Timer
 
-## 语音辅助
+A browser-based pelvic floor (Kegel) training timer with real-time visual animation and voice guidance. Built with React, TypeScript, Vite, Tailwind CSS, and Framer Motion.
 
-语音辅助由训练引擎的权威状态驱动，不使用独立计时器：
+## Current Status
 
-```tsx
-const voice = useVoiceAssistant();
-const engine = useKegelEngine({
-  onVoiceEvent: voice.emit,
-  countdownFrom: voice.settings.mode === 'countdown'
-    ? voice.settings.countdownFrom
-    : 0,
-});
+**MVP complete.** All core features implemented and tested. Voice assistance with 5 modes, 9-layer SVG muscle animation, configurable workout parameters, pause/resume/stop, and settings persistence.
+
+[Live Demo](https://huangyingting.github.io/kagle/) (GitHub Pages)
+
+## Tech Stack
+
+- **Framework**: React 19, TypeScript
+- **Build**: Vite 8
+- **Styling**: Tailwind CSS 4
+- **Animation**: Framer Motion 12
+- **Voice**: Web Speech API, Web Audio API
+- **Haptics**: Navigator Vibration API
+- **Persistence**: localStorage
+- **Testing**: Vitest
+- **Linting**: Oxlint
+- **CI/CD**: GitHub Actions to GitHub Pages
+
+## Setup
+
+```bash
+# Install dependencies
+bun install
+
+# Start development server
+bun run dev
+
+# Build for production
+bun run build
+
+# Run tests
+bun run test
+
+# Lint
+bun run lint
+
+# Preview production build
+bun run preview
 ```
 
-实现仅使用浏览器本地语音合成、Web Audio 提示音和可选振动；不申请麦克风权限，不录音或上传训练数据。浏览器语音合成无法稳定实现精确暂停，因此训练暂停时会停止当前语音，恢复时播报继续提示，而不会从句中恢复。
+## Key Documentation
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+- [PRD](docs/PRD.md)
+- [Architecture](docs/ARCHITECTURE.md)
+- [Training Engine Spec](docs/TRAINING_ENGINE_SPEC.md)
+- [MuscleSphere Spec](docs/MUSCLE_SPHERE_MOTION_SPEC.md)
+- [Voice Assistant Spec](docs/VOICE_ASSISTANT_SPEC.md)
+- [Voice Scripts](docs/VOICE_SCRIPTS.md)
+- [Implementation Status](docs/IMPLEMENTATION_STATUS.md)
+- [Known Issues](docs/KNOWN_ISSUES.md)
+- [Test Plan](docs/TEST_PLAN.md)
+- [Changelog](CHANGELOG.md)
 
-Currently, two official plugins are available:
+## Supported Platforms
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Modern browsers: Chrome, Safari, Firefox (desktop and mobile).
 
-## React Compiler
+## Privacy
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+No microphone. No data upload. All settings in localStorage only.
