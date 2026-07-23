@@ -18,10 +18,28 @@ Dynamic round announcements and en-US remain on browser TTS because their conten
 
 Changing fixed Mandarin wording requires manually regenerating and reviewing the affected files; asset generation is not part of the application build.
 
+## Asset Provenance and Release Requirement
+
+The audio files were provided by the user and were generated with a paid commercial neural-TTS service. The provider, voice, model, exact generation parameters, and evidence covering licensing and redistribution rights are not recorded in this repository. Before publishing or redistributing these assets, the project owner must confirm the applicable rights and archive that provenance and licensing evidence.
+
+## Alternatives Considered
+
+### Continue using Web Speech for all prompts
+
+Rejected because voice quality varies by platform and can sound mechanical, while missing `end`/`error` callbacks can block playback sequencing without a watchdog. Web Speech remains only where fixed local assets do not cover dynamic rounds or en-US.
+
+### Generate speech through a cloud TTS service at runtime
+
+Rejected because it would add network availability, privacy, operating-cost, credential-management, and backend requirements to a client-only application.
+
+### Automatically generate assets through an API during the build
+
+Rejected for the initial 18-file, one-time asset set as unnecessary complexity (YAGNI). Reconsider if prompt wording changes frequently enough that manual regeneration becomes a recurring maintenance burden.
+
 ## Consequences
 
 - Fixed Chinese guidance is more natural and consistent across supported browsers.
 - Static deployment grows by 191,088 bytes and requires maintaining 18 binary files.
-- The app remains usable offline after its assets are cached and makes no runtime cloud TTS request for fixed Chinese prompts.
+- Fixed Chinese prompts have no runtime TTS cloud dependency. Offline availability depends on whether the application resources are already cached and is not guaranteed.
 - Dynamic round and en-US quality still varies with platform voices.
 - Browser autoplay policy can still reject HTML audio; the application preloads on user actions and degrades failed local playback to cues, while real-device QA remains required.
