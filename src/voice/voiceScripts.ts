@@ -5,8 +5,8 @@ type ScriptKey = 'training-ready' | 'contract' | 'hold' | 'relax' | 'paused' | '
 const conciseScripts: Record<VoiceSettings['language'], Record<ScriptKey, string>> = {
   'zh-CN': {
     'training-ready': '准备开始',
-    contract: '收紧',
-    hold: '保持',
+    contract: '收缩并保持',
+    hold: '保持住',
     relax: '放松',
     paused: '训练已暂停',
     resumed: '继续训练',
@@ -15,8 +15,8 @@ const conciseScripts: Record<VoiceSettings['language'], Record<ScriptKey, string
   },
   'en-US': {
     'training-ready': 'Ready to begin',
-    contract: 'Contract',
-    hold: 'Hold',
+    contract: 'Contract and hold',
+    hold: 'Keep holding',
     relax: 'Relax',
     paused: 'Training paused',
     resumed: 'Continue training',
@@ -28,8 +28,8 @@ const conciseScripts: Record<VoiceSettings['language'], Record<ScriptKey, string
 const guidedScripts: Record<VoiceSettings['language'], Record<ScriptKey, string>> = {
   'zh-CN': {
     'training-ready': '调整呼吸，准备开始',
-    contract: '轻轻收紧盆底肌，并向上提',
-    hold: '保持张力，继续自然呼吸',
+    contract: '轻轻收紧盆底肌，达到力度后保持住',
+    hold: '很好，继续保持张力，自然呼吸',
     relax: '缓慢释放，让肌肉完全放松',
     paused: '训练已暂停',
     resumed: '继续训练',
@@ -38,8 +38,8 @@ const guidedScripts: Record<VoiceSettings['language'], Record<ScriptKey, string>
   },
   'en-US': {
     'training-ready': 'Settle your breathing and prepare to begin',
-    contract: 'Gently contract the pelvic floor and lift',
-    hold: 'Maintain the tension and breathe naturally',
+    contract: 'Gently contract the pelvic floor, then maintain the tension',
+    hold: 'Great, keep holding the tension and breathe naturally',
     relax: 'Release slowly and let the muscles fully relax',
     paused: 'Training paused',
     resumed: 'Continue training',
@@ -49,7 +49,7 @@ const guidedScripts: Record<VoiceSettings['language'], Record<ScriptKey, string>
 };
 
 function nextStage(stage: Extract<VoiceEvent, { type: 'stage-enter' }>['stage']): string | null {
-  if (stage === 'contract') return 'hold';
+  if (stage === 'contract') return 'relax';
   if (stage === 'hold') return 'relax';
   if (stage === 'relax') return 'contract';
   return null;
