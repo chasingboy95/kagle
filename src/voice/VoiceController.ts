@@ -40,6 +40,7 @@ export class VoiceController {
   private queue: VoiceQueueItem[] = [];
   private readonly seen = new Set<string>();
   private processing?: Promise<void>;
+  private playbackGeneration = 0;
 
   constructor(
     private readonly speech: VoicePlaybackAdapter,
@@ -106,13 +107,14 @@ export class VoiceController {
 
       const assetUrl = resolveVoiceAsset(item.event, this.settings, this.baseUrl);
       if (assetUrl) {
+        const playbackGeneration = this.playbackGeneration;
         let played = false;
         try {
           played = await this.recorded.play(assetUrl, this.settings.volume);
         } catch {
           // Fall back to a tone when local playback is unavailable.
         }
-        if (!played) {
+        if (!played && playbackGeneration === this.playbackGeneration) {
           const cue = resolveCue(item.event);
           if (cue) await this.audio.playCue(cue);
         }
@@ -156,7 +158,7 @@ export class VoiceController {
   }
 
   isSupported(): boolean {
-    return this.speech.isSupported();
+    return this.recorded.isSupported() || this.speech.isSupported();
   }
 
   private removeStageItems(): void {
@@ -166,6 +168,7 @@ export class VoiceController {
   }
 
   private stopPlayback(): void {
+    this.playbackGeneration += 1;
     this.speech.stop();
     this.audio.stop();
     this.recorded.stop();

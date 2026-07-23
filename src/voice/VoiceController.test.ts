@@ -13,6 +13,7 @@ class FakeAdapter implements VoicePlaybackAdapter {
   spoken: string[] = [];
   cues: SoundCue[] = [];
   stopCalls = 0;
+  supported = true;
   onSpeak?: () => void;
 
   async preload() {}
@@ -24,7 +25,7 @@ class FakeAdapter implements VoicePlaybackAdapter {
   stop() { this.stopCalls += 1; }
   pause() {}
   resume() {}
-  isSupported() { return true; }
+  isSupported() { return this.supported; }
 }
 
 class FakeRecordedAdapter implements RecordedVoicePlaybackAdapter {
@@ -32,16 +33,31 @@ class FakeRecordedAdapter implements RecordedVoicePlaybackAdapter {
   preloaded: readonly string[] = [];
   stopCalls = 0;
   playResult = true;
+  deferPlayback = false;
+  private pending?: (result: boolean) => void;
   onPlay?: () => void;
+  supported = true;
 
   async preload(urls: readonly string[]) { this.preloaded = urls; }
   async play(url: string, volume: number) {
     this.played.push({ url, volume });
     this.onPlay?.();
+    if (this.deferPlayback) {
+      return new Promise<boolean>((resolve) => { this.pending = resolve; });
+    }
     return this.playResult;
   }
-  stop() { this.stopCalls += 1; }
-  isSupported() { return true; }
+  stop() {
+    this.stopCalls += 1;
+    this.resolvePending(false);
+  }
+  resolvePending(result: boolean) {
+    const resolve = this.pending;
+    this.pending = undefined;
+    resolve?.(result);
+  }
+  hasPendingPlayback() { return this.pending !== undefined; }
+  isSupported() { return this.supported; }
 }
 
 const settings: VoiceSettings = {
@@ -240,5 +256,57 @@ describe('VoiceController', () => {
     expect(recorded.played[0]?.url).toBe('/kagle/audio/voice/countdown/3.mp3');
     expect(audio.cues).toEqual([]);
     expect(speech.spoken).toEqual([]);
+  });
+
+  it('does not play the old cue when a new stage cancels pending recorded playback', async () => {
+    const { controller, recorded, speech, audio } = setup({ mode: 'guided' });
+    recorded.deferPlayback = true;
+    controller.enqueue({ type: 'stage-enter', stage: 'contract' }, context);
+    const flushing = controller.flush(context.now);
+    expect(recorded.hasPendingPlayback()).toBe(true);
+
+    recorded.deferPlayback = false;
+    controller.enqueue(
+      { type: 'stage-enter', stage: 'relax' },
+      { ...context, now: 200, sequence: 2 },
+    );
+    await flushing;
+
+    expect(recorded.played.map(item => item.url)).toEqual([
+      '/kagle/audio/voice/guided/contract.mp3',
+      '/kagle/audio/voice/guided/relax.mp3',
+    ]);
+    expect(audio.cues).toEqual([]);
+
+    controller.enqueue({ type: 'round-start', round: 2, totalRounds: 5 }, context);
+    await controller.flush(context.now);
+    expect(speech.spoken).toEqual(['第 2 组，共 5 组']);
+  });
+
+  it('does not play the old cue when pause cancels pending recorded playback', async () => {
+    const { controller, recorded, audio } = setup({ mode: 'guided' });
+    recorded.deferPlayback = true;
+    controller.enqueue({ type: 'stage-enter', stage: 'contract' }, context);
+    const flushing = controller.flush(context.now);
+    expect(recorded.hasPendingPlayback()).toBe(true);
+
+    recorded.deferPlayback = false;
+    controller.enqueue({ type: 'paused' }, { ...context, sequence: 2 });
+    await flushing;
+
+    expect(audio.cues).toEqual([]);
+    expect(recorded.played.map(item => item.url)).toEqual([
+      '/kagle/audio/voice/guided/contract.mp3',
+      '/kagle/audio/voice/common/paused.mp3',
+    ]);
+    expect(controller.inspectQueue()).toEqual([]);
+  });
+
+  it('reports support when recorded playback is available without speech synthesis', () => {
+    const { controller, recorded, speech } = setup();
+    speech.supported = false;
+    recorded.supported = true;
+
+    expect(controller.isSupported()).toBe(true);
   });
 });
