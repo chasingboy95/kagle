@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { AudioFileAdapter } from '../voice/AudioFileAdapter';
 import { HapticAdapter } from '../voice/HapticAdapter';
+import { PreRecordedAudioAdapter } from '../voice/PreRecordedAudioAdapter';
 import { SpeechSynthesisAdapter } from '../voice/SpeechSynthesisAdapter';
 import {
   VoiceController,
@@ -31,6 +32,7 @@ export function useVoiceAssistant(): UseVoiceAssistantReturn {
     controllerRef.current = new VoiceController(
       new SpeechSynthesisAdapter(),
       new AudioFileAdapter(),
+      new PreRecordedAudioAdapter(),
       new HapticAdapter(),
       settings,
     );
