@@ -5,20 +5,26 @@ type AudioListener = () => void;
 
 class FakeAudio {
   static instances: FakeAudio[] = [];
+  static loadThrowSources = new Set<string>();
 
   readonly listeners = new Map<string, Set<AudioListener>>();
   preload = '';
   volume = 1;
-  currentTime = 7;
+  private time = 7;
   loadCalls = 0;
   pauseCalls = 0;
   playResult: Promise<void> = Promise.resolve();
+  throwOnPlay = false;
+  throwOnAddEventListener = false;
+  throwOnPause = false;
+  throwOnCurrentTimeReset = false;
 
   constructor(readonly src = '') {
     FakeAudio.instances.push(this);
   }
 
   addEventListener(type: string, listener: AudioListener): void {
+    if (this.throwOnAddEventListener) throw new Error('listener unavailable');
     const listeners = this.listeners.get(type) ?? new Set();
     listeners.add(listener);
     this.listeners.set(type, listeners);
@@ -32,9 +38,26 @@ class FakeAudio {
     for (const listener of this.listeners.get(type) ?? []) listener();
   }
 
-  load(): void { this.loadCalls += 1; }
-  pause(): void { this.pauseCalls += 1; }
-  play(): Promise<void> { return this.playResult; }
+  get currentTime(): number { return this.time; }
+  set currentTime(value: number) {
+    if (value === 0 && this.throwOnCurrentTimeReset) throw new Error('seek unavailable');
+    this.time = value;
+  }
+
+  load(): void {
+    this.loadCalls += 1;
+    if (FakeAudio.loadThrowSources.has(this.src)) throw new Error('load unavailable');
+  }
+
+  pause(): void {
+    this.pauseCalls += 1;
+    if (this.throwOnPause) throw new Error('pause unavailable');
+  }
+
+  play(): Promise<void> {
+    if (this.throwOnPlay) throw new Error('play unavailable');
+    return this.playResult;
+  }
 }
 
 const scope = () => ({ Audio: FakeAudio as unknown as new (src?: string) => HTMLAudioElement });
@@ -42,6 +65,7 @@ const scope = () => ({ Audio: FakeAudio as unknown as new (src?: string) => HTML
 afterEach(() => {
   vi.useRealTimers();
   FakeAudio.instances = [];
+  FakeAudio.loadThrowSources.clear();
 });
 
 describe('PreRecordedAudioAdapter', () => {
@@ -115,6 +139,52 @@ describe('PreRecordedAudioAdapter', () => {
     expect(FakeAudio.instances[0].volume).toBe(0);
   });
 
+  it('returns false when play throws synchronously', async () => {
+    const adapter = new PreRecordedAudioAdapter(scope());
+    await adapter.preload(['/throw.mp3']);
+    FakeAudio.instances[0].throwOnPlay = true;
+
+    await expect(adapter.play('/throw.mp3', 0.5)).resolves.toBe(false);
+  });
+
+  it('recovers when adding an event listener throws without leaving a timer active', async () => {
+    vi.useFakeTimers();
+    const adapter = new PreRecordedAudioAdapter(scope());
+    await adapter.preload(['/listener.mp3']);
+    const audio = FakeAudio.instances[0];
+    audio.throwOnAddEventListener = true;
+
+    await expect(adapter.play('/listener.mp3', 0.5)).resolves.toBe(false);
+    expect(vi.getTimerCount()).toBe(0);
+
+    audio.throwOnAddEventListener = false;
+    const recovered = adapter.play('/listener.mp3', 0.5);
+    audio.emit('ended');
+    await expect(recovered).resolves.toBe(true);
+  });
+
+  it('stop settles exactly once and recovers when pause and seek throw', async () => {
+    const adapter = new PreRecordedAudioAdapter(scope());
+    const pending = adapter.play('/fragile.mp3', 0.5);
+    const audio = FakeAudio.instances[0];
+    const results: boolean[] = [];
+    void pending.then((result) => results.push(result));
+    audio.throwOnPause = true;
+    audio.throwOnCurrentTimeReset = true;
+
+    adapter.stop();
+    audio.emit('ended');
+    await expect(pending).resolves.toBe(false);
+    await Promise.resolve();
+    expect(results).toEqual([false]);
+
+    audio.throwOnPause = false;
+    audio.throwOnCurrentTimeReset = false;
+    const recovered = adapter.play('/fragile.mp3', 0.5);
+    audio.emit('ended');
+    await expect(recovered).resolves.toBe(true);
+  });
+
   it('fails safely when Audio is unsupported or construction throws', async () => {
     const unsupported = new PreRecordedAudioAdapter({});
     const throwing = new PreRecordedAudioAdapter({ Audio: class { constructor() { throw new Error('no audio'); } } as unknown as new () => HTMLAudioElement });
@@ -136,5 +206,16 @@ describe('PreRecordedAudioAdapter', () => {
     expect(FakeAudio.instances.map((audio) => audio.src)).toEqual(['/one.mp3', '/two.mp3']);
     expect(FakeAudio.instances.map((audio) => audio.preload)).toEqual(['auto', 'auto']);
     expect(FakeAudio.instances.map((audio) => audio.loadCalls)).toEqual([1, 1]);
+  });
+
+  it('continues preloading after load throws', async () => {
+    FakeAudio.loadThrowSources.add('/broken.mp3');
+    const adapter = new PreRecordedAudioAdapter(scope());
+
+    await expect(adapter.preload(['/broken.mp3', '/healthy.mp3'])).resolves.toBeUndefined();
+
+    expect(FakeAudio.instances.map((audio) => audio.preload)).toEqual(['auto', 'auto']);
+    expect(FakeAudio.instances.map((audio) => audio.loadCalls)).toEqual([1, 1]);
+    expect(FakeAudio.instances.map((audio) => audio.src)).toEqual(['/broken.mp3', '/healthy.mp3']);
   });
 });
