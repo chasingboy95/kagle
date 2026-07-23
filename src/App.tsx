@@ -6,12 +6,20 @@ import TimerDisplay from './components/TimerDisplay';
 import ProgressBar from './components/ProgressBar';
 import ControlButtons from './components/ControlButtons';
 import ConfigPanel from './components/ConfigPanel';
+import VoiceSettingsPanel from './components/VoiceSettingsPanel';
 import { useKegelEngine } from './hooks/useKegelEngine';
+import { useVoiceAssistant } from './hooks/useVoiceAssistant';
 import { calcTotalDuration } from './utils/time';
 
 export default function App() {
+  const voice = useVoiceAssistant();
   const { state, config, start, pause, resume, stop, restart, updateConfig } =
-    useKegelEngine();
+    useKegelEngine({
+      onVoiceEvent: voice.emit,
+      countdownFrom: voice.settings.mode === 'countdown'
+        ? voice.settings.countdownFrom
+        : 0,
+    });
 
   const isIdle = state.status === 'idle';
   const isActive = state.status === 'running' || state.status === 'paused';
@@ -28,8 +36,18 @@ export default function App() {
     [config],
   );
 
+  const handleStart = () => {
+    void voice.unlock();
+    start();
+  };
+
+  const handleRestart = () => {
+    void voice.unlock();
+    restart();
+  };
+
   return (
-    <div className="relative min-h-dvh bg-gradient-to-b from-[#020617] via-slate-900 to-[#111827] flex flex-col items-center px-5 pt-6 pb-8 overflow-hidden selection:bg-white/10">
+    <div className="relative min-h-dvh bg-gradient-to-b from-[#020617] via-slate-900 to-[#111827] flex flex-col items-center px-5 pt-6 pb-8 overflow-x-hidden selection:bg-white/10">
 
       {/* 极弱动态 Aurora Glow 背景 */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
@@ -129,13 +147,20 @@ export default function App() {
           onChange={updateConfig}
         />
 
+        <VoiceSettingsPanel
+          settings={voice.settings}
+          supported={voice.supported}
+          onChange={voice.updateSettings}
+          onPreview={() => { void voice.preview(); }}
+        />
+
         <ControlButtons
           status={state.status}
-          onStart={start}
+          onStart={handleStart}
           onPause={pause}
           onResume={resume}
           onStop={stop}
-          onRestart={restart}
+          onRestart={handleRestart}
         />
       </div>
     </div>
