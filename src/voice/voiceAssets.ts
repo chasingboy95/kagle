@@ -34,11 +34,19 @@ export function resolveVoiceAsset(
   settings: VoiceSettings,
   baseUrl = import.meta.env.BASE_URL,
 ): string | null {
-  if (!settings.enabled || settings.mode === 'off' || settings.mode === 'sound-only') return null;
+  if (
+    !settings.enabled
+    || settings.language !== 'zh-CN'
+    || settings.mode === 'off'
+    || settings.mode === 'sound-only'
+  ) return null;
 
   if (event.type === 'round-start') return null;
   if (event.type === 'countdown') {
     return settings.mode === 'countdown'
+      && Number.isInteger(event.seconds)
+      && event.seconds >= 1
+      && event.seconds <= 5
       ? voiceAssetUrl(`countdown/${event.seconds}.mp3`, baseUrl)
       : null;
   }
