@@ -64,6 +64,13 @@ export interface VoicePlaybackAdapter {
   isSupported(): boolean;
 }
 
+export interface RecordedVoicePlaybackAdapter {
+  preload(urls: readonly string[]): Promise<void>;
+  play(url: string, volume: number): Promise<boolean>;
+  stop(): void;
+  isSupported(): boolean;
+}
+
 export interface VoiceQueueItem {
   id: string;
   event: VoiceEvent;
