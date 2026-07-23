@@ -1,198 +1,83 @@
- # Voice Assistant Specification
+# Voice Assistant Specification
 
- **Last verified against repository:** 2026-07-23
+**Last verified against repository:** 2026-07-23
 
- ## Overview
+## Overview
 
- The voice assistance module provides audio and haptic guidance synchronized with the training engine. It is implemented in `src/voice/` with a React binding in `src/hooks/useVoiceAssistant.ts`. It uses Web Speech API for speech, Web Audio API for tones, and `navigator.vibrate` for haptics.
+语音辅助模块由训练引擎事件驱动，不维护独立计时器。中文固定提示优先播放随应用发布的普通话神经 TTS MP3；动态组数与 en-US 文案仍由 Web Speech API 合成。提示音使用 Web Audio API，触觉反馈使用 `navigator.vibrate`。运行时不调用云端 TTS 服务，也不上传音频数据。
 
- ## Guiding Principles
+## Voice Modes
 
- - MuscleSphere must remain visual-only. The voice module must not enter or be referenced by `MuscleSphere.tsx`.
- - The voice module must not own an independent training timer. All voice events must originate from the training engine.
- - No microphone, voice recognition, audio upload, or remote TTS.
+| Mode | Voice | Tone cues | Haptics | Countdown |
+|------|-------|-----------|---------|-----------|
+| `off` | 无 | 无 | 无 | 无 |
+| `sound-only` | 无 | 是 | 是 | 无 |
+| `concise` | 简短提示 | 有 cue 映射时失败降级 | 是 | 无 |
+| `guided` | 引导提示 | 有 cue 映射时失败降级 | 是 | 无 |
+| `countdown` | 引导提示 | 有 cue 映射时失败降级 | 是 | 最后 3 或 5 秒 |
 
- ## Voice Modes
+## Local Voice Assets
 
- | Mode | Speech | Tone Cues | Haptics | Countdown Numbers |
- |------|--------|-----------|---------|-------------------|
- | `off` | None | None | None | None |
- | `sound-only` | None | Yes | Yes | None |
- | `concise` | Yes (short) | Fallback only | Yes | None |
- | `guided` | Yes (full instruction) | Fallback only | Yes | None |
- | `countdown` | Yes (guided) | Fallback only | Yes | Yes (last 3 or 5s) |
+- 目录：`public/audio/voice/{concise,guided,common,countdown}`。
+- 格式：MP3，24 kHz、48 kbps、mono。
+- 数量：18 个文件，总计 191,088 bytes（186.6 KiB，以仓库文件 `stat` 结果为准）。
+- URL：`voiceAssets.ts` 使用 `import.meta.env.BASE_URL` 拼接 `audio/voice/...`，兼容 GitHub Pages 的 `/kagle/` 基路径。
+- `PreRecordedAudioAdapter` 基于 `HTMLAudioElement` 预加载与播放；单次播放 8 秒未结束即超时并返回失败。
+- 中文 `zh-CN` 的 training-ready、阶段、倒计时、暂停/继续/停止、完成等固定事件使用本地文件；开启 `announceNextStage` 时，阶段提示需要动态组合“当前阶段，接下来 X”，因此改由 Web Speech 播放并受平台 TTS 支持限制。
+- `round-start` 包含动态组数，无法映射固定文件；en-US 也没有本地资源，两者继续交给 `SpeechSynthesisAdapter`。
+- 修改中文固定文案后，必须手工重新生成对应音频并替换文件；仓库没有可自动复现神经 TTS 产物的生成流水线。
 
- - **Implementation status**: All 5 modes are implemented and switchable via the settings panel.
- - **Edge case**: `sound-only` mode only plays tones via `AudioFileAdapter`, never speaks. `SpeechSynthesisAdapter.speak()` is a no-op in this mode.
+## Playback Routing and Fallback
 
- ## Settings
+`VoiceController` 的路由顺序如下：
 
- Settings are stored in `VoiceSettings` interface (`src/voice/types.ts`) and persisted via localStorage under key `kegel.voice-settings.v1`.
+1. `sound-only` 直接播放提示音。
+2. 其他语音模式先由 `resolveVoiceAsset()` 尝试解析本地中文资源。
+3. 有资源时交给 `PreRecordedAudioAdapter`；加载、播放、error 或 8 秒超时失败后，仅当该事件存在 `resolveCue()` 映射时才降级为对应 Web Audio 提示音。倒计时事件没有 cue 映射，因此倒计时录音失败时静默跳过并继续训练。
+4. 无本地资源时通过 `resolveSpeech()` 和 Web Speech 播放动态组数或 en-US 文案。
 
- | Setting | Type | Default | Range |
- |---------|------|---------|-------|
- | `enabled` | boolean | `true` | — |
- | `mode` | enum | `'concise'` | off, sound-only, concise, guided, countdown |
- | `language` | enum | `'zh-CN'` | zh-CN, en-US |
- | `volume` | number | `0.7` | 0–1 |
- | `rate` | number | `0.95` | 0.5–1.5 (UI), 0.5–2 (validation) |
- | `pitch` | number | `1` | 0–2 |
- | `voiceName` | string | undefined | Optional — exact voice name |
- | `countdownFrom` | union | `3` | 0 (off), 3 (last 3s), 5 (last 5s) |
- | `announceRound` | boolean | `true` | — |
- | `announceNextStage` | boolean | `false` | — |
- | `hapticsEnabled` | boolean | `true` | — |
+阶段切换、暂停、停止或显式停止会同时终止 Web Speech、提示音和本地音频。`VoiceController` 每次打断递增 playback generation；旧的异步本地播放返回后，不得再播放过期的降级提示音。
 
- - **Implementation status**: All settings are stored and loaded. Validation (`validateVoiceSettings`) performs per-field type/enum/range checking. Invalid fields fall back independently.
- - **Edge case**: `rate` UI slider is restricted to 0.5–1.5, but validation allows 0.5–2 for programmatic flexibility.
+`SpeechSynthesisAdapter` 同样设置 8 秒 watchdog。部分浏览器可能不触发 utterance 的 `end`/`error`，watchdog 会取消并结束本次 Promise，防止队列永久阻塞。语音选择依次采用明确的 `voiceName`、语言匹配 voice、平台默认 voice。
 
- ## Event Model
+## Settings
 
- The training engine emits `VoiceEvent` objects:
+设置通过 `VoiceSettings` 保存到 localStorage 的 `kegel.voice-settings.v1`：`enabled`、`mode`、`language`、`volume`、`rate`、`pitch`、`voiceName`、`countdownFrom`、`announceRound`、`announceNextStage`、`hapticsEnabled`。字段逐项校验，非法值独立回退默认值。
 
- ```typescript
- type VoiceEvent =
-   | { type: 'training-ready' }
-   | { type: 'stage-enter'; stage: MuscleStage }
-   | { type: 'countdown'; stage: MuscleStage; seconds: number }
-   | { type: 'round-start'; round: number; totalRounds: number }
-   | { type: 'paused' }
-   | { type: 'resumed' }
-   | { type: 'completed' }
-   | { type: 'stopped' };
- ```
+## Queue Semantics
 
- Each event is accompanied by a `VoiceEventContext`:
+- 优先级从高到低：暂停/停止、阶段进入、准备/完成/轮次/继续、倒计时。
+- 事件 ID 包含 session、round、type 和必要细节；已处理事件去重。
+- 普通事件 30 秒过期，倒计时在当前阶段结束时过期。
+- 新阶段移除旧阶段与倒计时事件；暂停和停止终止当前播放并清队列。
+- 所有事件与时间均来自 `useKegelEngine`。
 
- ```typescript
- interface VoiceEventContext {
-   sessionId: number;
-   round: number;
-   now: number;
-   stageEndsAt: number;
-   sequence?: number;
- }
- ```
+## Haptics and Accessibility
 
- **Implementation status**: All 8 event types are emitted by the engine and handled by the controller.
+- 收缩：40 ms；放松：25 ms；完成：`[35, 80, 35]`。
+- 不支持振动时静默跳过。
+- 视觉计时始终可用；音频能力失效不会阻止训练。
+- 设置面板使用语义化表单控件并提供试听按钮。
 
- ## Queue Priorities
+## Platform Fallbacks
 
- | Event Type | Priority |
- |------------|----------|
- | `paused` | 500 (highest) |
- | `stopped` | 500 |
- | `stage-enter` | 400 |
- | `training-ready` | 300 |
- | `completed` | 300 |
- | `round-start` | 300 |
- | `resumed` | 300 |
- | `countdown` | 200 (lowest) |
+| Condition | Behavior |
+|-----------|----------|
+| 本地 MP3 无法播放 | 有 `resolveCue()` 映射时降级为对应提示音；倒计时无 cue，静默跳过；训练继续 |
+| Web Speech 不可用或异常 | watchdog/安全返回；其他本地中文提示与视觉计时继续 |
+| Web Audio 不可用 | 提示音静默跳过 |
+| `navigator.vibrate` 不可用 | 触觉静默跳过 |
+| localStorage 不可用 | 使用默认设置 |
+| Wake Lock 不可用 | 训练继续但无法保证屏幕常亮 |
 
- Queue is sorted by priority descending, then by creation time ascending.
+浏览器 autoplay 策略仍可能拒绝 `HTMLAudioElement.play()`；用户开始或试听时会触发预加载，试听还会立即尝试播放，但仍需真实设备验证。
 
- ## Deduplication Rules
+## Privacy and Operations
 
- - Each event gets a deterministic ID: `session-{id}:round-{round}:{type}:{detail}`.
- - Example: `session-2:round-1:contract:countdown:3`.
- - `seen` set stores all processed IDs; duplicates are dropped silently.
- - `stage-enter` clears previous stage-enter and countdown items from queue.
- - `paused` stops playback and clears the queue.
- - `stopped` stops playback and clears the queue.
+- 不申请麦克风权限，不录音，不上传训练或音频数据。
+- 18 个中文文件随应用静态发布，无运行时云依赖。
+- 动态组数与 en-US 的声音质量、voice 可用性仍取决于浏览器和操作系统。
 
- **Implementation status**: All dedup rules are implemented and tested (see VoiceController.test.ts).
+## Verification Status
 
- ## Expiration Rules
-
- - All items expire at `context.now + 30_000` (30 seconds).
- - Countdown items expire at `context.stageEndsAt` (end of current stage).
- - Expired items are filtered on `drain()` before each playback.
-
- ## Pause/Resume/Stop Behavior
-
- - **Pause**: `stage-enter` event triggers `stopPlayback()` (calls `speechSynthesis.cancel()`) and `removeStageItems()` (removes pending stage-enter and countdown items). Then `paused` event is enqueued.
- - **Resume**: `resumed` event is enqueued for standard play.
- - **Stop**: `stopped` event triggers `stopPlayback()` and clears the entire queue, then enqueues the stopped event itself.
- - **On pause, the current utterance is stopped**. The application does not attempt mid-sentence resume; instead it plays "继续训练" / "Continue training" on resume.
-
- **Implementation status**: All implemented. Note: `SpeechSynthesisAdapter.pause()`/`resume()` are implemented but never called by `VoiceController` due to the mid-sentence-inconsistency problem.
-
- ## Web Speech API Constraints
-
- - Voice quality varies across browsers and OS versions.
- - `getVoices()` loads asynchronously; voices list may be empty on first call.
- - `voiceschanged` event listener is registered to refresh the cache.
- - Voice selection prefers exact `voiceName` match, then language match, then browser default.
- - iOS Safari requires user gesture before first `speak()` — handled via `voice.unlock()` on start/preview.
- - `cancel()` is used for stop/pause; `pause()`/`resume()` are available but unreliable.
- - `SpeechSynthesisAdapter.isSupported()` returns `false` when API is unavailable (server-side rendering, old browsers, some Firefox configs).
-
- ## Haptic Integration
-
- - Contract: `navigator.vibrate(40)` — 40ms pulse.
- - Relax: `navigator.vibrate(25)` — 25ms brief tap.
- - Complete: `navigator.vibrate([35, 80, 35])` — 35ms pulse, 80ms gap, 35ms pulse.
- - Only fires when `settings.hapticsEnabled === true` and `navigator.vibrate` is available.
- - No haptics for round-start, countdown, pause, resume, or stop (intentional — minimal vibration).
-
- ## Accessibility
-
- - Voice provides an alternative channel for stage information (visual already present).
- - Haptics provide an additional channel for contract/relax/completion events.
- - Settings panel uses semantic form elements: `<select>`, `<input type="range">`, `<fieldset>`, `<legend>`.
- - Disabled controls are visibly dimmed and not interactive.
- - Preview button lets users test voice without starting a workout.
- - Unsupported-browser warning ("当前浏览器不支持语音合成") shown when speech API is unavailable.
-
- ## Privacy
-
- - No microphone access required or requested.
- - No audio data recorded or transmitted.
- - Voice settings stored in localStorage only.
- - No analytics or tracking.
-
- ## Unsupported-Platform Fallback
-
- | API Unavailable | Behavior |
- |-----------------|----------|
- | `speechSynthesis` | Mode falls back to sound-only; warning shown in panel |
- | `AudioContext` | Tones silently skipped; speech still works if available |
- | `navigator.vibrate` | Haptics silently skipped |
- | `localStorage` | Settings read/write silently fail; defaults used |
- | `WakeLock` | Training continues without screen lock |
- | All audio APIs | Timer still works; visual cues remain |
-
- ## Current Implementation Status
-
- All voice module functionality is implemented and tested:
-
- - [x] 5 voice modes
- - [x] zh-CN and en-US scripts (en-US scripts defined but language selector not exposed in MVP UI)
- - [x] Priority queue with dedup and expiry
- - [x] Pause/stop queue clearing
- - [x] Stage-enter replaces pending stage-enter/countdown items
- - [x] Countdown dedup
- - [x] Haptic integration
- - [x] Settings persistence with validation
- - [x] Preview functionality
- - [x] Unsupported-API fallback
- - [x] VoiceSettingsPanel UI
- - [x] 4 test files (11 tests) all passing
-
- ## Planned Pre-recorded Audio Upgrade Path
-
- The `AudioFileAdapter` is named for file-based playback but currently synthesizes tones via Web Audio API. The `VoicePlaybackAdapter` interface allows replacing `AudioFileAdapter` with a file-based implementation without changing `VoiceController`.
-
- ```typescript
- export interface VoicePlaybackAdapter {
-   preload(): Promise<void>;
-   speak(options: SpeakOptions): Promise<void>;
-   playCue(cue: SoundCue): Promise<void>;
-   stop(): void;
-   pause(): void;
-   resume(): void;
-   isSupported(): boolean;
- }
- ```
-
- A future `PreRecordedAudioAdapter` would implement the same interface, loading `.mp3` or `.wav` files from `public/audio/` instead of synthesizing tones.
+本地资源解析、基路径、预加载、播放成功/失败、8 秒超时、打断与 generation 防陈旧降级、Web Speech watchdog、队列路由均有自动测试。尚未完成 Chrome、Safari、Firefox、iOS Safari、Android Chrome 的真实跨设备手工 QA；不得将自动测试视为 autoplay 与平台语音行为的完整验证。

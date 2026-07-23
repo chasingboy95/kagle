@@ -231,7 +231,7 @@ const PAUSED_CONTAINER_TARGET: Record<MuscleStage, Record<string, number>> = {
   idle:     { scale: 1, y: 0 },
   contract: { scale: 0.92, y: -12 },
   hold:     { scale: 0.92, y: -12 },
-  relax: { scale: [0.94, 1.04, 1], opacity: [0.34, 0.15, 0.2], filter: ["saturate(1.08) brightness(1.04)", "saturate(0.98) brightness(1.02)", "saturate(1) brightness(1)"], transition: { duration: 1.8, ease: [0.22, 1, 0.36, 1] } },
+  relax:    { scale: 1, y: 0 },
 };
 
 function pausedLayerTarget(layer: LayerName, stage: MuscleStage): Record<string, number | string> {
