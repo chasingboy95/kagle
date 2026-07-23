@@ -2,6 +2,13 @@ import { useState, useRef, useCallback, useEffect } from 'react';
 import type { TrainingConfig, TrainingStatus, TrainingPhase, EngineState } from '../types/training';
 import { DEFAULT_CONFIG } from '../types/training';
 import { calcTotalDuration } from '../utils/time';
+import type { VoiceEvent } from '../voice/types';
+import type { VoiceEventContext } from '../voice/VoiceController';
+
+export interface KegelEngineVoiceOptions {
+  onVoiceEvent?: (event: VoiceEvent, context: VoiceEventContext) => void;
+  countdownFrom?: 0 | 3 | 5;
+}
 
 export interface UseKegelEngineReturn {
   state: EngineState;
@@ -23,6 +30,9 @@ interface EngineInternals {
   totalPausedMs: number;
   pauseStartedAt: number;
   config: TrainingConfig;
+  sessionId: number;
+  eventSequence: number;
+  announcedCountdowns: Set<number>;
 }
 
 function createInitialEngine(config: TrainingConfig): EngineInternals {
@@ -35,7 +45,25 @@ function createInitialEngine(config: TrainingConfig): EngineInternals {
     totalPausedMs: 0,
     pauseStartedAt: 0,
     config,
+    sessionId: 0,
+    eventSequence: 0,
+    announcedCountdowns: new Set(),
   };
+}
+
+export function getCountdownEvent(
+  remainingMs: number,
+  stage: TrainingPhase,
+  countdownFrom: 0 | 3 | 5,
+  announced: ReadonlySet<number>,
+): Extract<VoiceEvent, { type: 'countdown' }> | null {
+  const seconds = Math.ceil(remainingMs / 1000);
+  return stage !== 'idle'
+    && seconds > 0
+    && seconds <= countdownFrom
+    && !announced.has(seconds)
+    ? { type: 'countdown', stage, seconds }
+    : null;
 }
 
 function phaseMs(phase: TrainingPhase, config: TrainingConfig): number {
@@ -60,9 +88,8 @@ function buildState(e: EngineInternals, now: number): EngineState {
     phaseRemaining = 0;
     totalRunningMs = 0;
   } else if (isPaused) {
-    const pausedDuration = now - e.pauseStartedAt;
-    phaseRemaining = Math.max(0, phaseDur - (e.pauseStartedAt - e.phaseStartedAt) + pausedDuration);
-    totalRunningMs = Math.max(0, now - e.sessionStartedAt - e.totalPausedMs + pausedDuration);
+    phaseRemaining = Math.max(0, phaseDur - (e.pauseStartedAt - e.phaseStartedAt));
+    totalRunningMs = Math.max(0, e.pauseStartedAt - e.sessionStartedAt - e.totalPausedMs);
   } else {
     const elapsed = now - e.phaseStartedAt;
     phaseRemaining = Math.max(0, phaseDur - elapsed);
@@ -84,7 +111,7 @@ function buildState(e: EngineInternals, now: number): EngineState {
   };
 }
 
-export function useKegelEngine(): UseKegelEngineReturn {
+export function useKegelEngine(options: KegelEngineVoiceOptions = {}): UseKegelEngineReturn {
   const [config, setConfig] = useState<TrainingConfig>(DEFAULT_CONFIG);
   const [state, setState] = useState<EngineState>(() => ({
     status: 'idle',
@@ -102,6 +129,24 @@ export function useKegelEngine(): UseKegelEngineReturn {
 
   const eng = useRef<EngineInternals>(createInitialEngine(DEFAULT_CONFIG));
   const tickId = useRef<ReturnType<typeof setInterval> | null>(null);
+  const optionsRef = useRef(options);
+  optionsRef.current = options;
+
+  const emitVoice = useCallback((event: VoiceEvent, phaseRemainingMs = 0) => {
+    const e = eng.current;
+    e.eventSequence += 1;
+    try {
+      optionsRef.current.onVoiceEvent?.(event, {
+        sessionId: e.sessionId,
+        round: e.round + 1,
+        now: Date.now(),
+        stageEndsAt: Date.now() + phaseRemainingMs,
+        sequence: e.eventSequence,
+      });
+    } catch {
+      // Voice assistance must never interrupt the training engine.
+    }
+  }, []);
 
   /** 推送到渲染层 (节流到 100ms) */
   const pushState = useCallback(() => {
@@ -109,7 +154,37 @@ export function useKegelEngine(): UseKegelEngineReturn {
     const e = eng.current;
     const s = buildState(e, now);
     setState(s);
+    if (e.status !== 'running') return;
+
+    const countdown = getCountdownEvent(
+      s.phaseRemainingMs,
+      e.phase,
+      optionsRef.current.countdownFrom ?? 0,
+      e.announcedCountdowns,
+    );
+    if (countdown) {
+      e.announcedCountdowns.add(countdown.seconds);
+      emitVoice(countdown, s.phaseRemainingMs);
+    }
+  }, [emitVoice]);
+
+  const stopTick = useCallback(() => {
+    if (tickId.current !== null) {
+      clearInterval(tickId.current);
+      tickId.current = null;
+    }
   }, []);
+
+  const enterPhase = useCallback((phase: Exclude<TrainingPhase, 'idle'>) => {
+    const e = eng.current;
+    e.phase = phase;
+    e.phaseStartedAt = performance.now();
+    e.announcedCountdowns.clear();
+    emitVoice(
+      { type: 'stage-enter', stage: phase },
+      phaseMs(phase, e.config),
+    );
+  }, [emitVoice]);
 
   /** 推进到下一阶段 */
   const advance = useCallback(() => {
@@ -117,13 +192,11 @@ export function useKegelEngine(): UseKegelEngineReturn {
     const cfg = e.config;
 
     if (e.phase === 'contract') {
-      e.phase = 'hold';
-      e.phaseStartedAt = performance.now();
+      enterPhase('hold');
       return;
     }
     if (e.phase === 'hold') {
-      e.phase = 'relax';
-      e.phaseStartedAt = performance.now();
+      enterPhase('relax');
       return;
     }
     if (e.phase === 'relax') {
@@ -136,21 +209,15 @@ export function useKegelEngine(): UseKegelEngineReturn {
         e.sessionStartedAt = 0;
         e.totalPausedMs = 0;
         stopTick();
+        emitVoice({ type: 'completed' });
         pushState();
         return;
       }
       e.round = nextRound;
-      e.phase = 'contract';
-      e.phaseStartedAt = performance.now();
+      emitVoice({ type: 'round-start', round: e.round + 1, totalRounds: cfg.rounds });
+      enterPhase('contract');
     }
-  }, [pushState]);
-
-  const stopTick = useCallback(() => {
-    if (tickId.current !== null) {
-      clearInterval(tickId.current);
-      tickId.current = null;
-    }
-  }, []);
+  }, [emitVoice, enterPhase, pushState, stopTick]);
 
   const startTick = useCallback(() => {
     stopTick();
@@ -167,7 +234,7 @@ export function useKegelEngine(): UseKegelEngineReturn {
       }
       pushState();
     }, 100);
-  }, [advance, pushState]);
+  }, [advance, pushState, stopTick]);
 
  // 清理 tick
  useEffect(() => {
@@ -205,26 +272,30 @@ export function useKegelEngine(): UseKegelEngineReturn {
   }, [state.status]);
 
  const start = useCallback(() => {
-   const e = eng.current;
-   e.status = 'running';
-    e.phase = 'contract';
+    const e = eng.current;
+    e.sessionId += 1;
+    e.eventSequence = 0;
+    e.status = 'running';
     e.round = 0;
-    e.phaseStartedAt = performance.now();
     e.sessionStartedAt = performance.now();
     e.totalPausedMs = 0;
     e.config = config;
     e.pauseStartedAt = 0;
+    emitVoice({ type: 'training-ready' });
+    emitVoice({ type: 'round-start', round: 1, totalRounds: config.rounds });
+    enterPhase('contract');
     startTick();
     pushState();
-  }, [config, startTick, pushState]);
+  }, [config, emitVoice, enterPhase, startTick, pushState]);
 
   const pause = useCallback(() => {
     const e = eng.current;
     if (e.status !== 'running') return;
     e.status = 'paused';
     e.pauseStartedAt = performance.now();
+    emitVoice({ type: 'paused' });
     pushState();
-  }, [pushState]);
+  }, [emitVoice, pushState]);
 
   const resume = useCallback(() => {
     const e = eng.current;
@@ -235,13 +306,17 @@ export function useKegelEngine(): UseKegelEngineReturn {
     e.totalPausedMs += pauseDuration;
     e.status = 'running';
     e.pauseStartedAt = 0;
+    emitVoice({ type: 'resumed' }, phaseMs(e.phase, e.config));
     pushState();
-  }, [pushState]);
+  }, [emitVoice, pushState]);
 
   const stop = useCallback(() => {
     const e = eng.current;
     stopTick();
+    emitVoice({ type: 'stopped' });
+    const sessionId = e.sessionId;
     Object.assign(e, createInitialEngine(e.config));
+    e.sessionId = sessionId;
     setState(prev => ({
       ...prev,
       status: 'idle',
@@ -250,21 +325,24 @@ export function useKegelEngine(): UseKegelEngineReturn {
       phaseRemainingMs: 0,
       totalElapsedMs: 0,
     }));
-  }, [stopTick]);
+  }, [emitVoice, stopTick]);
 
   const restart = useCallback(() => {
     stopTick();
     const e = eng.current;
+    e.sessionId += 1;
+    e.eventSequence = 0;
     e.status = 'running';
-    e.phase = 'contract';
     e.round = 0;
-    e.phaseStartedAt = performance.now();
     e.sessionStartedAt = performance.now();
     e.totalPausedMs = 0;
     e.pauseStartedAt = 0;
+    emitVoice({ type: 'training-ready' });
+    emitVoice({ type: 'round-start', round: 1, totalRounds: e.config.rounds });
+    enterPhase('contract');
     startTick();
     pushState();
-  }, [startTick, pushState]);
+  }, [emitVoice, enterPhase, startTick, pushState, stopTick]);
 
   const updateConfig = useCallback((updates: Partial<TrainingConfig>) => {
     setConfig(prev => {
