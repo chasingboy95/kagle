@@ -23,7 +23,7 @@
 - 数量：18 个文件，总计 191,088 bytes（186.6 KiB，以仓库文件 `stat` 结果为准）。
 - URL：`voiceAssets.ts` 使用 `import.meta.env.BASE_URL` 拼接 `audio/voice/...`，兼容 GitHub Pages 的 `/kagle/` 基路径。
 - `PreRecordedAudioAdapter` 基于 `HTMLAudioElement` 预加载与播放；单次播放 8 秒未结束即超时并返回失败。
-- 中文 `zh-CN` 的 training-ready、阶段、倒计时、暂停/继续/停止、完成等固定事件使用本地文件。
+- 中文 `zh-CN` 的 training-ready、阶段、倒计时、暂停/继续/停止、完成等固定事件使用本地文件；开启 `announceNextStage` 时，阶段提示需要动态组合“当前阶段，接下来 X”，因此改由 Web Speech 播放并受平台 TTS 支持限制。
 - `round-start` 包含动态组数，无法映射固定文件；en-US 也没有本地资源，两者继续交给 `SpeechSynthesisAdapter`。
 - 修改中文固定文案后，必须手工重新生成对应音频并替换文件；仓库没有可自动复现神经 TTS 产物的生成流水线。
 
