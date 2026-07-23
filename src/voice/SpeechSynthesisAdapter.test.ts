@@ -11,7 +11,7 @@ const options = {
 };
 
 class FakeUtterance {
-  static instances: FakeUtterance[] = [];
+  static throwOnConstruct = false;
   static throwOnEvent?: string;
   readonly listeners = new Map<string, Set<EventListenerOrEventListenerObject>>();
   lang = '';
@@ -21,7 +21,7 @@ class FakeUtterance {
   voice: SpeechSynthesisVoice | null = null;
 
   constructor(readonly text: string) {
-    FakeUtterance.instances.push(this);
+    if (FakeUtterance.throwOnConstruct) throw new Error('construction failed');
   }
 
   addEventListener(type: string, listener: EventListenerOrEventListenerObject): void {
@@ -60,8 +60,8 @@ class FakeSynthesis {
   getVoices = () => this.voices;
   addEventListener = vi.fn();
   speak = (utterance: SpeechSynthesisUtterance): void => {
-    if (this.speakError) throw new Error('speak failed');
     this.spoken.push(utterance as unknown as FakeUtterance);
+    if (this.speakError) throw new Error('speak failed');
   };
   cancel = (): void => {
     this.cancelCalls += 1;
@@ -81,7 +81,8 @@ function createAdapter(synthesis = new FakeSynthesis()) {
 
 afterEach(() => {
   vi.useRealTimers();
-  FakeUtterance.instances = [];
+  vi.restoreAllMocks();
+  FakeUtterance.throwOnConstruct = false;
   FakeUtterance.throwOnEvent = undefined;
 });
 
@@ -120,6 +121,22 @@ describe('SpeechSynthesisAdapter', () => {
     expect(vi.getTimerCount()).toBe(0);
   });
 
+  it('settles and cleans up when timeout cancellation throws', async () => {
+    vi.useFakeTimers();
+    const { adapter, synthesis } = createAdapter();
+    const promise = adapter.speak(options);
+    const utterance = synthesis.spoken[0];
+    synthesis.cancelError = true;
+    const cancelsAfterStart = synthesis.cancelCalls;
+
+    await vi.advanceTimersByTimeAsync(8_000);
+
+    await expect(promise).resolves.toBeUndefined();
+    expect(synthesis.cancelCalls).toBe(cancelsAfterStart + 1);
+    expect(utterance.listenerCount()).toBe(0);
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
   it('stop settles the active speak immediately', async () => {
     const { adapter, synthesis } = createAdapter();
     const promise = adapter.speak(options);
@@ -145,6 +162,21 @@ describe('SpeechSynthesisAdapter', () => {
     await expect(second).resolves.toBeUndefined();
   });
 
+  it('a second speak still replaces the first when cancellation throws', async () => {
+    const { adapter, synthesis } = createAdapter();
+    const first = adapter.speak(options);
+    const firstUtterance = synthesis.spoken[0];
+    synthesis.cancelError = true;
+
+    const second = adapter.speak({ ...options, text: '放松' });
+    const secondUtterance = synthesis.spoken[1];
+
+    await expect(first).resolves.toBeUndefined();
+    expect(firstUtterance.listenerCount()).toBe(0);
+    secondUtterance.dispatch('end');
+    await expect(second).resolves.toBeUndefined();
+  });
+
   it('settles when cancel throws during stop', async () => {
     const { adapter, synthesis } = createAdapter();
     const promise = adapter.speak(options);
@@ -159,15 +191,24 @@ describe('SpeechSynthesisAdapter', () => {
     synthesis.speakError = true;
 
     await expect(adapter.speak(options)).resolves.toBeUndefined();
-    expect(FakeUtterance.instances[0].listenerCount()).toBe(0);
+    expect(synthesis.spoken[0].listenerCount()).toBe(0);
+  });
+
+  it('settles when utterance construction throws', async () => {
+    const { adapter, synthesis } = createAdapter();
+    FakeUtterance.throwOnConstruct = true;
+
+    await expect(adapter.speak(options)).resolves.toBeUndefined();
+    expect(synthesis.spoken).toHaveLength(0);
   });
 
   it('settles and removes a partially registered listener when registration throws', async () => {
     const { adapter } = createAdapter();
+    const removeListener = vi.spyOn(FakeUtterance.prototype, 'removeEventListener');
     FakeUtterance.throwOnEvent = 'error';
 
     await expect(adapter.speak(options)).resolves.toBeUndefined();
-    expect(FakeUtterance.instances[0].listenerCount()).toBe(0);
+    expect(removeListener).toHaveBeenCalledWith('end', expect.any(Function));
   });
 
   it('applies voice options and retains the active utterance until settlement', async () => {
@@ -183,21 +224,26 @@ describe('SpeechSynthesisAdapter', () => {
       pitch: options.pitch,
       voice: synthesis.voices[1],
     });
-    expect(FakeUtterance.instances).toContain(utterance);
+    const inspectableAdapter = adapter as unknown as {
+      activeSpeak?: { utterance: SpeechSynthesisUtterance };
+    };
+    expect(inspectableAdapter.activeSpeak?.utterance).toBe(utterance);
 
     utterance.dispatch('end');
     await promise;
+    expect(inspectableAdapter.activeSpeak).toBeUndefined();
   });
 
   it('a stale timeout cannot cancel a newer utterance', async () => {
     vi.useFakeTimers();
+    const timeoutSpy = vi.spyOn(globalThis, 'setTimeout');
     const { adapter, synthesis } = createAdapter();
     const first = adapter.speak(options);
-    await vi.advanceTimersByTimeAsync(4_000);
+    const staleTimeout = timeoutSpy.mock.calls[0][0] as () => void;
     const second = adapter.speak({ ...options, text: '放松' });
     const cancelCalls = synthesis.cancelCalls;
 
-    await vi.advanceTimersByTimeAsync(4_000);
+    staleTimeout();
 
     expect(synthesis.cancelCalls).toBe(cancelCalls);
     synthesis.spoken[1].dispatch('end');
