@@ -120,14 +120,24 @@ describe('PreRecordedAudioAdapter', () => {
     await expect(second).resolves.toBe(true);
   });
 
-  it('times out after eight seconds without an event', async () => {
+  it('stops timed-out audio, cleans up, and allows the next play', async () => {
     vi.useFakeTimers();
     const adapter = new PreRecordedAudioAdapter(scope());
     const result = adapter.play('/silent.mp3', 0.5);
+    const audio = FakeAudio.instances[0];
 
     await vi.advanceTimersByTimeAsync(8_000);
 
     await expect(result).resolves.toBe(false);
+    expect(audio.pauseCalls).toBe(1);
+    expect(audio.currentTime).toBe(0);
+    expect(audio.listeners.get('ended')?.size).toBe(0);
+    expect(audio.listeners.get('error')?.size).toBe(0);
+    expect(vi.getTimerCount()).toBe(0);
+
+    const recovered = adapter.play('/next.mp3', 0.5);
+    FakeAudio.instances[1].emit('ended');
+    await expect(recovered).resolves.toBe(true);
   });
 
   it('returns false when play rejects', async () => {
