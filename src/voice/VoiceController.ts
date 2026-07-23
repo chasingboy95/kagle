@@ -1,6 +1,8 @@
 import { HapticAdapter } from './HapticAdapter';
+import { allVoiceAssetUrls, resolveVoiceAsset } from './voiceAssets';
 import { resolveCue, resolveSpeech } from './voiceScripts';
 import type {
+  RecordedVoicePlaybackAdapter,
   VoiceEvent,
   VoicePlaybackAdapter,
   VoiceQueueItem,
@@ -42,8 +44,10 @@ export class VoiceController {
   constructor(
     private readonly speech: VoicePlaybackAdapter,
     private readonly audio: VoicePlaybackAdapter,
+    private readonly recorded: RecordedVoicePlaybackAdapter,
     private readonly haptics: HapticAdapter,
     private settings: VoiceSettings,
+    private readonly baseUrl = import.meta.env.BASE_URL,
   ) {}
 
   enqueue(event: VoiceEvent, context: VoiceEventContext): void {
@@ -100,6 +104,21 @@ export class VoiceController {
         continue;
       }
 
+      const assetUrl = resolveVoiceAsset(item.event, this.settings, this.baseUrl);
+      if (assetUrl) {
+        let played = false;
+        try {
+          played = await this.recorded.play(assetUrl, this.settings.volume);
+        } catch {
+          // Fall back to a tone when local playback is unavailable.
+        }
+        if (!played) {
+          const cue = resolveCue(item.event);
+          if (cue) await this.audio.playCue(cue);
+        }
+        continue;
+      }
+
       const text = resolveSpeech(item.event, this.settings);
       if (text) {
         await this.speech.speak({
@@ -124,7 +143,11 @@ export class VoiceController {
   }
 
   async preload(): Promise<void> {
-    await Promise.all([this.speech.preload(), this.audio.preload()]);
+    await Promise.all([
+      this.speech.preload(),
+      this.audio.preload(),
+      this.recorded.preload(allVoiceAssetUrls(this.baseUrl)),
+    ]);
   }
 
   stop(): void {
@@ -145,5 +168,6 @@ export class VoiceController {
   private stopPlayback(): void {
     this.speech.stop();
     this.audio.stop();
+    this.recorded.stop();
   }
 }
