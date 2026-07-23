@@ -53,6 +53,12 @@ export class PreRecordedAudioAdapter implements RecordedVoicePlaybackAdapter {
       };
       const onEnded = () => settle(true);
       const onError = () => settle(false);
+      const onTimeout = () => {
+        if (this.active?.settle !== settle) return;
+        try { audio.pause(); } catch { /* optional API */ }
+        try { audio.currentTime = 0; } catch { /* optional API */ }
+        settle(false);
+      };
 
       this.active = { audio, settle };
       try {
@@ -60,7 +66,7 @@ export class PreRecordedAudioAdapter implements RecordedVoicePlaybackAdapter {
         audio.currentTime = 0;
         audio.addEventListener('ended', onEnded);
         audio.addEventListener('error', onError);
-        timeout = setTimeout(() => settle(false), 8_000);
+        timeout = setTimeout(onTimeout, 8_000);
         audio.play().catch(() => settle(false));
       } catch {
         settle(false);
