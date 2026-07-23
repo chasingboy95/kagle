@@ -2,14 +2,15 @@
   "name": "Kagle — Kegel Training Timer",
   "short_name": "Kagle",
   "description": "A pelvic floor training timer with visual animation and voice guidance.",
-  "start_url": "/",
+  "start_url": "/kagle/",
+  "scope": "/kagle/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#0f172a",
   "orientation": "portrait",
   "icons": [
     {
-      "src": "/favicon.svg",
+      "src": "/kagle/favicon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"
