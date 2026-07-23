@@ -12,9 +12,13 @@ class FakeAdapter implements VoicePlaybackAdapter {
   spoken: string[] = [];
   cues: SoundCue[] = [];
   stopCalls = 0;
+  onSpeak?: () => void;
 
   async preload() {}
-  async speak(options: SpeakOptions) { this.spoken.push(options.text); }
+  async speak(options: SpeakOptions) {
+    this.spoken.push(options.text);
+    this.onSpeak?.();
+  }
   async playCue(cue: SoundCue) { this.cues.push(cue); }
   stop() { this.stopCalls += 1; }
   pause() {}
@@ -77,11 +81,12 @@ describe('VoiceController', () => {
 
   it('pause stops playback and clears pending countdowns', () => {
     const { controller, speech } = setup();
+    controller.enqueue({ type: 'stage-enter', stage: 'hold' }, context);
     controller.enqueue({ type: 'countdown', stage: 'hold', seconds: 3 }, context);
     controller.enqueue({ type: 'paused' }, context);
 
-    expect(speech.stopCalls).toBe(1);
-    expect(controller.inspectQueue().some(item => item.event.type === 'countdown')).toBe(false);
+    expect(speech.stopCalls).toBe(2);
+    expect(controller.inspectQueue().map(item => item.event.type)).toEqual(['paused']);
   });
 
   it('stop stops playback and clears the queue', () => {
@@ -92,5 +97,38 @@ describe('VoiceController', () => {
 
     expect(speech.stopCalls).toBe(1);
     expect(controller.inspectQueue().every(item => item.event.type === 'stopped')).toBe(true);
+  });
+
+  it('replaces a pending stage prompt when the stage changes', () => {
+    const { controller } = setup();
+    controller.enqueue({ type: 'stage-enter', stage: 'hold' }, context);
+    controller.enqueue(
+      { type: 'stage-enter', stage: 'relax' },
+      { ...context, now: 200, sequence: 2 },
+    );
+
+    expect(controller.inspectQueue().filter(item => item.event.type === 'stage-enter').map(item => item.event)).toEqual([
+      { type: 'stage-enter', stage: 'relax' },
+    ]);
+  });
+
+  it('rechecks expiry after a longer prompt finishes', async () => {
+    const { controller, speech } = setup();
+    const originalNow = Date.now;
+    let now = 100;
+    Date.now = () => now;
+    speech.onSpeak = () => { now = 200; };
+    controller.enqueue({ type: 'stage-enter', stage: 'hold' }, context);
+    controller.enqueue(
+      { type: 'countdown', stage: 'hold', seconds: 3 },
+      { ...context, stageEndsAt: 150 },
+    );
+
+    try {
+      await controller.flush();
+      expect(speech.spoken).toEqual(['保持张力，继续自然呼吸']);
+    } finally {
+      Date.now = originalNow;
+    }
   });
 });

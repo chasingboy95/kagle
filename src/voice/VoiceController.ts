@@ -49,10 +49,10 @@ export class VoiceController {
   enqueue(event: VoiceEvent, context: VoiceEventContext): void {
     if (event.type === 'stage-enter') {
       this.stopPlayback();
-      this.removeCountdowns();
+      this.removeStageItems();
     } else if (event.type === 'paused') {
       this.stopPlayback();
-      this.removeCountdowns();
+      this.queue = [];
     } else if (event.type === 'stopped') {
       this.stopPlayback();
       this.queue = [];
@@ -78,7 +78,7 @@ export class VoiceController {
     this.queue.sort((a, b) => b.priority - a.priority || a.createdAt - b.createdAt);
   }
 
-  flush(now = Date.now()): Promise<void> {
+  flush(now?: number): Promise<void> {
     if (this.processing) return this.processing;
 
     this.processing = this.drain(now).finally(() => {
@@ -87,11 +87,11 @@ export class VoiceController {
     return this.processing;
   }
 
-  private async drain(now: number): Promise<void> {
-    this.queue = this.queue.filter(item => item.expiresAt >= now);
+  private async drain(fixedNow?: number): Promise<void> {
+    this.queue = this.queue.filter(item => item.expiresAt >= (fixedNow ?? Date.now()));
     while (this.queue.length > 0) {
       const item = this.queue.shift();
-      if (!item || item.expiresAt < now) continue;
+      if (!item || item.expiresAt < (fixedNow ?? Date.now())) continue;
 
       this.haptics.trigger(item.event, this.settings.hapticsEnabled);
       if (this.settings.mode === 'sound-only') {
@@ -136,8 +136,10 @@ export class VoiceController {
     return this.speech.isSupported();
   }
 
-  private removeCountdowns(): void {
-    this.queue = this.queue.filter(item => item.event.type !== 'countdown');
+  private removeStageItems(): void {
+    this.queue = this.queue.filter(item => (
+      item.event.type !== 'countdown' && item.event.type !== 'stage-enter'
+    ));
   }
 
   private stopPlayback(): void {

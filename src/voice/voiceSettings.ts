@@ -81,10 +81,11 @@ export function parseVoiceSettings(raw: string | null): VoiceSettings {
 }
 
 export function loadVoiceSettings(
-  storage: Pick<Storage, 'getItem'> | undefined = globalThis.localStorage,
+  storage?: Pick<Storage, 'getItem'>,
 ): VoiceSettings {
   try {
-    return parseVoiceSettings(storage?.getItem(VOICE_SETTINGS_KEY) ?? null);
+    const target = storage ?? globalThis.localStorage;
+    return parseVoiceSettings(target?.getItem(VOICE_SETTINGS_KEY) ?? null);
   } catch {
     return { ...DEFAULT_VOICE_SETTINGS };
   }
@@ -92,10 +93,11 @@ export function loadVoiceSettings(
 
 export function saveVoiceSettings(
   settings: VoiceSettings,
-  storage: Pick<Storage, 'setItem'> | undefined = globalThis.localStorage,
+  storage?: Pick<Storage, 'setItem'>,
 ): void {
   try {
-    storage?.setItem(VOICE_SETTINGS_KEY, JSON.stringify(validateVoiceSettings(settings)));
+    const target = storage ?? globalThis.localStorage;
+    target?.setItem(VOICE_SETTINGS_KEY, JSON.stringify(validateVoiceSettings(settings)));
   } catch {
     // localStorage may be blocked or full.
   }
