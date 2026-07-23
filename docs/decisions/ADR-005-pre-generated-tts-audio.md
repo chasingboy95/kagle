@@ -1,0 +1,45 @@
+# ADR-005: Package Pre-generated Mandarin TTS Audio
+
+**Status:** Accepted
+
+**Date:** 2026-07-23
+
+## Context
+
+Web Speech output can sound mechanical and differs by browser and operating system. Some implementations also fail to emit `end` or `error`, which can leave an awaited utterance unresolved and block the voice queue. Fixed Chinese training prompts do not require runtime synthesis.
+
+## Decision
+
+Ship 18 pre-generated Mandarin neural-TTS MP3 files with the application under `public/audio/voice/{concise,guided,common,countdown}`. The files are 24 kHz, 48 kbps, mono and total 191,088 bytes (186.6 KiB by `stat`, below 200 KiB).
+
+For `zh-CN`, fixed prompts prefer local playback through `PreRecordedAudioAdapter`, with URLs resolved from `import.meta.env.BASE_URL`. This has no runtime cloud dependency. Local playback uses an 8-second timeout. After load/play/error/timeout failure, Web Audio fallback occurs only when `resolveCue()` maps that event. Countdown events have no cue mapping, so failed countdown audio is skipped silently while training continues. Interruption increments a controller generation so an obsolete playback result cannot emit a stale fallback cue.
+
+Dynamic round announcements and en-US remain on browser TTS because their content is not covered by the fixed Mandarin asset set. `SpeechSynthesisAdapter` retains an 8-second watchdog for browsers that omit completion events.
+
+Changing fixed Mandarin wording requires manually regenerating and reviewing the affected files; asset generation is not part of the application build.
+
+## Asset Provenance and Release Requirement
+
+The audio files were provided by the user and were generated with a paid commercial neural-TTS service. The provider, voice, model, exact generation parameters, and evidence covering licensing and redistribution rights are not recorded in this repository. Before publishing or redistributing these assets, the project owner must confirm the applicable rights and archive that provenance and licensing evidence.
+
+## Alternatives Considered
+
+### Continue using Web Speech for all prompts
+
+Rejected because voice quality varies by platform and can sound mechanical, while missing `end`/`error` callbacks can block playback sequencing without a watchdog. Web Speech remains only where fixed local assets do not cover dynamic rounds or en-US.
+
+### Generate speech through a cloud TTS service at runtime
+
+Rejected because it would add network availability, privacy, operating-cost, credential-management, and backend requirements to a client-only application.
+
+### Automatically generate assets through an API during the build
+
+Rejected for the initial 18-file, one-time asset set as unnecessary complexity (YAGNI). Reconsider if prompt wording changes frequently enough that manual regeneration becomes a recurring maintenance burden.
+
+## Consequences
+
+- Fixed Chinese guidance is more natural and consistent across supported browsers.
+- Static deployment grows by 191,088 bytes and requires maintaining 18 binary files.
+- Fixed Chinese prompts have no runtime TTS cloud dependency. Offline availability depends on whether the application resources are already cached and is not guaranteed.
+- Dynamic round and en-US quality still varies with platform voices.
+- Browser autoplay policy can still reject HTML audio; the application preloads on user actions and degrades failed local playback to cues, while real-device QA remains required.

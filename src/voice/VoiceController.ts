@@ -1,6 +1,8 @@
 import { HapticAdapter } from './HapticAdapter';
+import { allVoiceAssetUrls, resolveVoiceAsset } from './voiceAssets';
 import { resolveCue, resolveSpeech } from './voiceScripts';
 import type {
+  RecordedVoicePlaybackAdapter,
   VoiceEvent,
   VoicePlaybackAdapter,
   VoiceQueueItem,
@@ -38,12 +40,15 @@ export class VoiceController {
   private queue: VoiceQueueItem[] = [];
   private readonly seen = new Set<string>();
   private processing?: Promise<void>;
+  private playbackGeneration = 0;
 
   constructor(
     private readonly speech: VoicePlaybackAdapter,
     private readonly audio: VoicePlaybackAdapter,
+    private readonly recorded: RecordedVoicePlaybackAdapter,
     private readonly haptics: HapticAdapter,
     private settings: VoiceSettings,
+    private readonly baseUrl = import.meta.env.BASE_URL,
   ) {}
 
   enqueue(event: VoiceEvent, context: VoiceEventContext): void {
@@ -100,6 +105,22 @@ export class VoiceController {
         continue;
       }
 
+      const assetUrl = resolveVoiceAsset(item.event, this.settings, this.baseUrl);
+      if (assetUrl) {
+        const playbackGeneration = this.playbackGeneration;
+        let played = false;
+        try {
+          played = await this.recorded.play(assetUrl, this.settings.volume);
+        } catch {
+          // Fall back to a tone when local playback is unavailable.
+        }
+        if (!played && playbackGeneration === this.playbackGeneration) {
+          const cue = resolveCue(item.event);
+          if (cue) await this.audio.playCue(cue);
+        }
+        continue;
+      }
+
       const text = resolveSpeech(item.event, this.settings);
       if (text) {
         await this.speech.speak({
@@ -124,7 +145,11 @@ export class VoiceController {
   }
 
   async preload(): Promise<void> {
-    await Promise.all([this.speech.preload(), this.audio.preload()]);
+    await Promise.all([
+      this.speech.preload(),
+      this.audio.preload(),
+      this.recorded.preload(allVoiceAssetUrls(this.baseUrl)),
+    ]);
   }
 
   stop(): void {
@@ -133,7 +158,7 @@ export class VoiceController {
   }
 
   isSupported(): boolean {
-    return this.speech.isSupported();
+    return this.recorded.isSupported() || this.speech.isSupported();
   }
 
   private removeStageItems(): void {
@@ -143,7 +168,9 @@ export class VoiceController {
   }
 
   private stopPlayback(): void {
+    this.playbackGeneration += 1;
     this.speech.stop();
     this.audio.stop();
+    this.recorded.stop();
   }
 }
