@@ -57,7 +57,7 @@ export function resolveVoiceAsset(
 
   const scriptMode = settings.mode === 'concise' ? 'concise' : 'guided';
   if (event.type === 'stage-enter') {
-    return event.stage === 'idle'
+    return event.stage === 'idle' || settings.announceNextStage
       ? null
       : voiceAssetUrl(`${scriptMode}/${event.stage}.mp3`, baseUrl);
   }

@@ -25,9 +25,22 @@ describe('resolveVoiceAsset', () => {
   });
 
   it('resolves guided stage audio', () => {
-    expect(resolve({ type: 'stage-enter', stage: 'contract' }, { mode: 'guided' }))
+    expect(resolve(
+      { type: 'stage-enter', stage: 'contract' },
+      { mode: 'guided', announceNextStage: false },
+    ))
       .toBe('/kagle/audio/voice/guided/contract.mp3');
   });
+
+  it.each(['concise', 'guided'] as const)(
+    'leaves %s stage audio to Web Speech when announcing the next stage',
+    (mode) => {
+      expect(resolve(
+        { type: 'stage-enter', stage: 'contract' },
+        { mode, announceNextStage: true },
+      )).toBeNull();
+    },
+  );
 
   it('resolves common paused audio', () => {
     expect(resolve({ type: 'paused' }, { mode: 'guided' }))
