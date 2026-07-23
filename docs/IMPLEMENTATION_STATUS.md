@@ -24,8 +24,8 @@
 | **Ripple Component** | Untested | `src/components/Ripple.tsx` exists but is not imported by `App.tsx`. Possibly dead code or intended for future use. |
 | **Voice Controller** | Complete | Queue, priority, dedup, expiry, pause/stop clearing, local-first routing, interruption, and fallback have automated coverage. |
 | **Voice Speech Adapter** | Complete | Web Speech API wrapper with an 8-second watchdog for missing `end`/`error`; automated tests cover interruption and timeout recovery. |
-| **Pre-recorded Voice Adapter** | Complete | 18 packaged Mandarin MP3 files, `BASE_URL`-aware resolution, preload/play/stop, 8-second timeout, generation-safe interruption, and tone fallback are implemented and automatically tested. |
-| **Voice Audio Adapter** | Complete | Web Audio tone synthesis, including fallback when local Mandarin playback fails. |
+| **Pre-recorded Voice Adapter** | Complete | 18 packaged Mandarin MP3 files, `BASE_URL`-aware resolution, preload/play/stop, 8-second timeout, generation-safe interruption, and cue-mapped tone fallback are implemented and automatically tested. Countdown has no cue, so failed countdown audio is skipped silently. |
+| **Voice Audio Adapter** | Complete | Web Audio tone synthesis, including fallback after local Mandarin playback failure only when `resolveCue()` maps that event; countdown has no cue fallback. |
 | **Voice Haptic Adapter** | Untested | `navigator.vibrate` wrapper is implemented but has no dedicated automated or documented manual test. |
 | **Voice Scripts** | Complete | zh-CN and en-US for all event types. Both concise and guided variants. |
 | **Voice Settings** | Complete | Persistence, validation, fallback. 3 tests passing. |

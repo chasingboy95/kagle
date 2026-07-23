@@ -12,7 +12,7 @@ Web Speech output can sound mechanical and differs by browser and operating syst
 
 Ship 18 pre-generated Mandarin neural-TTS MP3 files with the application under `public/audio/voice/{concise,guided,common,countdown}`. The files are 24 kHz, 48 kbps, mono and total 191,088 bytes (186.6 KiB by `stat`, below 200 KiB).
 
-For `zh-CN`, fixed prompts prefer local playback through `PreRecordedAudioAdapter`, with URLs resolved from `import.meta.env.BASE_URL`. This has no runtime cloud dependency. Local playback uses an 8-second timeout; load/play/error/timeout failure falls back to the corresponding Web Audio cue. Interruption increments a controller generation so an obsolete playback result cannot emit a stale fallback cue.
+For `zh-CN`, fixed prompts prefer local playback through `PreRecordedAudioAdapter`, with URLs resolved from `import.meta.env.BASE_URL`. This has no runtime cloud dependency. Local playback uses an 8-second timeout. After load/play/error/timeout failure, Web Audio fallback occurs only when `resolveCue()` maps that event. Countdown events have no cue mapping, so failed countdown audio is skipped silently while training continues. Interruption increments a controller generation so an obsolete playback result cannot emit a stale fallback cue.
 
 Dynamic round announcements and en-US remain on browser TTS because their content is not covered by the fixed Mandarin asset set. `SpeechSynthesisAdapter` retains an 8-second watchdog for browsers that omit completion events.
 

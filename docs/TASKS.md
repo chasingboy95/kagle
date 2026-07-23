@@ -96,7 +96,7 @@
 - Progress bar (linear, overall workout progress).
 - MuscleSphere 9-layer SVG animation (idle/contract/hold/relax).
 - Voice assistance module (5 modes, zh-CN/en-US, queue, dedup, expiry).
-- 18 packaged Mandarin neural-TTS prompts with local-first routing, timeout recovery, interruption protection, and tone fallback.
+- 18 packaged Mandarin neural-TTS prompts with local-first routing, timeout recovery, interruption protection, and tone fallback only for events with a `resolveCue()` mapping; failed countdown audio has no cue and is skipped silently.
 - Voice settings persistence (localStorage with validation).
 - Haptic feedback (contract, relax, complete).
 - Config panel with stepper controls.

@@ -12,9 +12,9 @@
 |------|-------|-----------|---------|-----------|
 | `off` | 无 | 无 | 无 | 无 |
 | `sound-only` | 无 | 是 | 是 | 无 |
-| `concise` | 简短提示 | 失败降级 | 是 | 无 |
-| `guided` | 引导提示 | 失败降级 | 是 | 无 |
-| `countdown` | 引导提示 | 失败降级 | 是 | 最后 3 或 5 秒 |
+| `concise` | 简短提示 | 有 cue 映射时失败降级 | 是 | 无 |
+| `guided` | 引导提示 | 有 cue 映射时失败降级 | 是 | 无 |
+| `countdown` | 引导提示 | 有 cue 映射时失败降级 | 是 | 最后 3 或 5 秒 |
 
 ## Local Voice Assets
 
@@ -33,7 +33,7 @@
 
 1. `sound-only` 直接播放提示音。
 2. 其他语音模式先由 `resolveVoiceAsset()` 尝试解析本地中文资源。
-3. 有资源时交给 `PreRecordedAudioAdapter`；加载、播放、error 或 8 秒超时失败时降级为对应提示音。
+3. 有资源时交给 `PreRecordedAudioAdapter`；加载、播放、error 或 8 秒超时失败后，仅当该事件存在 `resolveCue()` 映射时才降级为对应 Web Audio 提示音。倒计时事件没有 cue 映射，因此倒计时录音失败时静默跳过并继续训练。
 4. 无本地资源时通过 `resolveSpeech()` 和 Web Speech 播放动态组数或 en-US 文案。
 
 阶段切换、暂停、停止或显式停止会同时终止 Web Speech、提示音和本地音频。`VoiceController` 每次打断递增 playback generation；旧的异步本地播放返回后，不得再播放过期的降级提示音。
@@ -63,7 +63,7 @@
 
 | Condition | Behavior |
 |-----------|----------|
-| 本地 MP3 无法播放 | 对应提示音降级；训练继续 |
+| 本地 MP3 无法播放 | 有 `resolveCue()` 映射时降级为对应提示音；倒计时无 cue，静默跳过；训练继续 |
 | Web Speech 不可用或异常 | watchdog/安全返回；其他本地中文提示与视觉计时继续 |
 | Web Audio 不可用 | 提示音静默跳过 |
 | `navigator.vibrate` 不可用 | 触觉静默跳过 |
