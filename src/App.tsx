@@ -10,6 +10,17 @@ import VoiceSettingsPanel from './components/VoiceSettingsPanel';
 import { useKegelEngine } from './hooks/useKegelEngine';
 import { useVoiceAssistant } from './hooks/useVoiceAssistant';
 import { calcTotalDuration } from './utils/time';
+import type { TrainingConfig } from './types/training';
+
+/** 计算当前阶段的毫秒数 */
+function calcPhaseDuration(phase: string, config: TrainingConfig): number {
+  switch (phase) {
+    case 'contract': return config.contractTime * 1000;
+    case 'hold':     return config.holdTime * 1000;
+    case 'relax':    return config.relaxTime * 1000;
+    default:         return 0;
+  }
+}
 
 export default function App() {
   const voice = useVoiceAssistant();
@@ -24,6 +35,11 @@ export default function App() {
   const isIdle = state.status === 'idle';
   const isActive = state.status === 'running' || state.status === 'paused';
   const showHint = state.status === 'running' && state.phase !== 'idle';
+  const phaseDuration = calcPhaseDuration(state.phase, config);
+  const stageProgress = state.phase !== 'idle' && phaseDuration > 0
+    ? 1 - (state.phaseRemainingMs / phaseDuration)
+    : 0;
+  const resolvedStageDuration = state.phase !== 'idle' ? phaseDuration : undefined;
 
   const totalDurationMs = useMemo(
     () =>
@@ -112,14 +128,13 @@ export default function App() {
 
       {/* 核心区域 —— 肌肉球 + 计时 + 进度（垂直居中） */}
       <div className="flex-1 flex flex-col items-center justify-center w-full max-w-sm gap-1">
-        {/* 肌肉球（含内置 SVG 图层动画 + 波纹） */}
-        <div className="relative flex items-center justify-center w-72 h-72">
-          <MuscleSphere
-            phase={state.phase}
-            isRunning={state.status === 'running'}
-            isPaused={state.status === 'paused'}
-          />
-        </div>
+        <MuscleSphere
+          stage={state.phase}
+          paused={state.status === 'paused'}
+          stageProgress={stageProgress}
+          showProgressRing={state.status === 'running'}
+          stageDurationMs={resolvedStageDuration}
+        />
 
         {/* 倒计时 + Round */}
         <TimerDisplay
