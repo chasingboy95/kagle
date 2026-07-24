@@ -7,7 +7,7 @@ export interface TrainingConfig {
 }
 
 /** 训练状态枚举 */
-export type TrainingStatus = 'idle' | 'running' | 'paused' | 'finished';
+export type TrainingStatus = 'idle' | 'running' | 'paused' | 'finished' | 'feedback';
 
 /** 训练阶段枚举 */
 export type TrainingPhase =
