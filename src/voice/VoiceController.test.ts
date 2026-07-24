@@ -96,10 +96,31 @@ describe('VoiceController', () => {
     expect(speech.spoken).toEqual([]);
   });
 
+  it('keeps edge countdown cues playable just after the stage boundary', async () => {
+    const { controller, audio } = setup({ countdownFrom: 3 });
+    controller.enqueue(
+      { type: 'countdown', stage: 'relax', seconds: 1 },
+      { ...context, now: 9_100, stageEndsAt: 10_000 },
+    );
+
+    await controller.flush(10_300);
+
+    expect(audio.cues).toEqual(['countdown-1']);
+  });
+
   it('does not enqueue countdowns when disabled', () => {
     const { controller } = setup({ countdownFrom: 0 });
     controller.enqueue({ type: 'countdown', stage: 'hold', seconds: 3 }, context);
     expect(controller.inspectQueue()).toEqual([]);
+  });
+
+  it('queues hold coaching immediately on stage entry', () => {
+    const { controller } = setup();
+    controller.enqueue({ type: 'stage-enter', stage: 'hold' }, context);
+
+    expect(controller.inspectQueue().map(item => item.event)).toEqual([
+      { type: 'stage-enter', stage: 'hold' },
+    ]);
   });
 
   it('prefers recorded coach prompts', async () => {

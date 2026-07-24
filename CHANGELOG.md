@@ -17,8 +17,7 @@ All notable changes to this project will be documented in this file.
 - Three explicit voice-assistance choices: 静音, 节奏提示, and 语音教练.
 - Independent final 3-second or 5-second countdown for both audible modes.
 - Automatic migration from legacy `concise`, `guided`, and `countdown` mode values to `coach`.
-- Delayed sustain coaching cue around 35% into the hold phase.
-- Unit coverage for mode migration, coach/rhythm routing, countdown independence, recording fallback, and sustain cancellation.
+- Unit coverage for mode migration, coach/rhythm routing, countdown independence, recording fallback, prompt timing, and boundary countdown playback.
 - Seven packaged Mandarin coach recordings for ready, contraction start, contraction sustain, release, pause, resume, and completion.
 - Collapsible training-plan panel with a compact `contract-hold-relax × rounds` summary.
 
@@ -37,7 +36,7 @@ All notable changes to this project will be documented in this file.
 - The settings panel no longer exposes unsupported concise/guided variants, next-stage announcements, pitch, or language switching.
 - Fixed Mandarin prompts now use the new `public/audio/zh-CN/` recording set.
 - Recorded playback failure now falls back to system speech before a non-verbal cue.
-- The sustain prompt no longer plays immediately on entering the internal hold phase.
+- Contract, hold, and relax coaching prompts now play immediately on phase entry.
 - Default voice settings now use coach mode with countdown and round announcements disabled.
 - Countdown feedback now uses soft ascending synthesized tones instead of the legacy spoken-number MP3 files.
 - Rhythm cues now use distinct two-note contraction and release patterns, with quieter single-note sustain feedback.
@@ -53,6 +52,8 @@ All notable changes to this project will be documented in this file.
 - GitHub Pages audio paths remain `BASE_URL` aware.
 - Ready and feedback lifecycle prompts are no longer interrupted by duplicate stage-enter prompts.
 - Countdown announcements no longer run during the feedback completion phase.
+- Final countdown cues are no longer dropped when playback starts near the phase boundary.
+- Hold-stage coaching no longer lags behind the phase transition.
 - Pause/stop controls no longer appear during the feedback completion celebration.
 - Removed the unimplemented "查看训练历史" action from the completion feedback card.
 - Service-worker cache writes no longer reuse an already-consumed `Response` body.

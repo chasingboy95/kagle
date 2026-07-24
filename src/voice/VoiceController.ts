@@ -29,6 +29,8 @@ const priorities: Record<VoiceEvent['type'], number> = {
   countdown: 200,
 };
 
+const COUNTDOWN_PLAYBACK_GRACE_MS = 650;
+
 function eventId(event: VoiceEvent, context: VoiceEventContext): string {
   const prefix = `session-${context.sessionId}:round-${context.round}`;
   if (event.type === 'stage-enter') return `${prefix}:stage-enter:${event.stage}`;
@@ -48,7 +50,6 @@ export class VoiceController {
   private readonly seen = new Set<string>();
   private processing?: Promise<void>;
   private playbackGeneration = 0;
-  private sustainTimer?: ReturnType<typeof setTimeout>;
 
   constructor(
     private readonly speech: VoicePlaybackAdapter,
@@ -63,27 +64,13 @@ export class VoiceController {
     if (event.type === 'stage-enter') {
       this.stopPlayback();
       this.removeStageItems();
-      this.clearSustainTimer();
     } else if (event.type === 'paused' || event.type === 'stopped') {
       this.stopPlayback();
       this.queue = [];
-      this.clearSustainTimer();
     }
 
     if (!this.settings.enabled || this.settings.mode === 'off') return;
     if (event.type === 'countdown' && this.settings.countdownFrom === 0) return;
-
-    if (event.type === 'stage-enter' && event.stage === 'hold') {
-      const phaseDuration = Math.max(0, context.stageEndsAt - context.now);
-      const delay = Math.min(3_000, Math.max(500, phaseDuration * 0.35));
-      this.sustainTimer = setTimeout(() => {
-        this.sustainTimer = undefined;
-        if (!this.settings.enabled || this.settings.mode === 'off') return;
-        this.addQueueItem(event, { ...context, now: Date.now() });
-        void this.flush();
-      }, delay);
-      return;
-    }
 
     this.addQueueItem(event, context);
   }
@@ -99,7 +86,7 @@ export class VoiceController {
       priority: priorities[event.type],
       createdAt: context.now,
       expiresAt: event.type === 'countdown'
-        ? context.stageEndsAt
+        ? context.stageEndsAt + COUNTDOWN_PLAYBACK_GRACE_MS
         : context.now + 30_000,
     });
     this.queue.sort((a, b) => b.priority - a.priority || a.createdAt - b.createdAt);
@@ -187,7 +174,6 @@ export class VoiceController {
   stop(): void {
     this.stopPlayback();
     this.queue = [];
-    this.clearSustainTimer();
   }
 
   isSupported(): boolean {
@@ -198,13 +184,6 @@ export class VoiceController {
     this.queue = this.queue.filter(item => (
       item.event.type !== 'countdown' && item.event.type !== 'stage-enter'
     ));
-  }
-
-  private clearSustainTimer(): void {
-    if (this.sustainTimer) {
-      clearTimeout(this.sustainTimer);
-      this.sustainTimer = undefined;
-    }
   }
 
   private stopPlayback(): void {

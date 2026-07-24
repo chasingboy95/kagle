@@ -17,7 +17,7 @@ Expose three mutually exclusive assistance modes:
 
 Countdown becomes an independent `0 | 3 | 5` setting available in both audible modes. Legacy `concise`, `guided`, and `countdown` values migrate to `coach`.
 
-The contraction sustain prompt is delayed to approximately 35% of the hold phase, rather than playing immediately at the internal contract-to-hold boundary.
+Contract, hold, and relax prompts play immediately on phase entry so coaching stays aligned with the visual state and timer.
 
 ## Consequences
 
