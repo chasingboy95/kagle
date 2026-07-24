@@ -1,6 +1,6 @@
 # Task List
 
-**Last verified against repository:** 2026-07-23
+**Last verified against repository:** 2026-07-24
 
 ## In Progress
 
@@ -63,8 +63,9 @@
   - Memory usage over long sessions.
   - Background tab timing drift measurement.
 
-11. **Add progress ring smooth animation**
-  - Replace conic-gradient with SVG `<circle>` `stroke-dasharray` for smooth cross-boundary animation (see ADR-004 follow-up).
+11. **Replace conic progress ring with SVG circle**
+  - The ring now progresses continuously across contract and hold.
+  - Replace the conic-gradient implementation with an SVG `<circle>` `stroke-dasharray` if smoother interpolation is still needed.
 
 12. **Add language selector to VoiceSettingsPanel**
   - en-US scripts are defined but cannot be selected from UI.
@@ -82,15 +83,19 @@
   - Move 100ms tick to Web Worker to avoid browser throttling.
   - Use `postMessage` to synchronize state.
 
-16. **Evaluate PWA service worker**
-  - Enable reliable offline access.
-
 ## Blocked
 
 - None currently.
 
 ## Completed
 
+- Sprint 1 continuous training UX:
+  - UI presents contract and hold as one “收缩并保持” phase.
+  - Progress ring continues across the internal contract → hold boundary.
+  - Countdown continues across the internal contract → hold boundary.
+  - Timer wording uses “慢慢放松” and localized “第 X / Y 次”.
+  - Unit tests cover the display timing calculation and unified labels.
+- Basic PWA support with GitHub Pages subpath handling and iOS standalone metadata.
 - Training engine with all state transitions.
 - Timer display with countdown and round info.
 - Progress bar (linear, overall workout progress).
@@ -104,6 +109,6 @@
 - Screen Wake Lock integration.
 - GitHub Actions CI/CD (build + deploy to GitHub Pages).
 - Dark theme, mobile-first responsive layout (Tailwind).
-- Automated tests cover local voice asset resolution/playback and Web Speech watchdog behavior (6 files, 64 tests passing on 2026-07-23).
-- Documentation baseline (this task).
+- Automated tests cover local voice asset resolution/playback and Web Speech watchdog behavior.
+- Documentation baseline.
 - 5 ADRs recorded, including the packaged Mandarin voice decision.
