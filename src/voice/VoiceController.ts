@@ -41,6 +41,7 @@ export class VoiceController {
   private readonly seen = new Set<string>();
   private processing?: Promise<void>;
   private playbackGeneration = 0;
+  private sustainTimer?: ReturnType<typeof setTimeout>;
 
   constructor(
     private readonly speech: VoicePlaybackAdapter,
@@ -55,14 +56,32 @@ export class VoiceController {
     if (event.type === 'stage-enter') {
       this.stopPlayback();
       this.removeStageItems();
+      this.clearSustainTimer();
     } else if (event.type === 'paused' || event.type === 'stopped') {
       this.stopPlayback();
       this.queue = [];
+      this.clearSustainTimer();
     }
 
     if (!this.settings.enabled || this.settings.mode === 'off') return;
     if (event.type === 'countdown' && this.settings.countdownFrom === 0) return;
 
+    if (event.type === 'stage-enter' && event.stage === 'hold') {
+      const phaseDuration = Math.max(0, context.stageEndsAt - context.now);
+      const delay = Math.min(3_000, Math.max(500, phaseDuration * 0.35));
+      this.sustainTimer = setTimeout(() => {
+        this.sustainTimer = undefined;
+        if (!this.settings.enabled || this.settings.mode === 'off') return;
+        this.addQueueItem(event, { ...context, now: Date.now() });
+        void this.flush();
+      }, delay);
+      return;
+    }
+
+    this.addQueueItem(event, context);
+  }
+
+  private addQueueItem(event: VoiceEvent, context: VoiceEventContext): void {
     const id = eventId(event, context);
     if (this.seen.has(id)) return;
     this.seen.add(id);
@@ -160,6 +179,7 @@ export class VoiceController {
   stop(): void {
     this.stopPlayback();
     this.queue = [];
+    this.clearSustainTimer();
   }
 
   isSupported(): boolean {
@@ -170,6 +190,13 @@ export class VoiceController {
     this.queue = this.queue.filter(item => (
       item.event.type !== 'countdown' && item.event.type !== 'stage-enter'
     ));
+  }
+
+  private clearSustainTimer(): void {
+    if (this.sustainTimer) {
+      clearTimeout(this.sustainTimer);
+      this.sustainTimer = undefined;
+    }
   }
 
   private stopPlayback(): void {
