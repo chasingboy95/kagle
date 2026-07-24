@@ -10,7 +10,13 @@ export interface TrainingConfig {
 export type TrainingStatus = 'idle' | 'running' | 'paused' | 'finished';
 
 /** 训练阶段枚举 */
-export type TrainingPhase = 'idle' | 'contract' | 'hold' | 'relax';
+export type TrainingPhase =
+  | 'idle'
+  | 'ready'
+  | 'contract'
+  | 'hold'
+  | 'relax'
+  | 'feedback';
 
 /** 引擎运行时快照 */
 export interface EngineState {
