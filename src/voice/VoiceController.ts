@@ -3,6 +3,7 @@ import { allVoiceAssetUrls, resolveVoiceAsset } from './voiceAssets';
 import { resolveCue, resolveSpeech } from './voiceScripts';
 import type {
   RecordedVoicePlaybackAdapter,
+  SoundCue,
   VoiceEvent,
   VoicePlaybackAdapter,
   VoiceQueueItem,
@@ -34,6 +35,12 @@ function eventId(event: VoiceEvent, context: VoiceEventContext): string {
   if (event.type === 'countdown') return `${prefix}:${event.stage}:countdown:${event.seconds}`;
   if (event.type === 'round-start') return `${prefix}:round-start:${event.round}`;
   return `${prefix}:${event.type}:${context.sequence ?? 0}`;
+}
+
+function countdownCue(seconds: number): SoundCue | null {
+  return seconds >= 1 && seconds <= 5
+    ? `countdown-${seconds}` as SoundCue
+    : null;
 }
 
 export class VoiceController {
@@ -115,12 +122,13 @@ export class VoiceController {
 
       this.haptics.trigger(item.event, this.settings.hapticsEnabled);
 
+      if (item.event.type === 'countdown') {
+        const cue = countdownCue(item.event.seconds);
+        if (cue) await this.audio.playCue(cue);
+        continue;
+      }
+
       if (this.settings.mode === 'sound-only') {
-        if (item.event.type === 'countdown') {
-          const countdownAsset = resolveVoiceAsset(item.event, this.settings, this.baseUrl);
-          if (countdownAsset) await this.recorded.play(countdownAsset, this.settings.volume).catch(() => false);
-          continue;
-        }
         const cue = resolveCue(item.event);
         if (cue) await this.audio.playCue(cue);
         continue;
