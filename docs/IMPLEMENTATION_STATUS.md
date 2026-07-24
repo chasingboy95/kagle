@@ -16,7 +16,7 @@
 | Training Lifecycle | Complete | READY (5s) and FEEDBACK (6s) phases added. State machine updated: idle → ready → contract → hold → relax → (repeat) → feedback → finished → idle, with feedback using a dedicated status for completion UI. |
 | Timer / Rounds | Partial | Display timing updated for ready and feedback phases. Unit tests cover phase timing and action hints. Still no component or E2E tests. |
 | MuscleSphere | Partial | Ready (slow breathing) and feedback (release/calm) animation variants added. No automated rendering tests. |
-| Voice Controller | Partial | Three-mode scheduling, queueing, interruption, independent countdown, recorded-first playback, speech fallback, and delayed sustain logic are implemented and unit tests were updated. |
+| Voice Controller | Partial | Three-mode scheduling, queueing, interruption, independent countdown, recorded-first playback, speech fallback, and prompt timing logic are implemented and unit tests were updated. |
 | Voice Scripts | Complete | Added `ready` and `feedback` script keys for stage-enter speech in both zh-CN and en-US. |
 | Voice Coach Recordings | Partial | Seven Mandarin coach recordings are routed through `BASE_URL`; real-device playback remains unverified. |
 | Voice Rhythm Mode | Partial | Uses non-verbal cues and independent countdown, but its audible differentiation still needs device QA. |
@@ -42,7 +42,8 @@
 - Mandarin fixed events use the seven new recordings.
 - Missing or failed recordings fall back to system speech.
 - If system speech also fails, the controller uses a non-verbal cue when one exists.
-- "很好，继续保持" is scheduled around 35% into the hold phase and is cancelled by a newer phase, pause, or stop.
+- Contract, hold, and relax stage prompts play immediately on phase entry.
+- Countdown cues keep a short playback grace window so the final cue can still play at the phase boundary.
 - The ready phase uses the `training-ready` lifecycle prompt only, avoiding duplicate stage-enter speech.
 - The feedback phase uses the `completed` lifecycle prompt only, avoiding duplicate stage-enter speech.
 
@@ -53,7 +54,8 @@
 - Rhythm-only cue behavior.
 - Independent countdown in coach and rhythm modes.
 - Recorded-audio failure to system-speech fallback.
-- Delayed sustain scheduling and cancellation.
+- Immediate hold-stage prompt queueing.
+- Countdown playback at the phase boundary.
 - Ready phase display timing and action hint.
 - Feedback phase display timing and action hint.
 - Countdown events during ready phase.

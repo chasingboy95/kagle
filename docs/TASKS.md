@@ -12,7 +12,7 @@
   - Verify "语音教练" uses the seven new Mandarin recordings.
   - Verify "节奏提示" never speaks full sentences.
   - Verify countdown works independently in both audible modes.
-  - Verify the delayed sustain cue is cancelled by pause, stop, or relaxation.
+  - Verify sustain and contraction prompts play promptly on phase entry.
   - Verify recording failure falls back to system speech.
 
 2. **Add training engine integration tests**
@@ -42,6 +42,8 @@
 
 - [x] Fixed ready and feedback lifecycle prompts so they are not interrupted by duplicate stage-enter speech.
 - [x] Prevented countdown announcements during the feedback completion phase.
+- [x] Added a short playback grace window so final countdown cues are not dropped at the phase boundary.
+- [x] Removed delayed hold prompt scheduling so sustain coaching plays immediately on phase entry.
 - [x] Added a dedicated `feedback` status so pause/stop controls are hidden during completion feedback.
 - [x] Removed the unimplemented training-history action from the completion card.
 - [x] Reran `npm test`, `npm run build`, and `npm run lint` after the lifecycle fixes.
@@ -62,8 +64,8 @@
 - [x] Countdown is now an independent 0/3/5-second option for both audible modes.
 - [x] Fixed Mandarin coach events use the new seven-file recording set.
 - [x] Recorded playback failure now falls back to system speech before a non-verbal cue.
-- [x] The sustain prompt is delayed to approximately 35% of the hold phase and cancelled when the phase changes.
-- [x] Unit tests updated for migration, coach/rhythm behavior, independent countdown, asset routing, speech fallback, and delayed sustain cancellation.
+- [x] Contract, hold, and relax prompts play immediately on phase entry.
+- [x] Unit tests updated for migration, coach/rhythm behavior, independent countdown, asset routing, speech fallback, prompt timing, and boundary countdown playback.
 - [x] Sprint 1 continuous training UX.
 - [x] Basic PWA support with GitHub Pages subpath handling and iOS standalone metadata.
 - [x] Training engine, timer, progress, MuscleSphere animation, settings persistence, wake lock, and GitHub Pages deployment.
