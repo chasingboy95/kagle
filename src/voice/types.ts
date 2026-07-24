@@ -11,11 +11,16 @@ export type VoiceMode =
 
 export type VoiceLanguage = 'zh-CN' | 'en-US';
 
+/**
+ * Coach-oriented cues. These describe user intent rather than engine phases.
+ * The training engine may still use contract/hold internally, while the voice
+ * layer treats them as one continuous contraction experience.
+ */
 export type SoundCue =
   | 'ready'
-  | 'contract'
-  | 'hold'
-  | 'relax'
+  | 'contraction-start'
+  | 'contraction-sustain'
+  | 'release-start'
   | 'pause'
   | 'resume'
   | 'complete'
@@ -35,11 +40,6 @@ export interface VoiceSettings {
   hapticsEnabled: boolean;
 }
 
-/**
- * Voice events describe training intent rather than raw engine transitions.
- * The engine keeps contract/hold internally, while the coach experience treats
- * them as one continuous contraction action.
- */
 export type VoiceEvent =
   | { type: 'training-ready' }
   | { type: 'stage-enter'; stage: MuscleStage }
