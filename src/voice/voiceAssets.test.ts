@@ -4,14 +4,14 @@ import { allVoiceAssetUrls, resolveVoiceAsset } from './voiceAssets';
 
 const settings: VoiceSettings = {
   enabled: true,
-  mode: 'concise',
+  mode: 'coach',
   language: 'zh-CN',
   volume: 1,
   rate: 1,
   pitch: 1,
   countdownFrom: 3,
-  announceRound: true,
-  announceNextStage: true,
+  announceRound: false,
+  announceNextStage: false,
   hapticsEnabled: true,
 };
 
@@ -20,49 +20,31 @@ function resolve(event: VoiceEvent, overrides: Partial<VoiceSettings> = {}) {
 }
 
 describe('resolveVoiceAsset', () => {
-  it('resolves concise training-ready audio', () => {
-    expect(resolve({ type: 'training-ready' })).toBe('/kagle/audio/voice/concise/ready.mp3');
-  });
-
-  it('resolves guided stage audio', () => {
-    expect(resolve(
-      { type: 'stage-enter', stage: 'contract' },
-      { mode: 'guided', announceNextStage: false },
-    ))
-      .toBe('/kagle/audio/voice/guided/contract.mp3');
-  });
-
-  it.each(['concise', 'guided'] as const)(
-    'leaves %s stage audio to Web Speech when announcing the next stage',
-    (mode) => {
-      expect(resolve(
-        { type: 'stage-enter', stage: 'contract' },
-        { mode, announceNextStage: true },
-      )).toBeNull();
-    },
-  );
-
-  it('resolves common paused audio', () => {
-    expect(resolve({ type: 'paused' }, { mode: 'guided' }))
-      .toBe('/kagle/audio/voice/common/paused.mp3');
-  });
-
   it.each([
-    [{ type: 'completed' } as VoiceEvent, {}, '/kagle/audio/voice/concise/completed.mp3'],
-    [{ type: 'resumed' } as VoiceEvent, {}, '/kagle/audio/voice/common/resumed.mp3'],
-    [{ type: 'stopped' } as VoiceEvent, {}, '/kagle/audio/voice/common/stopped.mp3'],
-  ] as const)('resolves key event %#', (event, overrides, expected) => {
-    expect(resolve(event, overrides)).toBe(expected);
+    [{ type: 'training-ready' } as VoiceEvent, '/kagle/audio/zh-CN/ready.mp3'],
+    [{ type: 'stage-enter', stage: 'contract' } as VoiceEvent, '/kagle/audio/zh-CN/contraction-start.mp3'],
+    [{ type: 'stage-enter', stage: 'hold' } as VoiceEvent, '/kagle/audio/zh-CN/contraction-sustain.mp3'],
+    [{ type: 'stage-enter', stage: 'relax' } as VoiceEvent, '/kagle/audio/zh-CN/release-start.mp3'],
+    [{ type: 'paused' } as VoiceEvent, '/kagle/audio/zh-CN/paused.mp3'],
+    [{ type: 'resumed' } as VoiceEvent, '/kagle/audio/zh-CN/resumed.mp3'],
+    [{ type: 'completed' } as VoiceEvent, '/kagle/audio/zh-CN/complete.mp3'],
+    [{ type: 'stopped' } as VoiceEvent, '/kagle/audio/voice/common/stopped.mp3'],
+  ] as const)('resolves coach asset %#', (event, expected) => {
+    expect(resolve(event)).toBe(expected);
   });
 
-  it('resolves countdown audio only in countdown mode', () => {
-    expect(resolve({ type: 'countdown', stage: 'contract', seconds: 3 }, { mode: 'countdown' }))
+  it.each(['coach', 'sound-only'] as const)('resolves countdown independently in %s mode', (mode) => {
+    expect(resolve({ type: 'countdown', stage: 'contract', seconds: 3 }, { mode }))
       .toBe('/kagle/audio/voice/countdown/3.mp3');
   });
 
-  it.each([0, 6, 2.5])('rejects invalid countdown second %s', (seconds) => {
-    expect(resolve({ type: 'countdown', stage: 'contract', seconds }, { mode: 'countdown' }))
+  it('does not resolve countdown when disabled', () => {
+    expect(resolve({ type: 'countdown', stage: 'contract', seconds: 3 }, { countdownFrom: 0 }))
       .toBeNull();
+  });
+
+  it.each([0, 6, 2.5])('rejects invalid countdown second %s', (seconds) => {
+    expect(resolve({ type: 'countdown', stage: 'contract', seconds })).toBeNull();
   });
 
   it.each([
@@ -78,29 +60,24 @@ describe('resolveVoiceAsset', () => {
 });
 
 describe('allVoiceAssetUrls', () => {
-  it('returns exactly 18 unique asset URLs', () => {
+  it('returns the 13 current recorded assets', () => {
     const urls = allVoiceAssetUrls('/kagle');
 
     expect(urls).toEqual([
-      '/kagle/audio/voice/common/paused.mp3',
-      '/kagle/audio/voice/common/resumed.mp3',
+      '/kagle/audio/zh-CN/ready.mp3',
+      '/kagle/audio/zh-CN/contraction-start.mp3',
+      '/kagle/audio/zh-CN/contraction-sustain.mp3',
+      '/kagle/audio/zh-CN/release-start.mp3',
+      '/kagle/audio/zh-CN/complete.mp3',
+      '/kagle/audio/zh-CN/paused.mp3',
+      '/kagle/audio/zh-CN/resumed.mp3',
       '/kagle/audio/voice/common/stopped.mp3',
-      '/kagle/audio/voice/concise/completed.mp3',
-      '/kagle/audio/voice/concise/contract.mp3',
-      '/kagle/audio/voice/concise/hold.mp3',
-      '/kagle/audio/voice/concise/ready.mp3',
-      '/kagle/audio/voice/concise/relax.mp3',
       '/kagle/audio/voice/countdown/1.mp3',
       '/kagle/audio/voice/countdown/2.mp3',
       '/kagle/audio/voice/countdown/3.mp3',
       '/kagle/audio/voice/countdown/4.mp3',
       '/kagle/audio/voice/countdown/5.mp3',
-      '/kagle/audio/voice/guided/completed.mp3',
-      '/kagle/audio/voice/guided/contract.mp3',
-      '/kagle/audio/voice/guided/hold.mp3',
-      '/kagle/audio/voice/guided/ready.mp3',
-      '/kagle/audio/voice/guided/relax.mp3',
     ]);
-    expect(new Set(urls).size).toBe(18);
+    expect(new Set(urls).size).toBe(13);
   });
 });
