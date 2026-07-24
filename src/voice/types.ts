@@ -2,12 +2,13 @@ import type { TrainingPhase } from '../types/training';
 
 export type MuscleStage = TrainingPhase;
 
-export type VoiceMode =
-  | 'off'
-  | 'sound-only'
-  | 'concise'
-  | 'guided'
-  | 'countdown';
+/**
+ * User-facing assistance modes.
+ * - off: no audible guidance
+ * - sound-only: non-verbal rhythm cues
+ * - coach: recorded coach prompts with speech fallback
+ */
+export type VoiceMode = 'off' | 'sound-only' | 'coach';
 
 export type VoiceLanguage = 'zh-CN' | 'en-US';
 
@@ -34,8 +35,10 @@ export interface VoiceSettings {
   rate: number;
   pitch: number;
   voiceName?: string;
+  /** Independent enhancement; available in sound-only and coach modes. */
   countdownFrom: 0 | 3 | 5;
   announceRound: boolean;
+  /** Retained for stored-settings compatibility; no longer exposed in UI. */
   announceNextStage: boolean;
   hapticsEnabled: boolean;
 }
