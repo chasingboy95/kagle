@@ -16,7 +16,7 @@ export default function App() {
   const { state, config, start, pause, resume, stop, restart, updateConfig } =
     useKegelEngine({
       onVoiceEvent: voice.emit,
-      countdownFrom: voice.settings.mode === 'countdown'
+      countdownFrom: voice.settings.enabled && voice.settings.mode !== 'off'
         ? voice.settings.countdownFrom
         : 0,
     });
@@ -56,28 +56,17 @@ export default function App() {
 
   return (
     <div className="relative min-h-dvh bg-gradient-to-b from-[#020617] via-slate-900 to-[#111827] flex flex-col items-center px-5 pt-6 pb-8 overflow-x-hidden selection:bg-white/10">
-
-      {/* 极弱动态 Aurora Glow 背景 */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <motion.div
-          animate={{
-            x: [0, 40, -30, 0],
-            y: [0, -30, 40, 0],
-          }}
-          transition={{
-            duration: 25,
-            repeat: Infinity,
-            ease: 'easeInOut',
-          }}
+          animate={{ x: [0, 40, -30, 0], y: [0, -30, 40, 0] }}
+          transition={{ duration: 25, repeat: Infinity, ease: 'easeInOut' }}
           className="absolute -top-1/4 -left-1/4 w-[150%] h-[150%]"
           style={{
-            background:
-              'radial-gradient(ellipse 60% 50% at 50% 30%, rgba(99,102,241,0.06), transparent 70%)',
+            background: 'radial-gradient(ellipse 60% 50% at 50% 30%, rgba(99,102,241,0.06), transparent 70%)',
           }}
         />
       </div>
 
-      {/* 顶部 —— 训练状态 */}
       <div className="pt-4 pb-1">
         <TrainingStatus
           streakDays={3}
@@ -88,7 +77,6 @@ export default function App() {
         />
       </div>
 
-      {/* 用户阶段提示：contract + hold 共用同一个 key，避免中途切换动画 */}
       <div className="h-10 flex items-center justify-center mb-1">
         <AnimatePresence mode="wait">
           {showHint ? (
@@ -116,7 +104,6 @@ export default function App() {
         </AnimatePresence>
       </div>
 
-      {/* 核心区域 —— 肌肉球 + 计时 + 进度（垂直居中） */}
       <div className="flex-1 flex flex-col items-center justify-center w-full max-w-sm gap-1">
         <MuscleSphere
           stage={state.phase}
@@ -126,7 +113,6 @@ export default function App() {
           stageDurationMs={displayTiming.durationMs || undefined}
         />
 
-        {/* 连续倒计时 + Round */}
         <TimerDisplay
           phase={state.phase}
           displayPhaseKey={displayTiming.key}
@@ -136,22 +122,13 @@ export default function App() {
           isRunning={isActive || state.status === 'finished'}
         />
 
-        {/* 进度条 */}
         <div className="w-full max-w-[200px] mt-2">
-          <ProgressBar
-            current={isIdle ? 0 : state.totalElapsedMs}
-            total={totalDurationMs}
-          />
+          <ProgressBar current={isIdle ? 0 : state.totalElapsedMs} total={totalDurationMs} />
         </div>
       </div>
 
-      {/* 底部区域 —— 配置 + 控制 */}
       <div className="w-full max-w-sm space-y-4 pt-2 pb-safe">
-        <ConfigPanel
-          config={config}
-          disabled={isActive}
-          onChange={updateConfig}
-        />
+        <ConfigPanel config={config} disabled={isActive} onChange={updateConfig} />
 
         <VoiceSettingsPanel
           settings={voice.settings}
