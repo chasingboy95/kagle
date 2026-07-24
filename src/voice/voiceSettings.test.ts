@@ -6,24 +6,30 @@ import {
 } from './voiceSettings';
 
 describe('parseVoiceSettings', () => {
-  it('returns the required defaults for invalid storage', () => {
+  it('returns defaults for invalid storage', () => {
     expect(parseVoiceSettings('{broken')).toEqual(DEFAULT_VOICE_SETTINGS);
   });
 
   it('keeps valid fields and falls back invalid fields independently', () => {
     const result = parseVoiceSettings(JSON.stringify({
       enabled: false,
-      mode: 'guided',
+      mode: 'sound-only',
       language: 'fr-FR',
       volume: 9,
       countdownFrom: 5,
     }));
 
     expect(result.enabled).toBe(false);
-    expect(result.mode).toBe('guided');
+    expect(result.mode).toBe('sound-only');
     expect(result.language).toBe('zh-CN');
     expect(result.volume).toBe(0.7);
     expect(result.countdownFrom).toBe(5);
+  });
+
+  it.each(['concise', 'guided', 'countdown'])('migrates legacy %s mode to coach', (mode) => {
+    const result = parseVoiceSettings(JSON.stringify({ mode, countdownFrom: 3 }));
+    expect(result.mode).toBe('coach');
+    expect(result.countdownFrom).toBe(3);
   });
 
   it('falls back when access to global localStorage throws', () => {
