@@ -1,32 +1,27 @@
 import type { VoiceEvent, VoiceSettings } from './types';
 
 const voiceAssetPaths = [
-  'common/paused.mp3',
-  'common/resumed.mp3',
-  'common/stopped.mp3',
-  'concise/completed.mp3',
-  'concise/contract.mp3',
-  'concise/hold.mp3',
-  'concise/ready.mp3',
-  'concise/relax.mp3',
-  'countdown/1.mp3',
-  'countdown/2.mp3',
-  'countdown/3.mp3',
-  'countdown/4.mp3',
-  'countdown/5.mp3',
-  'guided/completed.mp3',
-  'guided/contract.mp3',
-  'guided/hold.mp3',
-  'guided/ready.mp3',
-  'guided/relax.mp3',
+  'zh-CN/ready.mp3',
+  'zh-CN/contraction-start.mp3',
+  'zh-CN/contraction-sustain.mp3',
+  'zh-CN/release-start.mp3',
+  'zh-CN/complete.mp3',
+  'zh-CN/paused.mp3',
+  'zh-CN/resumed.mp3',
+  'voice/common/stopped.mp3',
+  'voice/countdown/1.mp3',
+  'voice/countdown/2.mp3',
+  'voice/countdown/3.mp3',
+  'voice/countdown/4.mp3',
+  'voice/countdown/5.mp3',
 ] as const;
 
-function voiceAssetUrl(path: string, baseUrl: string): string {
-  return `${baseUrl.replace(/\/?$/, '/')}audio/voice/${path}`;
+function audioUrl(path: string, baseUrl: string): string {
+  return `${baseUrl.replace(/\/?$/, '/')}audio/${path}`;
 }
 
 export function allVoiceAssetUrls(baseUrl = import.meta.env.BASE_URL): string[] {
-  return voiceAssetPaths.map((path) => voiceAssetUrl(path, baseUrl));
+  return voiceAssetPaths.map((path) => audioUrl(path, baseUrl));
 }
 
 export function resolveVoiceAsset(
@@ -42,26 +37,34 @@ export function resolveVoiceAsset(
   ) return null;
 
   if (event.type === 'round-start') return null;
+
   if (event.type === 'countdown') {
     return settings.mode === 'countdown'
       && Number.isInteger(event.seconds)
       && event.seconds >= 1
       && event.seconds <= 5
-      ? voiceAssetUrl(`countdown/${event.seconds}.mp3`, baseUrl)
+      ? audioUrl(`voice/countdown/${event.seconds}.mp3`, baseUrl)
       : null;
   }
 
-  if (event.type === 'paused' || event.type === 'resumed' || event.type === 'stopped') {
-    return voiceAssetUrl(`common/${event.type}.mp3`, baseUrl);
-  }
+  if (event.type === 'paused') return audioUrl('zh-CN/paused.mp3', baseUrl);
+  if (event.type === 'resumed') return audioUrl('zh-CN/resumed.mp3', baseUrl);
+  if (event.type === 'stopped') return audioUrl('voice/common/stopped.mp3', baseUrl);
+  if (event.type === 'training-ready') return audioUrl('zh-CN/ready.mp3', baseUrl);
+  if (event.type === 'completed') return audioUrl('zh-CN/complete.mp3', baseUrl);
 
-  const scriptMode = settings.mode === 'concise' ? 'concise' : 'guided';
   if (event.type === 'stage-enter') {
-    return event.stage === 'idle' || settings.announceNextStage
-      ? null
-      : voiceAssetUrl(`${scriptMode}/${event.stage}.mp3`, baseUrl);
+    if (event.stage === 'idle' || settings.announceNextStage) return null;
+
+    switch (event.stage) {
+      case 'contract':
+        return audioUrl('zh-CN/contraction-start.mp3', baseUrl);
+      case 'hold':
+        return audioUrl('zh-CN/contraction-sustain.mp3', baseUrl);
+      case 'relax':
+        return audioUrl('zh-CN/release-start.mp3', baseUrl);
+    }
   }
 
-  const filename = event.type === 'training-ready' ? 'ready' : 'completed';
-  return voiceAssetUrl(`${scriptMode}/${filename}.mp3`, baseUrl);
+  return null;
 }
