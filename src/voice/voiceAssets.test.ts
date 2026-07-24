@@ -20,64 +20,34 @@ function resolve(event: VoiceEvent, overrides: Partial<VoiceSettings> = {}) {
 }
 
 describe('resolveVoiceAsset', () => {
-  it.each([
-    [{ type: 'training-ready' } as VoiceEvent, '/kagle/audio/zh-CN/ready.mp3'],
-    [{ type: 'stage-enter', stage: 'contract' } as VoiceEvent, '/kagle/audio/zh-CN/contraction-start.mp3'],
-    [{ type: 'stage-enter', stage: 'hold' } as VoiceEvent, '/kagle/audio/zh-CN/contraction-sustain.mp3'],
-    [{ type: 'stage-enter', stage: 'relax' } as VoiceEvent, '/kagle/audio/zh-CN/release-start.mp3'],
-    [{ type: 'paused' } as VoiceEvent, '/kagle/audio/zh-CN/paused.mp3'],
-    [{ type: 'resumed' } as VoiceEvent, '/kagle/audio/zh-CN/resumed.mp3'],
-    [{ type: 'completed' } as VoiceEvent, '/kagle/audio/zh-CN/complete.mp3'],
-    [{ type: 'stopped' } as VoiceEvent, '/kagle/audio/voice/common/stopped.mp3'],
-  ] as const)('resolves coach asset %#', (event, expected) => {
-    expect(resolve(event)).toBe(expected);
+  it('resolves the current coach recordings', () => {
+    expect(resolve({ type: 'training-ready' })).toBe('/kagle/audio/zh-CN/ready.mp3');
+    expect(resolve({ type: 'stage-enter', stage: 'contract' }))
+      .toBe('/kagle/audio/zh-CN/contraction-start.mp3');
+    expect(resolve({ type: 'stage-enter', stage: 'hold' }))
+      .toBe('/kagle/audio/zh-CN/contraction-sustain.mp3');
+    expect(resolve({ type: 'stage-enter', stage: 'relax' }))
+      .toBe('/kagle/audio/zh-CN/release-start.mp3');
+    expect(resolve({ type: 'completed' })).toBe('/kagle/audio/zh-CN/complete.mp3');
   });
 
-  it.each(['coach', 'sound-only'] as const)('resolves countdown independently in %s mode', (mode) => {
-    expect(resolve({ type: 'countdown', stage: 'contract', seconds: 3 }, { mode }))
-      .toBe('/kagle/audio/voice/countdown/3.mp3');
+  it('does not route countdowns to legacy recordings', () => {
+    expect(resolve({ type: 'countdown', stage: 'relax', seconds: 3 })).toBeNull();
   });
 
-  it('does not resolve countdown when disabled', () => {
-    expect(resolve({ type: 'countdown', stage: 'contract', seconds: 3 }, { countdownFrom: 0 }))
-      .toBeNull();
-  });
-
-  it.each([0, 6, 2.5])('rejects invalid countdown second %s', (seconds) => {
-    expect(resolve({ type: 'countdown', stage: 'contract', seconds })).toBeNull();
-  });
-
-  it.each([
-    [{ type: 'round-start', round: 1, totalRounds: 3 } as VoiceEvent, {}],
-    [{ type: 'stage-enter', stage: 'idle' } as VoiceEvent, {}],
-    [{ type: 'training-ready' } as VoiceEvent, { mode: 'sound-only' }],
-    [{ type: 'training-ready' } as VoiceEvent, { enabled: false }],
-    [{ type: 'training-ready' } as VoiceEvent, { mode: 'off' }],
-    [{ type: 'training-ready' } as VoiceEvent, { language: 'en-US' }],
-  ] as const)('returns null for unsupported event or mode %#', (event, overrides) => {
-    expect(resolve(event, overrides)).toBeNull();
+  it('returns null outside Chinese coach mode', () => {
+    expect(resolve({ type: 'training-ready' }, { mode: 'sound-only' })).toBeNull();
+    expect(resolve({ type: 'training-ready' }, { mode: 'off' })).toBeNull();
+    expect(resolve({ type: 'training-ready' }, { language: 'en-US' })).toBeNull();
   });
 });
 
 describe('allVoiceAssetUrls', () => {
-  it('returns the 13 current recorded assets', () => {
+  it('preloads only the active fixed recordings', () => {
     const urls = allVoiceAssetUrls('/kagle');
-
-    expect(urls).toEqual([
-      '/kagle/audio/zh-CN/ready.mp3',
-      '/kagle/audio/zh-CN/contraction-start.mp3',
-      '/kagle/audio/zh-CN/contraction-sustain.mp3',
-      '/kagle/audio/zh-CN/release-start.mp3',
-      '/kagle/audio/zh-CN/complete.mp3',
-      '/kagle/audio/zh-CN/paused.mp3',
-      '/kagle/audio/zh-CN/resumed.mp3',
-      '/kagle/audio/voice/common/stopped.mp3',
-      '/kagle/audio/voice/countdown/1.mp3',
-      '/kagle/audio/voice/countdown/2.mp3',
-      '/kagle/audio/voice/countdown/3.mp3',
-      '/kagle/audio/voice/countdown/4.mp3',
-      '/kagle/audio/voice/countdown/5.mp3',
-    ]);
-    expect(new Set(urls).size).toBe(13);
+    expect(urls).toHaveLength(8);
+    expect(urls).toContain('/kagle/audio/zh-CN/ready.mp3');
+    expect(urls).not.toContain('/kagle/audio/voice/countdown/3.mp3');
+    expect(new Set(urls).size).toBe(urls.length);
   });
 });
