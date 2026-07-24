@@ -59,6 +59,7 @@ export function getCountdownEvent(
 ): Extract<VoiceEvent, { type: 'countdown' }> | null {
   const seconds = Math.ceil(remainingMs / 1000);
   return stage !== 'idle'
+    && stage !== 'feedback'
     && seconds > 0
     && seconds <= countdownFrom
     && !announced.has(seconds)
@@ -177,15 +178,17 @@ export function useKegelEngine(options: KegelEngineVoiceOptions = {}): UseKegelE
     }
   }, []);
 
-  const enterPhase = useCallback((phase: Exclude<TrainingPhase, 'idle'>) => {
+  const enterPhase = useCallback((phase: Exclude<TrainingPhase, 'idle'>, announce = true) => {
     const e = eng.current;
     e.phase = phase;
     e.phaseStartedAt = performance.now();
     e.announcedCountdowns.clear();
-    emitVoice(
-      { type: 'stage-enter', stage: phase },
-      phaseMs(phase, e.config),
-    );
+    if (announce) {
+      emitVoice(
+        { type: 'stage-enter', stage: phase },
+        phaseMs(phase, e.config),
+      );
+    }
   }, [emitVoice]);
 
   /** 推进到下一阶段 */
@@ -210,7 +213,8 @@ export function useKegelEngine(options: KegelEngineVoiceOptions = {}): UseKegelE
       const nextRound = e.round + 1;
       if (nextRound >= cfg.rounds) {
         emitVoice({ type: 'completed' });
-        enterPhase('feedback');
+        e.status = 'feedback';
+        enterPhase('feedback', false);
         return;
       }
       e.round = nextRound;
@@ -235,7 +239,7 @@ export function useKegelEngine(options: KegelEngineVoiceOptions = {}): UseKegelE
     stopTick();
     tickId.current = setInterval(() => {
       const e = eng.current;
-      if (e.status !== 'running') return;
+      if (e.status !== 'running' && e.status !== 'feedback') return;
 
       const now = performance.now();
       const elapsed = now - e.phaseStartedAt;
@@ -294,7 +298,7 @@ export function useKegelEngine(options: KegelEngineVoiceOptions = {}): UseKegelE
     e.config = config;
     e.pauseStartedAt = 0;
     emitVoice({ type: 'training-ready' });
-    enterPhase('ready');
+    enterPhase('ready', false);
     startTick();
     pushState();
   }, [config, emitVoice, enterPhase, startTick, pushState]);
@@ -349,7 +353,7 @@ export function useKegelEngine(options: KegelEngineVoiceOptions = {}): UseKegelE
     e.totalPausedMs = 0;
     e.pauseStartedAt = 0;
     emitVoice({ type: 'training-ready' });
-    enterPhase('ready');
+    enterPhase('ready', false);
     startTick();
     pushState();
   }, [emitVoice, enterPhase, startTick, pushState, stopTick]);

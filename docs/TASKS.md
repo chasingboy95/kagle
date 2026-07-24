@@ -5,7 +5,6 @@
 ## In Progress
 
 - Verify the simplified voice-assistance modes on real iOS and Android devices.
-- Run the complete test, build, and lint commands after the voice-mode refactor.
 
 ## Next (Priority Order)
 
@@ -41,6 +40,11 @@
 
 ## Completed
 
+- [x] Fixed ready and feedback lifecycle prompts so they are not interrupted by duplicate stage-enter speech.
+- [x] Prevented countdown announcements during the feedback completion phase.
+- [x] Added a dedicated `feedback` status so pause/stop controls are hidden during completion feedback.
+- [x] Removed the unimplemented training-history action from the completion card.
+- [x] Reran `npm test`, `npm run build`, and `npm run lint` after the lifecycle fixes.
 - [x] Training Ready Phase - 5s breathing preparation before first contraction.
 - [x] Training Feedback Lifecycle - 6s completion celebration after last relaxation.
 - [x] Updated state machine: idle → ready → contract → hold → relax → (repeat) → feedback → finished → idle.

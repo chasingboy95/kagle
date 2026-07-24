@@ -68,16 +68,6 @@ export default function TrainingFeedback({ rounds, durationMs, onRestart, qualit
             再次训练
           </button>
         )}
-        <div className="flex items-center justify-center gap-1 text-xs text-slate-500">
-          <span className="inline-block h-1 w-1 rounded-full bg-slate-600/40" />
-          <button
-            onClick={() => {}}
-            className="transition-colors hover:text-slate-400"
-          >
-            查看训练历史
-          </button>
-          <span className="inline-block h-1 w-1 rounded-full bg-slate-600/40" />
-        </div>
       </div>
     </motion.div>
   );

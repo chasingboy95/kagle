@@ -1,6 +1,6 @@
 # Known Issues
 
-**Last updated:** 2026-07-23
+**Last updated:** 2026-07-24
 
 ## P1 — Functional Issues
 
@@ -181,3 +181,29 @@
 - **Description**: Wake Lock API may not prevent sleep on all devices. If device sleeps, elapsed time includes sleep period on resume, potentially skipping phases.
 - **Workaround**: None.
 - **Planned resolution**: Add sleep-detection and pause-on-wake logic.
+
+## Resolved on 2026-07-24
+
+### Feedback completion controls
+
+- **Status**: Resolved
+- **Severity**: Medium
+- **Affected area**: `src/hooks/useKegelEngine.ts`, `src/App.tsx`, `src/components/ControlButtons.tsx`
+- **Description**: The feedback completion phase previously kept `status: 'running'`, so pause/stop controls remained visible during the completion celebration.
+- **Resolution**: Feedback now uses the dedicated `feedback` status while the engine tick still advances it to `finished`; App treats feedback as active for config locking, and ControlButtons hides the running controls.
+
+### Duplicate ready and feedback voice prompts
+
+- **Status**: Resolved
+- **Severity**: High
+- **Affected area**: `src/hooks/useKegelEngine.ts`, `src/voice/VoiceController.ts`
+- **Description**: Ready and feedback lifecycle prompts could be immediately interrupted by matching `stage-enter` events.
+- **Resolution**: The engine no longer emits `stage-enter` voice events for ready and feedback; those lifecycle moments use `training-ready` and `completed` prompts only.
+
+### Feedback phase countdown
+
+- **Status**: Resolved
+- **Severity**: Medium
+- **Affected area**: `src/hooks/useKegelEngine.ts`
+- **Description**: Countdown events could be emitted during the completion feedback phase.
+- **Resolution**: `getCountdownEvent` now suppresses countdowns for `feedback`, with unit coverage updated.

@@ -35,12 +35,8 @@ describe('getCountdownEvent', () => {
     expect(getCountdownEvent(3000, 'idle', 3, new Set())).toBeNull();
   });
 
-  it('handles feedback phase countdown', () => {
-    expect(getCountdownEvent(4000, 'feedback', 5, new Set())).toEqual({
-      type: 'countdown',
-      stage: 'feedback',
-      seconds: 4,
-    });
+  it('does not count down during feedback', () => {
+    expect(getCountdownEvent(4000, 'feedback', 5, new Set())).toBeNull();
     expect(getCountdownEvent(6000, 'feedback', 0, new Set())).toBeNull();
   });
 });

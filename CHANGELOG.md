@@ -26,8 +26,11 @@ All notable changes to this project will be documented in this file.
 
 - Training state machine: `start()` now enters `ready` phase instead of `contract`.
 - Training state machine: last `relax` transitions to `feedback` (6s) before `finished`, instead of going directly to `finished`.
+- Ready and feedback phases now rely on their lifecycle prompts instead of duplicate stage-enter voice prompts.
+- Feedback phase now uses a dedicated `feedback` status while still advancing automatically to `finished`.
 - Total session duration now includes READY_DURATION_MS and FEEDBACK_DURATION_MS.
 - `actionHint` and `phaseHint` accept and return values for `ready` and `feedback` phases.
+- `actionHint` now accepts `idle` and returns an empty hint for the idle state.
 - App.tsx hint text now uses `actionHint(state.phase)` for all running phases.
 - Replaced the previous five-mode voice selector with three behaviorally distinct modes.
 - Countdown is now an enhancement rather than a voice mode.
@@ -48,13 +51,22 @@ All notable changes to this project will be documented in this file.
 - Rhythm mode no longer plays full coach sentences.
 - Rhythm mode cue keys now match the coach-oriented cue model, restoring audible feedback.
 - GitHub Pages audio paths remain `BASE_URL` aware.
+- Ready and feedback lifecycle prompts are no longer interrupted by duplicate stage-enter prompts.
+- Countdown announcements no longer run during the feedback completion phase.
+- Pause/stop controls no longer appear during the feedback completion celebration.
+- Removed the unimplemented "查看训练历史" action from the completion feedback card.
 - Service-worker cache writes no longer reuse an already-consumed `Response` body.
 - New service-worker versions clear obsolete caches, activate immediately, and refresh the page once after taking control.
 - Added the modern `mobile-web-app-capable` metadata while retaining iOS-specific metadata.
 
 ### Verification Pending
 
-- Full test, build, and lint commands have not yet been rerun after this refactor.
 - iOS and Android real-device audio QA remains outstanding.
 - The collapsible training-plan panel has not yet received component or real-device interaction testing.
 - The new service-worker update and stale-cache recovery path still needs deployment verification on GitHub Pages.
+
+### Verified
+
+- `npm test`
+- `npm run build`
+- `npm run lint`

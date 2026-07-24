@@ -23,7 +23,7 @@ export default function App() {
     });
 
   const isIdle = state.status === 'idle';
-  const isActive = state.status === 'running' || state.status === 'paused';
+  const isActive = state.status === 'running' || state.status === 'paused' || state.status === 'feedback';
   const showHint = state.status === 'running' && state.phase !== 'idle';
   const showFeedback = state.phase === 'feedback';
 

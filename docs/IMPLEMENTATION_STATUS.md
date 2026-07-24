@@ -13,7 +13,7 @@
 | Subsystem | Status | Reason |
 |-----------|--------|--------|
 | Training Engine | Partial | Core state transitions and timing exist; full integration tests (including the new ready→feedback lifecycle) remain outstanding. |
-| Training Lifecycle | Complete | READY (5s) and FEEDBACK (6s) phases added. State machine updated: idle → ready → contract → hold → relax → (repeat) → feedback → finished → idle. |
+| Training Lifecycle | Complete | READY (5s) and FEEDBACK (6s) phases added. State machine updated: idle → ready → contract → hold → relax → (repeat) → feedback → finished → idle, with feedback using a dedicated status for completion UI. |
 | Timer / Rounds | Partial | Display timing updated for ready and feedback phases. Unit tests cover phase timing and action hints. Still no component or E2E tests. |
 | MuscleSphere | Partial | Ready (slow breathing) and feedback (release/calm) animation variants added. No automated rendering tests. |
 | Voice Controller | Partial | Three-mode scheduling, queueing, interruption, independent countdown, recorded-first playback, speech fallback, and delayed sustain logic are implemented and unit tests were updated. |
@@ -43,8 +43,8 @@
 - Missing or failed recordings fall back to system speech.
 - If system speech also fails, the controller uses a non-verbal cue when one exists.
 - "很好，继续保持" is scheduled around 35% into the hold phase and is cancelled by a newer phase, pause, or stop.
-- "准备开始" (TTS) plays on stage-enter ready, after the "准备开始训练" (recording) from training-ready event.
-- "训练完成" (TTS) plays on stage-enter feedback, before the "训练完成，做得很好" (recording) from completed event.
+- The ready phase uses the `training-ready` lifecycle prompt only, avoiding duplicate stage-enter speech.
+- The feedback phase uses the `completed` lifecycle prompt only, avoiding duplicate stage-enter speech.
 
 ## Updated Automated Coverage
 
@@ -56,8 +56,9 @@
 - Delayed sustain scheduling and cancellation.
 - Ready phase display timing and action hint.
 - Feedback phase display timing and action hint.
-- Countdown events during ready and feedback phases.
+- Countdown events during ready phase.
+- Countdown events are suppressed during feedback.
 
 ## Verification Gap
 
-The refactor has been committed, but `bun run test`, `bun run build`, and `bun run lint` have not been executed through the available connector. iOS and Android real-device QA also remains outstanding.
+`npm test`, `npm run build`, and `npm run lint` passed on 2026-07-24. iOS and Android real-device QA remains outstanding.
