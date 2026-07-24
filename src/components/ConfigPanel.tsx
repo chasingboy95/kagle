@@ -28,6 +28,7 @@ function Stepper({ label, value, min, max, step, unit, disabled, onChange }: Ste
       <span className="text-xs text-slate-400 tracking-wide">{label}</span>
       <div className="flex items-center gap-2.5">
         <motion.button
+          type="button"
           whileTap={{ scale: 0.88 }}
           onClick={dec}
           disabled={disabled || value <= min}
@@ -42,6 +43,7 @@ function Stepper({ label, value, min, max, step, unit, disabled, onChange }: Ste
           {value}
         </span>
         <motion.button
+          type="button"
           whileTap={{ scale: 0.88 }}
           onClick={inc}
           disabled={disabled || value >= max}
@@ -59,54 +61,63 @@ function Stepper({ label, value, min, max, step, unit, disabled, onChange }: Ste
 }
 
 export default function ConfigPanel({ config, disabled, onChange }: Props) {
+  const summary = `${config.contractTime}-${config.holdTime}-${config.relaxTime} × ${config.rounds}`;
+
   return (
-    <div className="w-full rounded-2xl bg-white/[0.03] backdrop-blur-xl border border-white/[0.06] px-4 py-3.5 space-y-1">
-      <div className="text-[10px] tracking-[0.15em] text-slate-500 font-medium pb-1">
-        训练计划
+    <details className="group w-full rounded-2xl border border-white/[0.06] bg-white/[0.03] backdrop-blur-xl">
+      <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-3.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-indigo-300">
+        <span>
+          <span className="block text-[10px] font-medium tracking-[0.15em] text-slate-500">训练计划</span>
+          <span className="mt-0.5 block text-sm text-slate-200 tabular-nums">{summary}</span>
+        </span>
+        <span aria-hidden="true" className="text-slate-500 transition-transform group-open:rotate-180">⌄</span>
+      </summary>
+
+      <div className="space-y-1 border-t border-white/[0.05] px-4 pb-4 pt-2">
+        <Stepper
+          label="收缩"
+          value={config.contractTime}
+          min={CONFIG_RANGE.contractTime.min}
+          max={CONFIG_RANGE.contractTime.max}
+          step={CONFIG_RANGE.contractTime.step}
+          unit="秒"
+          disabled={disabled}
+          onChange={v => onChange({ contractTime: v })}
+        />
+        <div className="h-px bg-white/[0.04]" />
+        <Stepper
+          label="保持"
+          value={config.holdTime}
+          min={CONFIG_RANGE.holdTime.min}
+          max={CONFIG_RANGE.holdTime.max}
+          step={CONFIG_RANGE.holdTime.step}
+          unit="秒"
+          disabled={disabled}
+          onChange={v => onChange({ holdTime: v })}
+        />
+        <div className="h-px bg-white/[0.04]" />
+        <Stepper
+          label="放松"
+          value={config.relaxTime}
+          min={CONFIG_RANGE.relaxTime.min}
+          max={CONFIG_RANGE.relaxTime.max}
+          step={CONFIG_RANGE.relaxTime.step}
+          unit="秒"
+          disabled={disabled}
+          onChange={v => onChange({ relaxTime: v })}
+        />
+        <div className="h-px bg-white/[0.04]" />
+        <Stepper
+          label="循环"
+          value={config.rounds}
+          min={CONFIG_RANGE.rounds.min}
+          max={CONFIG_RANGE.rounds.max}
+          step={CONFIG_RANGE.rounds.step}
+          unit="次"
+          disabled={disabled}
+          onChange={v => onChange({ rounds: v })}
+        />
       </div>
-      <Stepper
-        label="收缩"
-        value={config.contractTime}
-        min={CONFIG_RANGE.contractTime.min}
-        max={CONFIG_RANGE.contractTime.max}
-        step={CONFIG_RANGE.contractTime.step}
-        unit="秒"
-        disabled={disabled}
-        onChange={v => onChange({ contractTime: v })}
-      />
-      <div className="h-px bg-white/[0.04]" />
-      <Stepper
-        label="保持"
-        value={config.holdTime}
-        min={CONFIG_RANGE.holdTime.min}
-        max={CONFIG_RANGE.holdTime.max}
-        step={CONFIG_RANGE.holdTime.step}
-        unit="秒"
-        disabled={disabled}
-        onChange={v => onChange({ holdTime: v })}
-      />
-      <div className="h-px bg-white/[0.04]" />
-      <Stepper
-        label="放松"
-        value={config.relaxTime}
-        min={CONFIG_RANGE.relaxTime.min}
-        max={CONFIG_RANGE.relaxTime.max}
-        step={CONFIG_RANGE.relaxTime.step}
-        unit="秒"
-        disabled={disabled}
-        onChange={v => onChange({ relaxTime: v })}
-      />
-      <div className="h-px bg-white/[0.04]" />
-      <Stepper
-        label="循环"
-        value={config.rounds}
-        min={CONFIG_RANGE.rounds.min}
-        max={CONFIG_RANGE.rounds.max}
-        step={CONFIG_RANGE.rounds.step}
-        unit="次"
-        disabled={disabled}
-        onChange={v => onChange({ rounds: v })}
-      />
-    </div>
+    </details>
   );
 }
