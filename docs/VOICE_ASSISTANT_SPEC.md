@@ -1,6 +1,6 @@
 # Voice Assistant Specification
 
-**Last verified against repository:** 2026-07-23
+**Last verified against repository:** 2026-07-24
 
 ## Overview
 
@@ -10,20 +10,18 @@
 
 | Mode | Voice | Tone cues | Haptics | Countdown |
 |------|-------|-----------|---------|-----------|
-| `off` | 无 | 无 | 无 | 无 |
-| `sound-only` | 无 | 是 | 是 | 无 |
-| `concise` | 简短提示 | 有 cue 映射时失败降级 | 是 | 无 |
-| `guided` | 引导提示 | 有 cue 映射时失败降级 | 是 | 无 |
-| `countdown` | 引导提示 | 有 cue 映射时失败降级 | 是 | 最后 3 或 5 秒 |
+| `off` | 无 | 无 | 可独立开启 | 无 |
+| `sound-only` | 无 | 是 | 可独立开启 | 可选最后 3 或 5 秒 |
+| `coach` | 固定中文录音，失败时回退系统语音 | 有 cue 映射时失败降级 | 可独立开启 | 默认最后 3 秒，可关闭或改为 5 秒 |
 
 ## Local Voice Assets
 
-- 目录：`public/audio/voice/{concise,guided,common,countdown}`。
+- 目录：`public/audio/zh-CN/` 和 `public/audio/voice/countdown/`。
 - 格式：MP3，24 kHz、48 kbps、mono。
-- 数量：18 个文件，总计 191,088 bytes（186.6 KiB，以仓库文件 `stat` 结果为准）。
+- 数量：固定教练录音和倒计时文件随仓库发布。
 - URL：`voiceAssets.ts` 使用 `import.meta.env.BASE_URL` 拼接 `audio/voice/...`，兼容 GitHub Pages 的 `/kagle/` 基路径。
 - `PreRecordedAudioAdapter` 基于 `HTMLAudioElement` 预加载与播放；单次播放 8 秒未结束即超时并返回失败。
-- 中文 `zh-CN` 的 training-ready、阶段、倒计时、暂停/继续/停止、完成等固定事件使用本地文件；开启 `announceNextStage` 时，阶段提示需要动态组合“当前阶段，接下来 X”，因此改由 Web Speech 播放并受平台 TTS 支持限制。
+- 中文 `zh-CN` 的 training-ready、阶段、暂停/继续、完成等固定事件使用本地文件；动态组数和录音不可用时的回退文本使用 Web Speech。
 - `round-start` 包含动态组数，无法映射固定文件；en-US 也没有本地资源，两者继续交给 `SpeechSynthesisAdapter`。
 - 修改中文固定文案后，必须手工重新生成对应音频并替换文件；仓库没有可自动复现神经 TTS 产物的生成流水线。
 
@@ -42,7 +40,9 @@
 
 ## Settings
 
-设置通过 `VoiceSettings` 保存到 localStorage 的 `kegel.voice-settings.v1`：`enabled`、`mode`、`language`、`volume`、`rate`、`pitch`、`voiceName`、`countdownFrom`、`announceRound`、`announceNextStage`、`hapticsEnabled`。字段逐项校验，非法值独立回退默认值。
+设置通过 `VoiceSettings` 保存到 localStorage 的 `kegel.voice-settings.v1`：`enabled`、`mode`、`language`、`volume`、`rate`、`pitch`、`voiceName`、`countdownFrom`、`announceRound`、`announceNextStage`、`hapticsEnabled`。字段逐项校验，非法值独立回退默认值。新用户默认使用 `coach` 且 `countdownFrom: 3`。
+
+UI 默认只露出启用辅助、结束前倒计时和试听按钮；辅助方式、音量、回退语速、组数播报和震动反馈放在“高级设置”里，降低首次使用时的配置负担。
 
 ## Queue Semantics
 
@@ -51,6 +51,7 @@
 - 普通事件 30 秒过期，倒计时在当前阶段结束后保留一个短宽限期，避免最后一声在阶段边界附近被丢弃。
 - 新阶段移除旧阶段与倒计时事件；暂停和停止终止当前播放并清队列。
 - 所有事件与时间均来自 `useKegelEngine`。
+- `feedback` 是完成结果视图，不产生倒计时事件。
 
 ## Haptics and Accessibility
 

@@ -6,8 +6,8 @@ const coachScripts: Record<VoiceSettings['language'], Record<ScriptKey, string>>
   'zh-CN': {
     'training-ready': '准备开始训练',
     ready: '准备开始',
-    contract: '开始收缩并保持',
-    hold: '很好，继续保持',
+    contract: '开始收缩',
+    hold: '保持住',
     relax: '慢慢放松',
     feedback: '训练完成',
     paused: '训练已暂停',
@@ -18,8 +18,8 @@ const coachScripts: Record<VoiceSettings['language'], Record<ScriptKey, string>>
   'en-US': {
     'training-ready': 'Ready to begin',
     ready: 'Get ready',
-    contract: 'Contract and hold',
-    hold: 'Good, keep holding',
+    contract: 'Start contracting',
+    hold: 'Hold',
     relax: 'Slowly release',
     feedback: 'Training complete',
     paused: 'Training paused',
