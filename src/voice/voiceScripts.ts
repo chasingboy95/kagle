@@ -5,9 +5,9 @@ type ScriptKey = 'training-ready' | 'contract' | 'hold' | 'relax' | 'paused' | '
 const conciseScripts: Record<VoiceSettings['language'], Record<ScriptKey, string>> = {
   'zh-CN': {
     'training-ready': '准备开始',
-    contract: '收缩并保持',
-    hold: '保持住',
-    relax: '放松',
+    contract: '开始收缩并保持',
+    hold: '很好，继续保持',
+    relax: '慢慢放松',
     paused: '训练已暂停',
     resumed: '继续训练',
     completed: '训练完成',
@@ -15,9 +15,9 @@ const conciseScripts: Record<VoiceSettings['language'], Record<ScriptKey, string
   },
   'en-US': {
     'training-ready': 'Ready to begin',
-    contract: 'Contract and hold',
-    hold: 'Keep holding',
-    relax: 'Relax',
+    contract: 'Start contracting and hold',
+    hold: 'Great, keep holding',
+    relax: 'Release slowly',
     paused: 'Training paused',
     resumed: 'Continue training',
     completed: 'Training complete',
@@ -29,8 +29,8 @@ const guidedScripts: Record<VoiceSettings['language'], Record<ScriptKey, string>
   'zh-CN': {
     'training-ready': '调整呼吸，准备开始',
     contract: '轻轻收紧盆底肌，达到力度后保持住',
-    hold: '很好，继续保持张力，自然呼吸',
-    relax: '缓慢释放，让肌肉完全放松',
+    hold: '很好，保持张力，自然呼吸',
+    relax: '慢慢释放，让肌肉完全放松',
     paused: '训练已暂停',
     resumed: '继续训练',
     completed: '训练完成，保持自然呼吸，让肌肉完全放松',
@@ -38,12 +38,12 @@ const guidedScripts: Record<VoiceSettings['language'], Record<ScriptKey, string>
   },
   'en-US': {
     'training-ready': 'Settle your breathing and prepare to begin',
-    contract: 'Gently contract the pelvic floor, then maintain the tension',
-    hold: 'Great, keep holding the tension and breathe naturally',
+    contract: 'Gently contract the pelvic floor and maintain the tension',
+    hold: 'Great, keep the tension and breathe naturally',
     relax: 'Release slowly and let the muscles fully relax',
     paused: 'Training paused',
     resumed: 'Continue training',
-    completed: 'Training complete. Breathe naturally and let the muscles fully relax',
+    completed: 'Training complete. Breathe naturally and relax fully',
     stopped: 'Training ended',
   },
 };
