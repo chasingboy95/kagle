@@ -68,9 +68,11 @@ export function getCountdownEvent(
 
 function phaseMs(phase: TrainingPhase, config: TrainingConfig): number {
   switch (phase) {
+    case 'ready': return 5000;
     case 'contract': return config.contractTime * 1000;
     case 'hold': return config.holdTime * 1000;
     case 'relax': return config.relaxTime * 1000;
+    case 'feedback': return 6000;
     default: return 0;
   }
 }
@@ -191,6 +193,11 @@ export function useKegelEngine(options: KegelEngineVoiceOptions = {}): UseKegelE
     const e = eng.current;
     const cfg = e.config;
 
+    if (e.phase === 'ready') {
+      emitVoice({ type: 'round-start', round: e.round + 1, totalRounds: cfg.rounds });
+      enterPhase('contract');
+      return;
+    }
     if (e.phase === 'contract') {
       enterPhase('hold');
       return;
@@ -202,20 +209,25 @@ export function useKegelEngine(options: KegelEngineVoiceOptions = {}): UseKegelE
     if (e.phase === 'relax') {
       const nextRound = e.round + 1;
       if (nextRound >= cfg.rounds) {
-        e.status = 'finished';
-        e.phase = 'idle';
-        e.round = 0;
-        e.phaseStartedAt = 0;
-        e.sessionStartedAt = 0;
-        e.totalPausedMs = 0;
-        stopTick();
         emitVoice({ type: 'completed' });
-        pushState();
+        enterPhase('feedback');
         return;
       }
       e.round = nextRound;
       emitVoice({ type: 'round-start', round: e.round + 1, totalRounds: cfg.rounds });
       enterPhase('contract');
+      return;
+    }
+    if (e.phase === 'feedback') {
+      e.status = 'finished';
+      e.phase = 'idle';
+      e.round = 0;
+      e.phaseStartedAt = 0;
+      e.sessionStartedAt = 0;
+      e.totalPausedMs = 0;
+      stopTick();
+      pushState();
+      return;
     }
   }, [emitVoice, enterPhase, pushState, stopTick]);
 
@@ -282,8 +294,7 @@ export function useKegelEngine(options: KegelEngineVoiceOptions = {}): UseKegelE
     e.config = config;
     e.pauseStartedAt = 0;
     emitVoice({ type: 'training-ready' });
-    emitVoice({ type: 'round-start', round: 1, totalRounds: config.rounds });
-    enterPhase('contract');
+    enterPhase('ready');
     startTick();
     pushState();
   }, [config, emitVoice, enterPhase, startTick, pushState]);
@@ -338,8 +349,7 @@ export function useKegelEngine(options: KegelEngineVoiceOptions = {}): UseKegelE
     e.totalPausedMs = 0;
     e.pauseStartedAt = 0;
     emitVoice({ type: 'training-ready' });
-    emitVoice({ type: 'round-start', round: 1, totalRounds: e.config.rounds });
-    enterPhase('contract');
+    enterPhase('ready');
     startTick();
     pushState();
   }, [emitVoice, enterPhase, startTick, pushState, stopTick]);

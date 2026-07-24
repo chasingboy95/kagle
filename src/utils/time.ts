@@ -3,6 +3,9 @@ export function formatSeconds(ms: number): string {
   return String(Math.ceil(Math.max(0, ms) / 1000));
 }
 
+export const READY_DURATION_MS = 5000;
+export const FEEDBACK_DURATION_MS = 6000;
+
 /** 计算总训练时长（毫秒） */
 export function calcTotalDuration(
   contractTime: number,
@@ -11,12 +14,12 @@ export function calcTotalDuration(
   rounds: number,
 ): number {
   const singleRound = (contractTime + holdTime + relaxTime) * 1000;
-  return singleRound * rounds;
+  return READY_DURATION_MS + singleRound * rounds + FEEDBACK_DURATION_MS;
 }
 
 export interface DisplayPhaseTiming {
   /** User-facing phase key. Contract and hold intentionally share one key. */
-  key: 'idle' | 'contract-hold' | 'relax';
+  key: 'idle' | 'ready' | 'contract-hold' | 'relax' | 'feedback';
   remainingMs: number;
   progress: number;
   durationMs: number;
@@ -27,7 +30,7 @@ export interface DisplayPhaseTiming {
  * Contract and hold are presented as one continuous "收缩并保持" phase.
  */
 export function calcDisplayPhaseTiming(
-  phase: 'idle' | 'contract' | 'hold' | 'relax',
+  phase: 'idle' | 'ready' | 'contract' | 'hold' | 'relax' | 'feedback',
   phaseRemainingMs: number,
   contractTime: number,
   holdTime: number,
@@ -35,6 +38,28 @@ export function calcDisplayPhaseTiming(
 ): DisplayPhaseTiming {
   if (phase === 'idle') {
     return { key: 'idle', remainingMs: 0, progress: 0, durationMs: 0 };
+  }
+
+  if (phase === 'ready') {
+    const durationMs = READY_DURATION_MS;
+    const remainingMs = Math.max(0, phaseRemainingMs);
+    return {
+      key: 'ready',
+      remainingMs,
+      progress: durationMs > 0 ? Math.min(1, Math.max(0, 1 - remainingMs / durationMs)) : 0,
+      durationMs,
+    };
+  }
+
+  if (phase === 'feedback') {
+    const durationMs = FEEDBACK_DURATION_MS;
+    const remainingMs = Math.max(0, phaseRemainingMs);
+    return {
+      key: 'feedback',
+      remainingMs,
+      progress: durationMs > 0 ? Math.min(1, Math.max(0, 1 - remainingMs / durationMs)) : 0,
+      durationMs,
+    };
   }
 
   if (phase === 'contract' || phase === 'hold') {
@@ -64,19 +89,23 @@ export function calcDisplayPhaseTiming(
 }
 
 /** 阶段提示（无呼吸指导） */
-export function phaseHint(phase: 'contract' | 'hold' | 'relax'): string {
+export function phaseHint(phase: 'ready' | 'contract' | 'hold' | 'relax' | 'feedback'): string {
   switch (phase) {
+    case 'ready': return '准备开始';
     case 'contract':
     case 'hold': return '收缩并保持';
+    case 'feedback': return '训练完成';
     case 'relax': return '放松';
   }
 }
 
 /** 完整动作提示 */
-export function actionHint(phase: 'contract' | 'hold' | 'relax'): string {
+export function actionHint(phase: 'ready' | 'contract' | 'hold' | 'relax' | 'feedback'): string {
   switch (phase) {
+    case 'ready': return '准备开始';
     case 'contract':
     case 'hold': return '收缩并保持';
+    case 'feedback': return '训练完成';
     case 'relax': return '慢慢放松';
   }
 }
