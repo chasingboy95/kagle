@@ -2,66 +2,35 @@
 
 All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
-until the first stable release (pre-1.0.0).
-
 ## [Unreleased]
 
 ### Added
 
-- Training engine: configurable contract/hold/relax times and rounds
-- Training state machine: idle → running → paused → finished
-- Phase progression: contract → hold → relax per round
-- 100ms interval tick with `performance.now()` drift resistance
-- Pause/resume with exact timing compensation
-- Stop/restart functionality
-- Screen Wake Lock API integration (prevents sleep during workout)
-- Voice assistance with 5 modes: off, sound-only, concise, guided, countdown
-- Voice scripts in zh-CN (concise and guided); en-US scripts defined
-- Web Speech API output for dynamic round announcements and en-US speech
-- 18 packaged Mandarin neural-TTS prompts for more natural local Chinese guidance without runtime cloud requests
-- Web Audio API tone synthesis (sound-only mode)
-- Haptic feedback via `navigator.vibrate`
-- Voice settings persistence in localStorage
-- Voice settings validation with per-field fallback
-- Voice queue with priority, deduplication, and expiry
-- VoiceSettingsPanel: mode selector, volume, rate, countdown-from, round announcement, haptics toggle, preview
-- MuscleSphere: 9-layer SVG composited animation
-- MuscleSphere stages: idle, contract, hold, relax
-- MuscleSphere reduced-motion support
-- MuscleSphere pause freeze
-- MuscleSphere progress ring (conic gradient, optional)
-- TimerDisplay: phase name, countdown seconds, round info
-- TrainingStatus: title, streak, round indicator
-- ProgressBar: linear workout progress with spring animation
-- ConfigPanel: stepper controls for contract/hold/relax/rounds
-- ControlButtons: start/pause/resume/stop/restart
-- Dark theme, mobile-first responsive layout (Tailwind CSS)
-- GH Pages deployment via GitHub Actions
-- Automated unit test suite for training countdown and voice behavior
-- Unit coverage for continuous contract-and-hold display timing
-- Documentation baseline (docs/ directory)
-- ADR-001 through ADR-005
+- Three explicit voice-assistance choices: 静音, 节奏提示, and 语音教练.
+- Independent final 3-second or 5-second countdown for both audible modes.
+- Automatic migration from legacy `concise`, `guided`, and `countdown` mode values to `coach`.
+- Delayed sustain coaching cue around 35% into the hold phase.
+- Unit coverage for mode migration, coach/rhythm routing, countdown independence, recording fallback, and sustain cancellation.
+- Seven packaged Mandarin coach recordings for ready, contraction start, contraction sustain, release, pause, resume, and completion.
 
 ### Changed
 
-- Migrated from single-file vanilla HTML to React/TypeScript/Vite project structure
-- MuscleSphere redesign: removed hue-rotate, container rotation, borderRadius animation
-- Relax animation: replaced spring with cubic-bezier duration scaled to stage length
-- Hold tremor: limited to fibers, core, fascia only
-- Progress ring: muted gray tones instead of bright accent colors
-- Voice architecture: adapter pattern replacing direct SpeechSynthesis usage
-- Fixed Chinese prompts now prefer packaged audio; dynamic round announcements and en-US continue to use platform speech synthesis
-- Contract and hold are now presented as one continuous user-facing phase, while the engine still keeps both internal phases
-- The progress ring and countdown no longer reset when transitioning from contract to hold
-- Timer wording now uses “收缩并保持”, “慢慢放松”, and localized “第 X / Y 次” round text
+- Replaced the previous five-mode voice selector with three behaviorally distinct modes.
+- Countdown is now an enhancement rather than a voice mode.
+- The settings panel no longer exposes unsupported concise/guided variants, next-stage announcements, pitch, or language switching.
+- Fixed Mandarin prompts now use the new `public/audio/zh-CN/` recording set.
+- Recorded playback failure now falls back to system speech before a non-verbal cue.
+- The sustain prompt no longer plays immediately on entering the internal hold phase.
+- Default voice settings now use coach mode with countdown and round announcements disabled.
 
 ### Fixed
 
-- Voice playback queues recover when browser audio or speech completion events are missing, using 8-second watchdogs and safe fallback
-- Interrupted local voice playback no longer triggers a stale fallback cue after a newer stage, pause, or stop event
+- Coach and guided selections no longer produce identical behavior under different labels.
+- Countdown no longer implicitly selects guided scripts.
+- Rhythm mode no longer plays full coach sentences.
+- GitHub Pages audio paths remain `BASE_URL` aware.
 
-### Removed
+### Verification Pending
 
-- (None yet tracked — initial changelog)
+- Full test, build, and lint commands have not yet been rerun after this refactor.
+- iOS and Android real-device audio QA remains outstanding.
