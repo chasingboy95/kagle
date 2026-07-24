@@ -100,8 +100,9 @@ export function phaseHint(phase: 'ready' | 'contract' | 'hold' | 'relax' | 'feed
 }
 
 /** 完整动作提示 */
-export function actionHint(phase: 'ready' | 'contract' | 'hold' | 'relax' | 'feedback'): string {
+export function actionHint(phase: 'idle' | 'ready' | 'contract' | 'hold' | 'relax' | 'feedback'): string {
   switch (phase) {
+    case 'idle': return '';
     case 'ready': return '准备开始';
     case 'contract':
     case 'hold': return '收缩并保持';

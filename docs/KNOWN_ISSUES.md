@@ -125,23 +125,22 @@ Basic accessibility support exists, but comprehensive testing has not been compl
 
 ## 6. Feedback Phase UI
 
-**Status:** Open
+**Status:** Resolved (2026-07-24)
 
 **Description:**
 
-During the 6-second feedback phase, the training status remains `running` (to allow the tick to complete). The ControlButtons component therefore shows pause/stop buttons instead of the completion controls. After feedback ends, the `finished` status shows the correct completion UI.
+During the 6-second feedback phase, the training status previously remained `running` (to allow the tick to complete). The ControlButtons component therefore showed pause/stop buttons instead of completion-focused controls. After feedback ended, the `finished` status showed the correct completion UI.
 
 **Impact:**
 
-The pause button is visible during the completion celebration, which may be confusing.
+Resolved by moving the completion celebration to a dedicated `feedback` status while still allowing the engine tick to advance to `finished`.
 
 **Planned Fix:**
 
-- Consider adding a `feedback` status separate from `running` to hide pause/stop during feedback, or
-- Add feedback-specific UI that overlays the control area during the feedback phase.
+No further fix planned.
 
 ---
 
 ## Resolved Issues
 
-None currently tracked.
+- Feedback phase UI no longer exposes pause/stop controls during the completion celebration.
