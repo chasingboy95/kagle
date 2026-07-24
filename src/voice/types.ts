@@ -12,16 +12,17 @@ export type VoiceMode = 'off' | 'sound-only' | 'coach';
 
 export type VoiceLanguage = 'zh-CN' | 'en-US';
 
-/**
- * Coach-oriented cues. These describe user intent rather than engine phases.
- * The training engine may still use contract/hold internally, while the voice
- * layer treats them as one continuous contraction experience.
- */
+/** Coach-oriented non-verbal cues used by the rhythm assistant. */
 export type SoundCue =
   | 'ready'
   | 'contraction-start'
   | 'contraction-sustain'
   | 'release-start'
+  | 'countdown-5'
+  | 'countdown-4'
+  | 'countdown-3'
+  | 'countdown-2'
+  | 'countdown-1'
   | 'pause'
   | 'resume'
   | 'complete'
