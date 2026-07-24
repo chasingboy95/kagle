@@ -9,18 +9,7 @@ import ConfigPanel from './components/ConfigPanel';
 import VoiceSettingsPanel from './components/VoiceSettingsPanel';
 import { useKegelEngine } from './hooks/useKegelEngine';
 import { useVoiceAssistant } from './hooks/useVoiceAssistant';
-import { calcTotalDuration } from './utils/time';
-import type { TrainingConfig } from './types/training';
-
-/** 计算当前阶段的毫秒数 */
-function calcPhaseDuration(phase: string, config: TrainingConfig): number {
-  switch (phase) {
-    case 'contract': return config.contractTime * 1000;
-    case 'hold':     return config.holdTime * 1000;
-    case 'relax':    return config.relaxTime * 1000;
-    default:         return 0;
-  }
-}
+import { calcDisplayPhaseTiming, calcTotalDuration } from './utils/time';
 
 export default function App() {
   const voice = useVoiceAssistant();
@@ -35,11 +24,14 @@ export default function App() {
   const isIdle = state.status === 'idle';
   const isActive = state.status === 'running' || state.status === 'paused';
   const showHint = state.status === 'running' && state.phase !== 'idle';
-  const phaseDuration = calcPhaseDuration(state.phase, config);
-  const stageProgress = state.phase !== 'idle' && phaseDuration > 0
-    ? 1 - (state.phaseRemainingMs / phaseDuration)
-    : 0;
-  const resolvedStageDuration = state.phase !== 'idle' ? phaseDuration : undefined;
+
+  const displayTiming = calcDisplayPhaseTiming(
+    state.phase,
+    state.phaseRemainingMs,
+    config.contractTime,
+    config.holdTime,
+    config.relaxTime,
+  );
 
   const totalDurationMs = useMemo(
     () =>
@@ -96,21 +88,19 @@ export default function App() {
         />
       </div>
 
-      {/* 阶段提示 —— 在肌肉球上方 */}
+      {/* 用户阶段提示：contract + hold 共用同一个 key，避免中途切换动画 */}
       <div className="h-10 flex items-center justify-center mb-1">
         <AnimatePresence mode="wait">
           {showHint ? (
             <motion.div
-              key={state.phase}
+              key={displayTiming.key}
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.25 }}
               className="text-base font-semibold tracking-wide text-slate-200/90"
             >
-              {state.phase === 'contract' && '收缩并保持'}
-              {state.phase === 'hold' && '坚持住'}
-              {state.phase === 'relax' && '放松'}
+              {displayTiming.key === 'contract-hold' ? '收缩并保持' : '慢慢放松'}
             </motion.div>
           ) : (
             <motion.div
@@ -131,15 +121,16 @@ export default function App() {
         <MuscleSphere
           stage={state.phase}
           paused={state.status === 'paused'}
-          stageProgress={stageProgress}
+          stageProgress={displayTiming.progress}
           showProgressRing={state.status === 'running'}
-          stageDurationMs={resolvedStageDuration}
+          stageDurationMs={displayTiming.durationMs || undefined}
         />
 
-        {/* 倒计时 + Round */}
+        {/* 连续倒计时 + Round */}
         <TimerDisplay
           phase={state.phase}
-          phaseRemainingMs={state.phaseRemainingMs}
+          displayPhaseKey={displayTiming.key}
+          phaseRemainingMs={displayTiming.remainingMs}
           currentRound={state.currentRound}
           totalRounds={config.rounds}
           isRunning={isActive || state.status === 'finished'}
