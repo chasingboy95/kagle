@@ -40,6 +40,7 @@ until the first stable release (pre-1.0.0).
 - Dark theme, mobile-first responsive layout (Tailwind CSS)
 - GH Pages deployment via GitHub Actions
 - Automated unit test suite for training countdown and voice behavior
+- Unit coverage for continuous contract-and-hold display timing
 - Documentation baseline (docs/ directory)
 - ADR-001 through ADR-005
 
@@ -52,6 +53,9 @@ until the first stable release (pre-1.0.0).
 - Progress ring: muted gray tones instead of bright accent colors
 - Voice architecture: adapter pattern replacing direct SpeechSynthesis usage
 - Fixed Chinese prompts now prefer packaged audio; dynamic round announcements and en-US continue to use platform speech synthesis
+- Contract and hold are now presented as one continuous user-facing phase, while the engine still keeps both internal phases
+- The progress ring and countdown no longer reset when transitioning from contract to hold
+- Timer wording now uses “收缩并保持”, “慢慢放松”, and localized “第 X / Y 次” round text
 
 ### Fixed
 
