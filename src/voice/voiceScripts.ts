@@ -2,66 +2,34 @@ import type { SoundCue, VoiceEvent, VoiceSettings } from './types';
 
 type ScriptKey = 'training-ready' | 'contract' | 'hold' | 'relax' | 'paused' | 'resumed' | 'completed' | 'stopped';
 
-const conciseScripts: Record<VoiceSettings['language'], Record<ScriptKey, string>> = {
+const coachScripts: Record<VoiceSettings['language'], Record<ScriptKey, string>> = {
   'zh-CN': {
-    'training-ready': '准备开始',
+    'training-ready': '准备开始训练',
     contract: '开始收缩并保持',
     hold: '很好，继续保持',
     relax: '慢慢放松',
     paused: '训练已暂停',
     resumed: '继续训练',
-    completed: '训练完成',
+    completed: '训练完成，做得很好',
     stopped: '训练已结束',
   },
   'en-US': {
     'training-ready': 'Ready to begin',
-    contract: 'Start contracting and hold',
-    hold: 'Great, keep holding',
-    relax: 'Release slowly',
+    contract: 'Contract and hold',
+    hold: 'Good, keep holding',
+    relax: 'Slowly release',
     paused: 'Training paused',
     resumed: 'Continue training',
-    completed: 'Training complete',
+    completed: 'Great work, training complete',
     stopped: 'Training ended',
   },
 };
-
-const guidedScripts: Record<VoiceSettings['language'], Record<ScriptKey, string>> = {
-  'zh-CN': {
-    'training-ready': '调整呼吸，准备开始',
-    contract: '轻轻收紧盆底肌，达到力度后保持住',
-    hold: '很好，保持张力，自然呼吸',
-    relax: '慢慢释放，让肌肉完全放松',
-    paused: '训练已暂停',
-    resumed: '继续训练',
-    completed: '训练完成，保持自然呼吸，让肌肉完全放松',
-    stopped: '训练已结束',
-  },
-  'en-US': {
-    'training-ready': 'Settle your breathing and prepare to begin',
-    contract: 'Gently contract the pelvic floor and maintain the tension',
-    hold: 'Great, keep the tension and breathe naturally',
-    relax: 'Release slowly and let the muscles fully relax',
-    paused: 'Training paused',
-    resumed: 'Continue training',
-    completed: 'Training complete. Breathe naturally and relax fully',
-    stopped: 'Training ended',
-  },
-};
-
-function nextStage(stage: Extract<VoiceEvent, { type: 'stage-enter' }>['stage']): string | null {
-  if (stage === 'contract') return 'relax';
-  if (stage === 'hold') return 'relax';
-  if (stage === 'relax') return 'contract';
-  return null;
-}
 
 export function resolveSpeech(event: VoiceEvent, settings: VoiceSettings): string | null {
-  if (!settings.enabled || settings.mode === 'off' || settings.mode === 'sound-only') return null;
+  if (!settings.enabled || settings.mode !== 'coach') return null;
 
   if (event.type === 'countdown') {
-    return settings.mode === 'countdown' && settings.countdownFrom > 0
-      ? String(event.seconds)
-      : null;
+    return settings.countdownFrom > 0 ? String(event.seconds) : null;
   }
 
   if (event.type === 'round-start') {
@@ -71,17 +39,9 @@ export function resolveSpeech(event: VoiceEvent, settings: VoiceSettings): strin
       : `Round ${event.round} of ${event.totalRounds}`;
   }
 
-  const scripts = settings.mode === 'concise'
-    ? conciseScripts[settings.language]
-    : guidedScripts[settings.language];
-
+  const scripts = coachScripts[settings.language];
   if (event.type === 'stage-enter') {
-    if (event.stage === 'idle') return null;
-    const text = scripts[event.stage];
-    const upcoming = nextStage(event.stage);
-    if (!settings.announceNextStage || !upcoming) return text;
-    const nextText = conciseScripts[settings.language][upcoming as 'contract' | 'hold' | 'relax'];
-    return settings.language === 'zh-CN' ? `${text}，接下来${nextText}` : `${text}. Next, ${nextText.toLowerCase()}`;
+    return event.stage === 'idle' ? null : scripts[event.stage];
   }
 
   return scripts[event.type];
@@ -90,7 +50,11 @@ export function resolveSpeech(event: VoiceEvent, settings: VoiceSettings): strin
 export function resolveCue(event: VoiceEvent): SoundCue | null {
   switch (event.type) {
     case 'training-ready': return 'ready';
-    case 'stage-enter': return event.stage === 'idle' ? null : event.stage;
+    case 'stage-enter':
+      if (event.stage === 'contract') return 'contraction-start';
+      if (event.stage === 'hold') return 'contraction-sustain';
+      if (event.stage === 'relax') return 'release-start';
+      return null;
     case 'paused': return 'pause';
     case 'resumed': return 'resume';
     case 'completed': return 'complete';
