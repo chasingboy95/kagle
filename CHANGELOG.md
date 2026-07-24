@@ -12,6 +12,7 @@ All notable changes to this project will be documented in this file.
 - Delayed sustain coaching cue around 35% into the hold phase.
 - Unit coverage for mode migration, coach/rhythm routing, countdown independence, recording fallback, and sustain cancellation.
 - Seven packaged Mandarin coach recordings for ready, contraction start, contraction sustain, release, pause, resume, and completion.
+- Collapsible training-plan panel with a compact `contract-hold-relax × rounds` summary.
 
 ### Changed
 
@@ -24,6 +25,7 @@ All notable changes to this project will be documented in this file.
 - Default voice settings now use coach mode with countdown and round announcements disabled.
 - Countdown feedback now uses soft ascending synthesized tones instead of the legacy spoken-number MP3 files.
 - Rhythm cues now use distinct two-note contraction and release patterns, with quieter single-note sustain feedback.
+- The training-plan panel now matches the voice-assistance accordion style and is collapsed by default.
 
 ### Fixed
 
@@ -37,3 +39,4 @@ All notable changes to this project will be documented in this file.
 
 - Full test, build, and lint commands have not yet been rerun after this refactor.
 - iOS and Android real-device audio QA remains outstanding.
+- The collapsible training-plan panel has not yet received component or real-device interaction testing.
