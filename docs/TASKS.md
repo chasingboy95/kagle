@@ -10,20 +10,17 @@
 ## Next (Priority Order)
 
 1. **Voice assistance real-device QA**
-  - Verify “语音教练” uses the seven new Mandarin recordings.
-  - Verify “节奏提示” never speaks full sentences.
+  - Verify "语音教练" uses the seven new Mandarin recordings.
+  - Verify "节奏提示" never speaks full sentences.
   - Verify countdown works independently in both audible modes.
   - Verify the delayed sustain cue is cancelled by pause, stop, or relaxation.
   - Verify recording failure falls back to system speech.
 
-2. **Consolidate SVG asset copies**
-  - Remove duplicate SVGs in `assets/muscle-sphere/` and `public/muscle-sphere/`.
-  - Keep `src/assets/muscle-sphere/` as the single source of truth.
-
-3. **Add training engine integration tests**
+2. **Add training engine integration tests**
   - Test start, pause, resume, stop, restart, phase timing, and pause compensation.
+  - Test the full lifecycle: ready → contract → hold → relax → feedback → finished.
 
-4. **Add component and E2E tests**
+3. **Add component and E2E tests**
   - Cover `VoiceSettingsPanel` mode selection and countdown controls.
   - Add a complete training-flow smoke test.
 
@@ -36,6 +33,7 @@
 - Add English recorded prompts before exposing a language selector.
 - Investigate the unused Ripple component and `hero.png`.
 - Evaluate a Web Worker for background-tab timing.
+- Implement TrainingFeedback summary component with session statistics.
 
 ## Blocked
 
@@ -43,16 +41,25 @@
 
 ## Completed
 
-- Voice assistance modes simplified to three user-facing choices:
+- [x] Training Ready Phase - 5s breathing preparation before first contraction.
+- [x] Training Feedback Lifecycle - 6s completion celebration after last relaxation.
+- [x] Updated state machine: idle → ready → contract → hold → relax → (repeat) → feedback → finished → idle.
+- [x] MuscleSphere animations for ready (slow breathing) and feedback (release/calm).
+- [x] Voice scripts for ready and feedback stage-enter events.
+- [x] Display timing and action hints for both new phases.
+- [x] Adjusted total duration to include ready and feedback phases.
+- [x] Unit tests for new phase timing, display, and countdown.
+- [x] ADR-005 updated with lifecycle design.
+- [x] Voice assistance modes simplified to three user-facing choices:
   - 静音 (`off`)
   - 节奏提示 (`sound-only`)
   - 语音教练 (`coach`)
-- Legacy `concise`, `guided`, and `countdown` settings migrate automatically to `coach`.
-- Countdown is now an independent 0/3/5-second option for both audible modes.
-- Fixed Mandarin coach events use the new seven-file recording set.
-- Recorded playback failure now falls back to system speech before a non-verbal cue.
-- The sustain prompt is delayed to approximately 35% of the hold phase and cancelled when the phase changes.
-- Unit tests updated for migration, coach/rhythm behavior, independent countdown, asset routing, speech fallback, and delayed sustain cancellation.
-- Sprint 1 continuous training UX.
-- Basic PWA support with GitHub Pages subpath handling and iOS standalone metadata.
-- Training engine, timer, progress, MuscleSphere animation, settings persistence, wake lock, and GitHub Pages deployment.
+- [x] Legacy `concise`, `guided`, and `countdown` settings migrate automatically to `coach`.
+- [x] Countdown is now an independent 0/3/5-second option for both audible modes.
+- [x] Fixed Mandarin coach events use the new seven-file recording set.
+- [x] Recorded playback failure now falls back to system speech before a non-verbal cue.
+- [x] The sustain prompt is delayed to approximately 35% of the hold phase and cancelled when the phase changes.
+- [x] Unit tests updated for migration, coach/rhythm behavior, independent countdown, asset routing, speech fallback, and delayed sustain cancellation.
+- [x] Sprint 1 continuous training UX.
+- [x] Basic PWA support with GitHub Pages subpath handling and iOS standalone metadata.
+- [x] Training engine, timer, progress, MuscleSphere animation, settings persistence, wake lock, and GitHub Pages deployment.

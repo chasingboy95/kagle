@@ -2,7 +2,7 @@
 
 ## Current Status
 
-Last updated: 2026-07-23
+Last updated: 2026-07-24
 
 This document tracks known technical debt, limitations, and follow-up work. Issues listed here are not considered completed until they are verified and removed or marked resolved.
 
@@ -14,12 +14,14 @@ This document tracks known technical debt, limitations, and follow-up work. Issu
 
 **Description:**
 
-The MuscleSphere component implements the core visual training experience with 9 SVG layers and four animation states:
+The MuscleSphere component implements the core visual training experience with 9 SVG layers and six animation states:
 
 - idle
+- ready (new)
 - contract
 - hold
 - relax
+- feedback (new)
 
 However, it currently lacks automated component tests and documented rendering validation.
 
@@ -30,7 +32,7 @@ Animation regressions may not be detected automatically.
 **Planned Fix:**
 
 - Add MuscleSphere component tests.
-- Verify stage transitions.
+- Verify stage transitions including ready and feedback.
 - Verify pause freeze behavior.
 - Verify reduced-motion behavior.
 
@@ -62,7 +64,7 @@ Future animation updates may modify the wrong asset version.
 
 **Description:**
 
-The training engine state machine is implemented, but integration-level testing is incomplete.
+The training engine state machine is implemented, but integration-level testing is incomplete. The new ready→feedback lifecycle adds additional transitions that are not covered by automated integration tests.
 
 **Impact:**
 
@@ -72,12 +74,12 @@ Complex flows may regress without detection.
 
 Add integration tests covering:
 
-- start
-- pause
-- resume
-- phase transitions
-- round progression
-- finish state
+- start → ready phase
+- ready → contract transition (timing-dependent)
+- full round progression with ready/contract/hold/relax
+- last relax → feedback → finished lifecycle
+- pause/resume during ready phase
+- stop during feedback phase
 
 ---
 
@@ -100,7 +102,7 @@ Perform manual QA for:
 - iOS Safari audio behavior
 - Android Chrome speech behavior
 - vibration support
-- animation performance
+- animation performance (particularly ready breathing and feedback release)
 - screen-lock behavior
 
 ---
@@ -118,6 +120,25 @@ Basic accessibility support exists, but comprehensive testing has not been compl
 - Verify keyboard navigation.
 - Test screen reader behavior.
 - Validate ARIA usage.
+
+---
+
+## 6. Feedback Phase UI
+
+**Status:** Open
+
+**Description:**
+
+During the 6-second feedback phase, the training status remains `running` (to allow the tick to complete). The ControlButtons component therefore shows pause/stop buttons instead of the completion controls. After feedback ends, the `finished` status shows the correct completion UI.
+
+**Impact:**
+
+The pause button is visible during the completion celebration, which may be confusing.
+
+**Planned Fix:**
+
+- Consider adding a `feedback` status separate from `running` to hide pause/stop during feedback, or
+- Add feedback-specific UI that overlays the control area during the feedback phase.
 
 ---
 

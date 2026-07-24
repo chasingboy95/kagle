@@ -6,6 +6,14 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- Training Ready Phase: 5-second preparation phase with breathing animation and countdown before the first contraction.
+- Training Feedback Lifecycle: 6-second completion celebration phase with release animation after the last relaxation.
+- READY_DURATION_MS (5000) and FEEDBACK_DURATION_MS (6000) constants for lifecycle timing.
+- `ready` and `feedback` voice script keys for stage-enter speech in coach mode (zh-CN and en-US).
+- `ready` and `feedback` MuscleSphere animation variants with slow breathing and release-to-calm transitions.
+- `ready` and `feedback` display phase timing in `calcDisplayPhaseTiming` for TimerDisplay rendering.
+- Unit tests for ready/feedback phase timing, action hints, and countdown events.
+- Updated ADR-005 with the extended training lifecycle design.
 - Three explicit voice-assistance choices: 静音, 节奏提示, and 语音教练.
 - Independent final 3-second or 5-second countdown for both audible modes.
 - Automatic migration from legacy `concise`, `guided`, and `countdown` mode values to `coach`.
@@ -16,6 +24,11 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- Training state machine: `start()` now enters `ready` phase instead of `contract`.
+- Training state machine: last `relax` transitions to `feedback` (6s) before `finished`, instead of going directly to `finished`.
+- Total session duration now includes READY_DURATION_MS and FEEDBACK_DURATION_MS.
+- `actionHint` and `phaseHint` accept and return values for `ready` and `feedback` phases.
+- App.tsx hint text now uses `actionHint(state.phase)` for all running phases.
 - Replaced the previous five-mode voice selector with three behaviorally distinct modes.
 - Countdown is now an enhancement rather than a voice mode.
 - The settings panel no longer exposes unsupported concise/guided variants, next-stage announcements, pitch, or language switching.

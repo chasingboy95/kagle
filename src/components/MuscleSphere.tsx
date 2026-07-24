@@ -16,7 +16,7 @@ import particlesSvg from "@/assets/muscle-sphere/particles.svg";
 import rippleSvg from "@/assets/muscle-sphere/ripple.svg";
 import shadowSvg from "@/assets/muscle-sphere/shadow.svg";
 
-export type MuscleStage = "idle" | "contract" | "hold" | "relax";
+export type MuscleStage = "idle" | "ready" | "contract" | "hold" | "relax" | "feedback";
 
 export interface MuscleSphereProps {
   /** Current training stage. */
@@ -111,9 +111,11 @@ function buildContainerVariants(stageDurationMs: number | undefined): Variants {
   const relaxT = relaxTransition(stageDurationMs);
   return {
     idle:     { scale: 1, y: 0, transition: SOFT_SPRING },
+    ready:    { scale: [1, 1.03, 1], y: [0, -1, 0], transition: { duration: 3, repeat: Infinity, ease: "easeInOut" } },
     contract: { scale: 0.92, y: -12, transition: CUBIC_EASE },
     hold:     { scale: 0.92, y: -12, transition: CUBIC_EASE },
     relax:    { scale: [0.92, 1.015, 1], y: [-12, 1, 0], transition: { scale: relaxT, y: relaxT } },
+    feedback: { scale: 1, y: 0, opacity: 0.9, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] } },
   };
 }
 
@@ -123,16 +125,20 @@ function buildContainerVariants(stageDurationMs: number | undefined): Variants {
 
 const shadowVariants: Variants = {
   idle:     { scale: 1, y: 8, opacity: 0.34, filter: "blur(3px)", transition: SOFT_SPRING },
+  ready:    { scale: [1, 1.02, 1], y: [8, 6, 8], opacity: [0.34, 0.28, 0.34], transition: { duration: 3, repeat: Infinity, ease: "easeInOut" } },
   contract: { scaleX: 0.85, scaleY: 0.88, y: 18, opacity: 0.48, filter: "blur(5px)", transition: CUBIC_EASE },
   hold:     { scaleX: 0.85, scaleY: 0.88, y: 18, opacity: 0.48, filter: "blur(5px)", transition: CUBIC_EASE },
   relax:    { scaleX: [0.85, 1.03, 1], scaleY: [0.88, 1.01, 1], y: [18, 5, 8], opacity: [0.48, 0.28, 0.34], filter: ["blur(5px)", "blur(2px)", "blur(3px)"], transition: { duration: 1.6, times: [0, 0.65, 1], ease: [0.22, 1, 0.36, 1] as [number, number, number, number] } },
+  feedback: { scale: 1, y: 8, opacity: 0.34, filter: "blur(3px)", transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] } },
 };
 
 const auraVariants: Variants = {
   idle:     { scale: [0.99, 1.03, 0.99], opacity: [0.18, 0.28, 0.18], transition: { duration: 5, repeat: Infinity, ease: "easeInOut" } },
+  ready:    { scale: [1, 1.04, 1], opacity: [0.22, 0.34, 0.22], filter: "saturate(1.04) brightness(1.02)", transition: { duration: 3, repeat: Infinity, ease: "easeInOut" } },
   contract: { scale: 0.94, opacity: 0.34, filter: "saturate(1.08) brightness(1.04)", transition: CUBIC_EASE },
   hold:     { scale: 0.94, opacity: 0.34, filter: "saturate(1.08) brightness(1.04)", transition: CUBIC_EASE },
   relax: { scale: [0.94, 1.04, 1], opacity: [0.34, 0.15, 0.2], filter: ["saturate(1.08) brightness(1.04)", "saturate(0.98) brightness(1.02)", "saturate(1) brightness(1)"], transition: { duration: 1.8, ease: [0.22, 1, 0.36, 1] } },
+  feedback: { scale: [1.02, 1], opacity: [0.22, 0.18], transition: { duration: 1.5, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] } },
 };
 
 /* 
@@ -144,30 +150,38 @@ const auraVariants: Variants = {
 
 const rippleVariants: Variants = {
   idle:     { scale: 1, opacity: 0.04 },
+  ready:    { scale: [1, 1.02, 1], opacity: [0.04, 0.06, 0.04], transition: { duration: 3, repeat: Infinity, ease: "easeInOut" } },
   contract: { scale: 0.88, opacity: 0 },
   hold:     { scale: 0.88, opacity: 0 },
   relax:    { scale: [0.88, 1.18], opacity: [0.18, 0], transition: { duration: 1.8, ease: [0.22, 1, 0.36, 1] } },
+  feedback: { scale: 1, opacity: 0.04, transition: { duration: 0.8 } },
 };
 
 const fasciaVariants: Variants = {
   idle:     { scale: [1, 1.008, 1], rotate: [0, 0.5, -0.3, 0], opacity: 0.58, transition: { duration: 8, repeat: Infinity, ease: "easeInOut" } },
+  ready:    { scale: [1, 1.01, 1], rotate: [0, 0.3, -0.2, 0], opacity: 0.58, transition: { duration: 4, repeat: Infinity, ease: "easeInOut" } },
   contract: { scale: 0.91, rotate: 1.2, opacity: 0.78, transition: CUBIC_EASE },
   hold:     { scale: [0.91, 0.915, 0.91], opacity: [0.76, 0.82, 0.76], transition: { duration: 1.6, repeat: Infinity, ease: "easeInOut" }, rotate: 1.2 },
   relax:    { scale: [0.91, 1.02, 1], rotate: [1.2, -0.3, 0], opacity: [0.78, 0.52, 0.58], transition: { duration: 1.8, times: [0, 0.65, 1], ease: [0.22, 1, 0.36, 1] as [number, number, number, number] } },
+  feedback: { scale: 1, rotate: 0, opacity: 0.58, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] } },
 };
 
 const fluidVariants: Variants = {
   idle:     { scaleX: [1, 1.012, 0.996, 1], scaleY: [1, 0.995, 1.012, 1], x: [0, 0.8, -0.5, 0], y: [0, -1, 0.5, 0], rotate: [0, 0.4, -0.3, 0], opacity: 0.74, transition: { duration: 5.5, repeat: Infinity, ease: "easeInOut" } },
+  ready:    { scaleX: [1, 1.008, 1], scaleY: [1, 0.998, 1], x: [0, 0.4, -0.3, 0], y: [0, -0.5, 0.3, 0], rotate: [0, 0.2, -0.2, 0], opacity: 0.74, transition: { duration: 3.5, repeat: Infinity, ease: "easeInOut" } },
   contract: { scaleX: 0.88, scaleY: 0.93, x: 0, y: -1, rotate: -0.4, opacity: 0.88, transition: CUBIC_EASE },
   hold:     { scaleX: 0.88, scaleY: 0.93, x: 0, y: -1, rotate: -0.4, opacity: 0.88, transition: CUBIC_EASE },
   relax:    { scaleX: [0.88, 1.035, 1], scaleY: [0.93, 1.025, 1], x: [0, -0.8, 0], y: [-1, 1.2, 0], rotate: [-0.4, 0.3, 0], opacity: [0.88, 0.68, 0.74], transition: { duration: 1.8, times: [0, 0.65, 1], ease: [0.22, 1, 0.36, 1] as [number, number, number, number] } },
+  feedback: { scaleX: 1, scaleY: 1, x: 0, y: 0, rotate: 0, opacity: 0.74, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] } },
 };
 
 const fibersVariants: Variants = {
   idle:     { scale: 1, opacity: 0.6 },
+  ready:    { scale: [1, 1.012, 1], opacity: [0.6, 0.66, 0.6], transition: { duration: 3, repeat: Infinity, ease: "easeInOut" } },
   contract: { scale: 0.82, opacity: 0.88, filter: "contrast(1.08)", transition: CUBIC_EASE },
   hold:     { scale: 0.82, x: [0, 0.35, -0.45, 0.2, 0], y: [0, -0.25, 0.3, -0.15, 0], opacity: 0.86, filter: "contrast(1.08)", transition: { duration: 0.9, repeat: Infinity, ease: "easeInOut" } },
   relax:    { scale: [0.82, 1.025, 1], opacity: [0.88, 0.54, 0.6], filter: ["contrast(1.08)", "contrast(0.98)", "contrast(1)"], transition: { duration: 1.8, times: [0, 0.65, 1], ease: [0.22, 1, 0.36, 1] as [number, number, number, number] } },
+  feedback: { scale: 1, opacity: 0.6, filter: "contrast(1)", transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] } },
 };
 
 /*
@@ -188,23 +202,29 @@ const fibersVariants: Variants = {
 
 const coreVariants: Variants = {
   idle:     { scale: [0.99, 1.03, 0.99], opacity: [0.78, 0.88, 0.78], filter: ["brightness(1) saturate(1)", "brightness(1.04) saturate(1.06)", "brightness(1) saturate(1)"], transition: { duration: 3.2, repeat: Infinity, ease: "easeInOut" } },
+  ready:    { scale: [1, 1.04, 1], opacity: [0.82, 0.92, 0.82], filter: ["brightness(1) saturate(1)", "brightness(1.03) saturate(1.04)", "brightness(1) saturate(1)"], transition: { duration: 3, repeat: Infinity, ease: "easeInOut" } },
   contract: { scale: 0.72, opacity: 1, filter: "brightness(1.08) saturate(1.12)", transition: CUBIC_EASE },
   hold:     { scale: [0.72, 0.74, 0.72], opacity: [0.94, 1, 0.94], filter: "brightness(1.08) saturate(1.12)", transition: { duration: 1.2, repeat: Infinity, ease: "easeInOut" } },
   relax:    { scale: [0.72, 1.04, 1], opacity: [1, 0.72, 0.8], filter: ["brightness(1.08) saturate(1.12)", "brightness(1.02) saturate(0.96)", "brightness(1) saturate(1)"], transition: { duration: 1.8, times: [0, 0.65, 1], ease: [0.22, 1, 0.36, 1] as [number, number, number, number] } },
+  feedback: { scale: [1.02, 1], opacity: [0.82, 0.78], filter: ["brightness(1.02) saturate(1.02)", "brightness(1) saturate(1)"], transition: { duration: 1.2, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] } },
 };
 
 const highlightVariants: Variants = {
   idle:     { scale: [1, 1.015, 1], x: 0, y: 0, opacity: [0.38, 0.48, 0.38], transition: { duration: 4.5, repeat: Infinity, ease: "easeInOut" } },
+  ready:    { scale: [1, 1.02, 1], x: 0, y: 0, opacity: [0.38, 0.50, 0.38], transition: { duration: 3, repeat: Infinity, ease: "easeInOut" } },
   contract: { scale: 0.9, x: 3, y: 4, opacity: 0.72, filter: "brightness(1.06)", transition: CUBIC_EASE },
   hold:     { scale: 0.9, x: 3, y: 4, opacity: 0.72, filter: "brightness(1.06)", transition: CUBIC_EASE },
   relax:    { scale: [0.9, 1.02, 1], x: [3, -0.5, 0], y: [4, -0.5, 0], opacity: [0.72, 0.34, 0.4], filter: ["brightness(1.06)", "brightness(0.98)", "brightness(1)"], transition: { duration: 1.8, times: [0, 0.65, 1], ease: [0.22, 1, 0.36, 1] as [number, number, number, number] } },
+  feedback: { scale: 1, x: 0, y: 0, opacity: 0.38, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] } },
 };
 
 const particlesVariants: Variants = {
   idle:     { scale: [1, 1.018, 1], rotate: [0, 0.8, 0], x: [0, 0.6, -0.4, 0], y: [0, -0.8, 0.5, 0], opacity: [0.32, 0.46, 0.32], transition: { duration: 6, repeat: Infinity, ease: "easeInOut" } },
+  ready:    { scale: [1, 1.015, 1], rotate: [0, 0.4, 0], x: [0, 0.3, -0.2, 0], y: [0, -0.4, 0.3, 0], opacity: [0.32, 0.42, 0.32], transition: { duration: 3, repeat: Infinity, ease: "easeInOut" } },
   contract: { scale: 0.78, rotate: 0.8, x: 0, y: 0, opacity: 0.72, transition: CUBIC_EASE },
   hold:     { scale: 0.78, rotate: 0.8, x: 0, y: 0, opacity: 0.72, transition: CUBIC_EASE },
   relax:    { scale: [0.78, 1.03, 1], rotate: [0.8, -0.6, 0], x: [0, 0.8, 0], y: [0, -1, 0], opacity: [0.72, 0.26, 0.34], transition: { duration: 1.8, times: [0, 0.65, 1], ease: [0.22, 1, 0.36, 1] as [number, number, number, number] } },
+  feedback: { scale: 1, rotate: 0, x: 0, y: 0, opacity: [0.42, 0.32], transition: { duration: 1.5, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] } },
 };
 
 /* ------------------------------------------------------------------ */
@@ -229,9 +249,11 @@ const LAYER_DEFINITIONS: LayerDefinition[] = [
 
 const PAUSED_CONTAINER_TARGET: Record<MuscleStage, Record<string, number>> = {
   idle:     { scale: 1, y: 0 },
+  ready:    { scale: 1, y: 0 },
   contract: { scale: 0.92, y: -12 },
   hold:     { scale: 0.92, y: -12 },
   relax:    { scale: 1, y: 0 },
+  feedback: { scale: 1, y: 0 },
 };
 
 function pausedLayerTarget(layer: LayerName, stage: MuscleStage): Record<string, number | string> {

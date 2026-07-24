@@ -9,7 +9,8 @@ import ConfigPanel from './components/ConfigPanel';
 import VoiceSettingsPanel from './components/VoiceSettingsPanel';
 import { useKegelEngine } from './hooks/useKegelEngine';
 import { useVoiceAssistant } from './hooks/useVoiceAssistant';
-import { calcDisplayPhaseTiming, calcTotalDuration } from './utils/time';
+import TrainingFeedback from './components/TrainingFeedback';
+import { actionHint, calcDisplayPhaseTiming, calcTotalDuration } from './utils/time';
 
 export default function App() {
   const voice = useVoiceAssistant();
@@ -24,6 +25,7 @@ export default function App() {
   const isIdle = state.status === 'idle';
   const isActive = state.status === 'running' || state.status === 'paused';
   const showHint = state.status === 'running' && state.phase !== 'idle';
+  const showFeedback = state.phase === 'feedback';
 
   const displayTiming = calcDisplayPhaseTiming(
     state.phase,
@@ -88,7 +90,7 @@ export default function App() {
               transition={{ duration: 0.25 }}
               className="text-base font-semibold tracking-wide text-slate-200/90"
             >
-              {displayTiming.key === 'contract-hold' ? '收缩并保持' : '慢慢放松'}
+              {actionHint(state.phase)}
             </motion.div>
           ) : (
             <motion.div
@@ -98,13 +100,14 @@ export default function App() {
               exit={{ opacity: 0 }}
               className="text-base font-semibold text-slate-400/60"
             >
-              准备开始
+              {actionHint(state.phase) || '准备开始'}
             </motion.div>
           )}
         </AnimatePresence>
       </div>
 
       <div className="flex-1 flex flex-col items-center justify-center w-full max-w-sm gap-1">
+        <div className="relative w-full flex flex-col items-center gap-1">
         <MuscleSphere
           stage={state.phase}
           paused={state.status === 'paused'}
@@ -112,6 +115,22 @@ export default function App() {
           showProgressRing={state.status === 'running'}
           stageDurationMs={displayTiming.durationMs || undefined}
         />
+          {showFeedback && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="absolute inset-0 z-10 flex items-center justify-center rounded-3xl bg-slate-900/70 p-4 backdrop-blur-sm"
+            >
+              <TrainingFeedback
+                rounds={state.currentRound}
+                durationMs={state.totalElapsedMs}
+                onRestart={handleRestart}
+              />
+            </motion.div>
+          )}
+        </div>
 
         <TimerDisplay
           phase={state.phase}
@@ -123,7 +142,7 @@ export default function App() {
         />
 
         <div className="w-full max-w-[200px] mt-2">
-          <ProgressBar current={isIdle ? 0 : state.totalElapsedMs} total={totalDurationMs} />
+        <ProgressBar current={isIdle ? 0 : state.totalElapsedMs} total={totalDurationMs} />
         </div>
       </div>
 
