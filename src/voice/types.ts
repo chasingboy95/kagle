@@ -35,6 +35,11 @@ export interface VoiceSettings {
   hapticsEnabled: boolean;
 }
 
+/**
+ * Voice events describe training intent rather than raw engine transitions.
+ * The engine keeps contract/hold internally, while the coach experience treats
+ * them as one continuous contraction action.
+ */
 export type VoiceEvent =
   | { type: 'training-ready' }
   | { type: 'stage-enter'; stage: MuscleStage }
