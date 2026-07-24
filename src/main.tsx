@@ -5,9 +5,20 @@ import App from './App'
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`).catch((error) => {
-      console.warn('Service worker registration failed:', error)
+    let reloading = false
+
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (reloading) return
+      reloading = true
+      window.location.reload()
     })
+
+    navigator.serviceWorker
+      .register(`${import.meta.env.BASE_URL}sw.js`)
+      .then((registration) => registration.update())
+      .catch((error) => {
+        console.warn('Service worker registration failed:', error)
+      })
   })
 }
 
