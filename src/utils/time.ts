@@ -14,11 +14,60 @@ export function calcTotalDuration(
   return singleRound * rounds;
 }
 
+export interface DisplayPhaseTiming {
+  /** User-facing phase key. Contract and hold intentionally share one key. */
+  key: 'idle' | 'contract-hold' | 'relax';
+  remainingMs: number;
+  progress: number;
+  durationMs: number;
+}
+
+/**
+ * Resolve user-facing timing without changing the engine state machine.
+ * Contract and hold are presented as one continuous "收缩并保持" phase.
+ */
+export function calcDisplayPhaseTiming(
+  phase: 'idle' | 'contract' | 'hold' | 'relax',
+  phaseRemainingMs: number,
+  contractTime: number,
+  holdTime: number,
+  relaxTime: number,
+): DisplayPhaseTiming {
+  if (phase === 'idle') {
+    return { key: 'idle', remainingMs: 0, progress: 0, durationMs: 0 };
+  }
+
+  if (phase === 'contract' || phase === 'hold') {
+    const contractMs = contractTime * 1000;
+    const holdMs = holdTime * 1000;
+    const durationMs = contractMs + holdMs;
+    const remainingMs = phase === 'contract'
+      ? Math.max(0, phaseRemainingMs) + holdMs
+      : Math.max(0, phaseRemainingMs);
+
+    return {
+      key: 'contract-hold',
+      remainingMs,
+      progress: durationMs > 0 ? Math.min(1, Math.max(0, 1 - remainingMs / durationMs)) : 0,
+      durationMs,
+    };
+  }
+
+  const durationMs = relaxTime * 1000;
+  const remainingMs = Math.max(0, phaseRemainingMs);
+  return {
+    key: 'relax',
+    remainingMs,
+    progress: durationMs > 0 ? Math.min(1, Math.max(0, 1 - remainingMs / durationMs)) : 0,
+    durationMs,
+  };
+}
+
 /** 阶段提示（无呼吸指导） */
 export function phaseHint(phase: 'contract' | 'hold' | 'relax'): string {
   switch (phase) {
-    case 'contract': return '收缩';
-    case 'hold': return '保持';
+    case 'contract':
+    case 'hold': return '收缩并保持';
     case 'relax': return '放松';
   }
 }
@@ -26,8 +75,8 @@ export function phaseHint(phase: 'contract' | 'hold' | 'relax'): string {
 /** 完整动作提示 */
 export function actionHint(phase: 'contract' | 'hold' | 'relax'): string {
   switch (phase) {
-    case 'contract': return '收缩并保持';
-    case 'hold': return '坚持住';
-    case 'relax': return '放松';
+    case 'contract':
+    case 'hold': return '收缩并保持';
+    case 'relax': return '慢慢放松';
   }
 }
