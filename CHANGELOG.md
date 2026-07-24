@@ -22,12 +22,15 @@ All notable changes to this project will be documented in this file.
 - Recorded playback failure now falls back to system speech before a non-verbal cue.
 - The sustain prompt no longer plays immediately on entering the internal hold phase.
 - Default voice settings now use coach mode with countdown and round announcements disabled.
+- Countdown feedback now uses soft ascending synthesized tones instead of the legacy spoken-number MP3 files.
+- Rhythm cues now use distinct two-note contraction and release patterns, with quieter single-note sustain feedback.
 
 ### Fixed
 
 - Coach and guided selections no longer produce identical behavior under different labels.
 - Countdown no longer implicitly selects guided scripts.
 - Rhythm mode no longer plays full coach sentences.
+- Rhythm mode cue keys now match the coach-oriented cue model, restoring audible feedback.
 - GitHub Pages audio paths remain `BASE_URL` aware.
 
 ### Verification Pending
