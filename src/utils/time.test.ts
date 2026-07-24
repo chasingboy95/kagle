@@ -2,17 +2,19 @@ import { describe, expect, it } from 'vitest';
 import { actionHint, calcDisplayPhaseTiming, READY_DURATION_MS, FEEDBACK_DURATION_MS } from './time';
 
 describe('calcDisplayPhaseTiming', () => {
-  it('keeps contract and hold in one continuous display phase', () => {
+  it('keeps contract and hold as separate user-facing display phases', () => {
     const contract = calcDisplayPhaseTiming('contract', 2_000, 3, 5, 3);
     const hold = calcDisplayPhaseTiming('hold', 5_000, 3, 5, 3);
 
-    expect(contract.key).toBe('contract-hold');
-    expect(contract.remainingMs).toBe(7_000);
-    expect(contract.progress).toBeCloseTo(1 / 8);
+    expect(contract.key).toBe('contract');
+    expect(contract.remainingMs).toBe(2_000);
+    expect(contract.durationMs).toBe(3_000);
+    expect(contract.progress).toBeCloseTo(1 / 3);
 
-    expect(hold.key).toBe('contract-hold');
+    expect(hold.key).toBe('hold');
     expect(hold.remainingMs).toBe(5_000);
-    expect(hold.progress).toBeCloseTo(3 / 8);
+    expect(hold.durationMs).toBe(5_000);
+    expect(hold.progress).toBeCloseTo(0);
   });
 
   it('uses a separate progress range for relax', () => {
@@ -38,14 +40,14 @@ describe('calcDisplayPhaseTiming', () => {
     expect(feedback.key).toBe('feedback');
     expect(feedback.durationMs).toBe(FEEDBACK_DURATION_MS);
     expect(feedback.remainingMs).toBe(4_000);
-    expect(feedback.progress).toBeCloseTo(1 / 3);
+    expect(feedback.progress).toBe(0);
   });
 });
 
 describe('actionHint', () => {
-  it('uses the same user-facing label for contract and hold', () => {
-    expect(actionHint('contract')).toBe('收缩并保持');
-    expect(actionHint('hold')).toBe('收缩并保持');
+  it('uses separate user-facing labels for contract and hold', () => {
+    expect(actionHint('contract')).toBe('开始收缩');
+    expect(actionHint('hold')).toBe('保持住');
     expect(actionHint('relax')).toBe('慢慢放松');
   });
 

@@ -17,6 +17,7 @@ export interface UseKegelEngineReturn {
   pause: () => void;
   resume: () => void;
   stop: () => void;
+  finish: () => void;
   restart: () => void;
   updateConfig: (updates: Partial<TrainingConfig>) => void;
 }
@@ -73,7 +74,7 @@ function phaseMs(phase: TrainingPhase, config: TrainingConfig): number {
     case 'contract': return config.contractTime * 1000;
     case 'hold': return config.holdTime * 1000;
     case 'relax': return config.relaxTime * 1000;
-    case 'feedback': return 6000;
+    case 'feedback': return 0;
     default: return 0;
   }
 }
@@ -215,6 +216,8 @@ export function useKegelEngine(options: KegelEngineVoiceOptions = {}): UseKegelE
         emitVoice({ type: 'completed' });
         e.status = 'feedback';
         enterPhase('feedback', false);
+        stopTick();
+        pushState();
         return;
       }
       e.round = nextRound;
@@ -239,7 +242,7 @@ export function useKegelEngine(options: KegelEngineVoiceOptions = {}): UseKegelE
     stopTick();
     tickId.current = setInterval(() => {
       const e = eng.current;
-      if (e.status !== 'running' && e.status !== 'feedback') return;
+      if (e.status !== 'running') return;
 
       const now = performance.now();
       const elapsed = now - e.phaseStartedAt;
@@ -342,6 +345,22 @@ export function useKegelEngine(options: KegelEngineVoiceOptions = {}): UseKegelE
     }));
   }, [emitVoice, stopTick]);
 
+  const finish = useCallback(() => {
+    const e = eng.current;
+    stopTick();
+    const sessionId = e.sessionId;
+    Object.assign(e, createInitialEngine(e.config));
+    e.sessionId = sessionId;
+    setState(prev => ({
+      ...prev,
+      status: 'idle',
+      phase: 'idle',
+      currentRound: 0,
+      phaseRemainingMs: 0,
+      totalElapsedMs: 0,
+    }));
+  }, [stopTick]);
+
   const restart = useCallback(() => {
     stopTick();
     const e = eng.current;
@@ -373,6 +392,7 @@ export function useKegelEngine(options: KegelEngineVoiceOptions = {}): UseKegelE
     pause,
     resume,
     stop,
+    finish,
     restart,
     updateConfig,
   };

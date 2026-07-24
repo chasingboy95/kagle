@@ -9,7 +9,7 @@ export const DEFAULT_VOICE_SETTINGS: VoiceSettings = {
   volume: 0.7,
   rate: 0.95,
   pitch: 1,
-  countdownFrom: 0,
+  countdownFrom: 3,
   announceRound: false,
   announceNextStage: false,
   hapticsEnabled: true,

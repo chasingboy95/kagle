@@ -10,6 +10,10 @@ describe('parseVoiceSettings', () => {
     expect(parseVoiceSettings('{broken')).toEqual(DEFAULT_VOICE_SETTINGS);
   });
 
+  it('enables the final 3 second countdown by default', () => {
+    expect(parseVoiceSettings(null).countdownFrom).toBe(3);
+  });
+
   it('keeps valid fields and falls back invalid fields independently', () => {
     const result = parseVoiceSettings(JSON.stringify({
       enabled: false,

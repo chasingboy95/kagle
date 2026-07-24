@@ -61,21 +61,6 @@ export default function VoiceSettingsPanel({ settings, supported, onChange, onPr
         <Toggle id="voice-enabled" label="启用辅助" checked={settings.enabled} onChange={enabled => onChange({ enabled })} />
         <div className="h-px bg-white/[0.04]" />
 
-        <fieldset className="py-2.5 disabled:opacity-40" disabled={disabled}>
-          <legend className="mb-2 text-sm text-slate-300">辅助方式</legend>
-          <div className="space-y-1.5">
-            {(Object.keys(modeLabels) as VoiceMode[]).map(mode => (
-              <label key={mode} className="flex cursor-pointer items-start gap-3 rounded-xl border border-white/[0.06] bg-black/10 px-3 py-2.5 transition-colors has-[:checked]:border-indigo-400/30 has-[:checked]:bg-indigo-400/[0.08]">
-                <input type="radio" name="voice-mode" value={mode} checked={settings.mode === mode} onChange={() => onChange({ mode })} className="mt-1 accent-indigo-400" />
-                <span>
-                  <span className="block text-sm text-slate-200">{modeLabels[mode]}</span>
-                  <span className="block text-[11px] leading-4 text-slate-500">{modeDescriptions[mode]}</span>
-                </span>
-              </label>
-            ))}
-          </div>
-        </fieldset>
-
         <fieldset className="py-2 disabled:opacity-40" disabled={disabled || !audible}>
           <legend className="mb-2 text-sm text-slate-300">结束前倒计时</legend>
           <div className="grid grid-cols-3 gap-1 rounded-xl bg-black/20 p-1">
@@ -87,20 +72,6 @@ export default function VoiceSettingsPanel({ settings, supported, onChange, onPr
             ))}
           </div>
         </fieldset>
-
-        <label htmlFor="voice-volume" className="block py-2 text-sm text-slate-300">
-          <span className="flex justify-between"><span>音量</span><span className="tabular-nums text-slate-500">{Math.round(settings.volume * 100)}%</span></span>
-          <input id="voice-volume" type="range" min="0" max="1" step="0.05" value={settings.volume} disabled={disabled || !audible} onChange={event => onChange({ volume: Number(event.target.value) })} className="mt-2 w-full accent-indigo-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300 disabled:opacity-40" />
-        </label>
-
-        <label htmlFor="voice-rate" className="block py-2 text-sm text-slate-300">
-          <span className="flex justify-between"><span>语速</span><span className="tabular-nums text-slate-500">{settings.rate.toFixed(2)}×</span></span>
-          <input id="voice-rate" type="range" min="0.5" max="1.5" step="0.05" value={settings.rate} disabled={disabled || !coachMode} onChange={event => onChange({ rate: Number(event.target.value) })} className="mt-2 w-full accent-indigo-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300 disabled:opacity-40" />
-          <span className="mt-1 block text-[11px] leading-4 text-slate-500">真人录音播放时保持原速；录音不可用并回退系统语音时生效。</span>
-        </label>
-
-        <Toggle id="voice-rounds" label="播报训练进度" description="每组开始时播报当前组数" checked={settings.announceRound} disabled={disabled || !coachMode} onChange={announceRound => onChange({ announceRound })} />
-        <Toggle id="voice-haptics" label="震动反馈" description="阶段切换时使用轻柔振动" checked={settings.hapticsEnabled} disabled={disabled} onChange={hapticsEnabled => onChange({ hapticsEnabled })} />
 
         {!supported && coachMode && settings.enabled && (
           <p className="py-2 text-xs leading-5 text-amber-200/70" role="status">当前浏览器无法播放录音或系统语音，可改用“节奏提示”。</p>
@@ -114,6 +85,44 @@ export default function VoiceSettingsPanel({ settings, supported, onChange, onPr
         >
           试听当前方式
         </button>
+
+        <details className="group/advanced mt-3 rounded-xl border border-white/[0.05] bg-black/10">
+          <summary className="flex cursor-pointer list-none items-center justify-between px-3 py-2.5 text-sm text-slate-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-indigo-300">
+            <span>高级设置</span>
+            <span aria-hidden="true" className="text-slate-500 transition-transform group-open/advanced:rotate-180">⌄</span>
+          </summary>
+
+          <div className="border-t border-white/[0.04] px-3 pb-3 pt-1">
+            <fieldset className="py-2.5 disabled:opacity-40" disabled={disabled}>
+              <legend className="mb-2 text-sm text-slate-300">辅助方式</legend>
+              <div className="space-y-1.5">
+                {(Object.keys(modeLabels) as VoiceMode[]).map(mode => (
+                  <label key={mode} className="flex cursor-pointer items-start gap-3 rounded-xl border border-white/[0.06] bg-black/10 px-3 py-2.5 transition-colors has-[:checked]:border-indigo-400/30 has-[:checked]:bg-indigo-400/[0.08]">
+                    <input type="radio" name="voice-mode" value={mode} checked={settings.mode === mode} onChange={() => onChange({ mode })} className="mt-1 accent-indigo-400" />
+                    <span>
+                      <span className="block text-sm text-slate-200">{modeLabels[mode]}</span>
+                      <span className="block text-[11px] leading-4 text-slate-500">{modeDescriptions[mode]}</span>
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+
+            <label htmlFor="voice-volume" className="block py-2 text-sm text-slate-300">
+              <span className="flex justify-between"><span>音量</span><span className="tabular-nums text-slate-500">{Math.round(settings.volume * 100)}%</span></span>
+              <input id="voice-volume" type="range" min="0" max="1" step="0.05" value={settings.volume} disabled={disabled || !audible} onChange={event => onChange({ volume: Number(event.target.value) })} className="mt-2 w-full accent-indigo-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300 disabled:opacity-40" />
+            </label>
+
+            <label htmlFor="voice-rate" className="block py-2 text-sm text-slate-300">
+              <span className="flex justify-between"><span>语速</span><span className="tabular-nums text-slate-500">{settings.rate.toFixed(2)}×</span></span>
+              <input id="voice-rate" type="range" min="0.5" max="1.5" step="0.05" value={settings.rate} disabled={disabled || !coachMode} onChange={event => onChange({ rate: Number(event.target.value) })} className="mt-2 w-full accent-indigo-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300 disabled:opacity-40" />
+              <span className="mt-1 block text-[11px] leading-4 text-slate-500">真人录音播放时保持原速；录音不可用并回退系统语音时生效。</span>
+            </label>
+
+            <Toggle id="voice-rounds" label="播报训练进度" description="每组开始时播报当前组数" checked={settings.announceRound} disabled={disabled || !coachMode} onChange={announceRound => onChange({ announceRound })} />
+            <Toggle id="voice-haptics" label="震动反馈" description="阶段切换时使用轻柔振动" checked={settings.hapticsEnabled} disabled={disabled} onChange={hapticsEnabled => onChange({ hapticsEnabled })} />
+          </div>
+        </details>
       </div>
     </details>
   );

@@ -14,7 +14,7 @@ import { actionHint, calcDisplayPhaseTiming, calcTotalDuration } from './utils/t
 
 export default function App() {
   const voice = useVoiceAssistant();
-  const { state, config, start, pause, resume, stop, restart, updateConfig } =
+  const { state, config, start, pause, resume, stop, finish, restart, updateConfig } =
     useKegelEngine({
       onVoiceEvent: voice.emit,
       countdownFrom: voice.settings.enabled && voice.settings.mode !== 'off'
@@ -107,63 +107,72 @@ export default function App() {
       </div>
 
       <div className="flex-1 flex flex-col items-center justify-center w-full max-w-sm gap-1">
-        <div className="relative w-full flex flex-col items-center gap-1">
-        <MuscleSphere
-          stage={state.phase}
-          paused={state.status === 'paused'}
-          stageProgress={displayTiming.progress}
-          showProgressRing={state.status === 'running'}
-          stageDurationMs={displayTiming.durationMs || undefined}
-        />
-          {showFeedback && (
+        {showFeedback ? (
+          <div className="w-full py-8">
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
-              className="absolute inset-0 z-10 flex items-center justify-center rounded-3xl bg-slate-900/70 p-4 backdrop-blur-sm"
             >
               <TrainingFeedback
                 rounds={state.currentRound}
                 durationMs={state.totalElapsedMs}
                 onRestart={handleRestart}
+                onDone={finish}
               />
             </motion.div>
-          )}
-        </div>
+          </div>
+        ) : (
+          <>
+            <div className="relative w-full flex flex-col items-center gap-1">
+              <MuscleSphere
+                stage={state.phase}
+                paused={state.status === 'paused'}
+                stageProgress={displayTiming.progress}
+                showProgressRing={state.status === 'running'}
+                stageDurationMs={displayTiming.durationMs || undefined}
+              />
+            </div>
 
-        <TimerDisplay
-          phase={state.phase}
-          displayPhaseKey={displayTiming.key}
-          phaseRemainingMs={displayTiming.remainingMs}
-          currentRound={state.currentRound}
-          totalRounds={config.rounds}
-          isRunning={isActive || state.status === 'finished'}
-        />
+            <TimerDisplay
+              phase={state.phase}
+              displayPhaseKey={displayTiming.key}
+              phaseRemainingMs={displayTiming.remainingMs}
+              currentRound={state.currentRound}
+              totalRounds={config.rounds}
+              isRunning={isActive || state.status === 'finished'}
+            />
 
-        <div className="w-full max-w-[200px] mt-2">
-        <ProgressBar current={isIdle ? 0 : state.totalElapsedMs} total={totalDurationMs} />
-        </div>
+            <div className="w-full max-w-[200px] mt-2">
+              <ProgressBar current={isIdle ? 0 : state.totalElapsedMs} total={totalDurationMs} />
+            </div>
+          </>
+        )}
       </div>
 
       <div className="w-full max-w-sm space-y-4 pt-2 pb-safe">
-        <ConfigPanel config={config} disabled={isActive} onChange={updateConfig} />
+        {!showFeedback && (
+          <>
+            <ConfigPanel config={config} disabled={isActive} onChange={updateConfig} />
 
-        <VoiceSettingsPanel
-          settings={voice.settings}
-          supported={voice.supported}
-          onChange={voice.updateSettings}
-          onPreview={() => { void voice.preview(); }}
-        />
+            <VoiceSettingsPanel
+              settings={voice.settings}
+              supported={voice.supported}
+              onChange={voice.updateSettings}
+              onPreview={() => { void voice.preview(); }}
+            />
 
-        <ControlButtons
-          status={state.status}
-          onStart={handleStart}
-          onPause={pause}
-          onResume={resume}
-          onStop={stop}
-          onRestart={handleRestart}
-        />
+            <ControlButtons
+              status={state.status}
+              onStart={handleStart}
+              onPause={pause}
+              onResume={resume}
+              onStop={stop}
+              onRestart={handleRestart}
+            />
+          </>
+        )}
       </div>
     </div>
   );

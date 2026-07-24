@@ -26,36 +26,37 @@ RELAX
   ↓ (repeat rounds)
   ...
   ↓ (last relax)
-FEEDBACK     (6s completion celebration)
-  ↓
-FINISHED
-  ↓ (restart)
+FEEDBACK     (completion result view)
+  ↓ (finish)
 IDLE
+  ↘ (restart from feedback starts a new session)
 ```
 
 Key design choices:
 
 1. **READY phase (5000ms)**: Emitted after `training-ready` voice. Shows breathing animation, allows posture adjustment, runs countdown (if enabled). After 5s, emits `round-start` voice and transitions to `contract`.
 
-2. **FEEDBACK phase (6000ms)**: Entered after the last relaxation round. Emits `completed` voice event. Keeps session data (round count, elapsed time) available. After 6s, transitions to `finished` and clears state.
+2. **FEEDBACK phase (persistent completion view)**: Entered after the last relaxation round. Emits `completed` voice event. Keeps session data (round count, elapsed time) available. The engine stops ticking and remains in feedback until the user chooses "再次训练" or "完成". "完成" returns to the idle start screen.
 
-3. **Timer remains the single time source**: Both phases use the existing `performance.now()` tick mechanism. No additional `setTimeout` or `setInterval` calls were introduced.
+3. **Timer remains the single time source during active training**: READY and exercise phases use the existing `performance.now()` tick mechanism. FEEDBACK is not counted as active training time.
 
-4. **Voice events preserved**: `stage-enter` events fire for both new phases, so the VoiceController can provide stage-appropriate speech via the existing priority queue.
+4. **Voice events remain lifecycle-specific**: READY uses `training-ready`, and FEEDBACK uses `completed`, avoiding duplicate `stage-enter` prompts that could interrupt the more important lifecycle audio.
+
+5. **Contract and hold are distinct in the UI**: The engine already models `contract` and `hold` separately, and the display now mirrors that model with "开始收缩" followed by "保持住" so the visible flow matches 3-3-3 style configuration.
 
 ## Consequences
 
 Positive:
 - Training UI can represent the complete user journey with preparation and celebration.
 - MuscleSphere animations provide phase-specific visual feedback (slow breathing → release celebration).
-- The progress bar accounts for the full session duration including ready and feedback.
+- The progress bar accounts for preparation and active exercise time, then the app moves into a clean completion view.
 - Voice guidance maps directly to lifecycle phases.
 - Countdown works during the ready phase, giving an audible cue before exercise starts.
 
 Neutral:
 - Two new voice script keys (`ready`, `feedback`) were added for coach-mode speech.
-- Total session duration increased by 11 seconds (5s ready + 6s feedback).
+- Total timed session duration increases by 5 seconds for READY; FEEDBACK is user-confirmed and not part of timed exercise.
 
 Negative:
 - No integration-level test for the full lifecycle due to the timing-dependent nature of the engine. Unit tests cover phase timing, countdown, and display functions.
-- The ControlButtons component still shows pause/stop during the 6s feedback phase since status remains `running` until feedback completes.
+- Completion feedback now needs explicit user action to dismiss; this is intentional but should be covered by component/E2E tests.

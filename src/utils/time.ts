@@ -4,7 +4,7 @@ export function formatSeconds(ms: number): string {
 }
 
 export const READY_DURATION_MS = 5000;
-export const FEEDBACK_DURATION_MS = 6000;
+export const FEEDBACK_DURATION_MS = 0;
 
 /** 计算总训练时长（毫秒） */
 export function calcTotalDuration(
@@ -14,21 +14,16 @@ export function calcTotalDuration(
   rounds: number,
 ): number {
   const singleRound = (contractTime + holdTime + relaxTime) * 1000;
-  return READY_DURATION_MS + singleRound * rounds + FEEDBACK_DURATION_MS;
+  return READY_DURATION_MS + singleRound * rounds;
 }
 
 export interface DisplayPhaseTiming {
-  /** User-facing phase key. Contract and hold intentionally share one key. */
-  key: 'idle' | 'ready' | 'contract-hold' | 'relax' | 'feedback';
+  key: 'idle' | 'ready' | 'contract' | 'hold' | 'relax' | 'feedback';
   remainingMs: number;
   progress: number;
   durationMs: number;
 }
 
-/**
- * Resolve user-facing timing without changing the engine state machine.
- * Contract and hold are presented as one continuous "收缩并保持" phase.
- */
 export function calcDisplayPhaseTiming(
   phase: 'idle' | 'ready' | 'contract' | 'hold' | 'relax' | 'feedback',
   phaseRemainingMs: number,
@@ -62,26 +57,14 @@ export function calcDisplayPhaseTiming(
     };
   }
 
-  if (phase === 'contract' || phase === 'hold') {
-    const contractMs = contractTime * 1000;
-    const holdMs = holdTime * 1000;
-    const durationMs = contractMs + holdMs;
-    const remainingMs = phase === 'contract'
-      ? Math.max(0, phaseRemainingMs) + holdMs
-      : Math.max(0, phaseRemainingMs);
-
-    return {
-      key: 'contract-hold',
-      remainingMs,
-      progress: durationMs > 0 ? Math.min(1, Math.max(0, 1 - remainingMs / durationMs)) : 0,
-      durationMs,
-    };
-  }
-
-  const durationMs = relaxTime * 1000;
+  const durationMs = (
+    phase === 'contract' ? contractTime
+      : phase === 'hold' ? holdTime
+        : relaxTime
+  ) * 1000;
   const remainingMs = Math.max(0, phaseRemainingMs);
   return {
-    key: 'relax',
+    key: phase,
     remainingMs,
     progress: durationMs > 0 ? Math.min(1, Math.max(0, 1 - remainingMs / durationMs)) : 0,
     durationMs,
@@ -92,8 +75,8 @@ export function calcDisplayPhaseTiming(
 export function phaseHint(phase: 'ready' | 'contract' | 'hold' | 'relax' | 'feedback'): string {
   switch (phase) {
     case 'ready': return '准备开始';
-    case 'contract':
-    case 'hold': return '收缩并保持';
+    case 'contract': return '开始收缩';
+    case 'hold': return '保持住';
     case 'feedback': return '训练完成';
     case 'relax': return '放松';
   }
@@ -104,8 +87,8 @@ export function actionHint(phase: 'idle' | 'ready' | 'contract' | 'hold' | 'rela
   switch (phase) {
     case 'idle': return '';
     case 'ready': return '准备开始';
-    case 'contract':
-    case 'hold': return '收缩并保持';
+    case 'contract': return '开始收缩';
+    case 'hold': return '保持住';
     case 'feedback': return '训练完成';
     case 'relax': return '慢慢放松';
   }

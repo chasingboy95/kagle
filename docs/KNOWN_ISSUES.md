@@ -129,11 +129,11 @@ Basic accessibility support exists, but comprehensive testing has not been compl
 
 **Description:**
 
-During the 6-second feedback phase, the training status previously remained `running` (to allow the tick to complete). The ControlButtons component therefore showed pause/stop buttons instead of completion-focused controls. After feedback ended, the `finished` status showed the correct completion UI.
+During the previous timed feedback phase, the training status remained `running` (to allow the tick to complete). The ControlButtons component therefore showed pause/stop buttons instead of completion-focused controls. After feedback ended, the `finished` status showed the correct completion UI.
 
 **Impact:**
 
-Resolved by moving the completion celebration to a dedicated `feedback` status while still allowing the engine tick to advance to `finished`.
+Resolved by moving completion to a dedicated `feedback` status and persistent result view. The engine no longer ticks through feedback automatically.
 
 **Planned Fix:**
 

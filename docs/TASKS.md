@@ -5,6 +5,7 @@
 ## In Progress
 
 - Verify the simplified voice-assistance modes on real iOS and Android devices.
+- Verify the revised completion view and simplified voice settings on a real mobile device.
 
 ## Next (Priority Order)
 
@@ -17,7 +18,7 @@
 
 2. **Add training engine integration tests**
   - Test start, pause, resume, stop, restart, phase timing, and pause compensation.
-  - Test the full lifecycle: ready → contract → hold → relax → feedback → finished.
+  - Test the full lifecycle: ready → contract → hold → relax → feedback → user confirmation → idle.
 
 3. **Add component and E2E tests**
   - Cover `VoiceSettingsPanel` mode selection and countdown controls.
@@ -40,6 +41,13 @@
 
 ## Completed
 
+- [x] Applied user-level trial feedback from the GitHub Pages build.
+- [x] Changed completion feedback into a persistent result view that hides the training timer, progress, settings, and stage copy.
+- [x] Added a completion action so users can leave the result view intentionally.
+- [x] Changed the default voice countdown from off to the final 3 seconds for new users.
+- [x] Simplified the voice panel so common controls show first and advanced controls are tucked into "高级设置".
+- [x] Split contract and hold display copy into "开始收缩" and "保持住" so the UI matches 3-3-3 timing.
+- [x] Removed feedback time from total training duration because completion is now user-confirmed rather than timed training.
 - [x] Fixed ready and feedback lifecycle prompts so they are not interrupted by duplicate stage-enter speech.
 - [x] Prevented countdown announcements during the feedback completion phase.
 - [x] Added a short playback grace window so final countdown cues are not dropped at the phase boundary.
@@ -48,8 +56,8 @@
 - [x] Removed the unimplemented training-history action from the completion card.
 - [x] Reran `npm test`, `npm run build`, and `npm run lint` after the lifecycle fixes.
 - [x] Training Ready Phase - 5s breathing preparation before first contraction.
-- [x] Training Feedback Lifecycle - 6s completion celebration after last relaxation.
-- [x] Updated state machine: idle → ready → contract → hold → relax → (repeat) → feedback → finished → idle.
+- [x] Training Feedback Lifecycle - persistent completion result view after last relaxation.
+- [x] Updated state machine: idle → ready → contract → hold → relax → (repeat) → feedback → user confirmation → idle or restart.
 - [x] MuscleSphere animations for ready (slow breathing) and feedback (release/calm).
 - [x] Voice scripts for ready and feedback stage-enter events.
 - [x] Display timing and action hints for both new phases.

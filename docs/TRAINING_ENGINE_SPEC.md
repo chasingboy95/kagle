@@ -1,6 +1,6 @@
  # Training Engine Specification
 
- **Last verified against repository:** 2026-07-23
+ **Last verified against repository:** 2026-07-24
 
  ## Overview
 
@@ -28,8 +28,13 @@
           │            │ (all rounds complete)
           │            ▼
           │       ┌──────────┐
-          └──────▶│ finished │
-                  └──────────┘
+          │       │ feedback │
+          │       └────┬─────┘
+          │            │ finish()
+          │            ▼
+          └──────▶┌─────────┐
+                  │  idle   │
+                  └─────────┘
                       │
                       │ restart()
                       ▼
@@ -42,12 +47,13 @@
 
  | Transition | Condition | Actions |
  |------------|-----------|---------|
- | idle → running | `start()` called | Reset counters, increment sessionId, emit `training-ready`, `round-start`, enter `contract` phase, start tick |
- | running → paused | `pause()` called | Record `pauseStartedAt`, set status to paused, emit `paused` |
- | paused → running | `resume()` called | Adjust `phaseStartedAt` by pause duration, add to `totalPausedMs`, emit `resumed` |
- | running → finished | All rounds complete in `advance()` | Stop tick, emit `completed`, reset internals |
- | running → idle | `stop()` called | Stop tick, emit `stopped`, reset internals |
- | paused → idle | `stop()` called | Same as above |
+| idle → running | `start()` called | Reset counters, increment sessionId, emit `training-ready`, enter `ready` phase, start tick |
+| running → paused | `pause()` called | Record `pauseStartedAt`, set status to paused, emit `paused` |
+| paused → running | `resume()` called | Adjust `phaseStartedAt` by pause duration, add to `totalPausedMs`, emit `resumed` |
+| running → feedback | All rounds complete in `advance()` | Emit `completed`, enter `feedback` phase, stop tick, preserve session summary |
+| feedback → idle | `finish()` called | Reset internals and return to the start screen |
+| running → idle | `stop()` called | Stop tick, emit `stopped`, reset internals |
+| paused → idle | `stop()` called | Same as above |
  | finished → running | `restart()` called | Same logic as start but without updating config |
  | idle → idle (same) | `stop()` called when already idle | No-op |
 
@@ -67,7 +73,7 @@
  │  After relax: if round < totalRounds│
  │    → round++ → emit round-start     │
  │    → enter contract (next round)    │
- │  If round >= totalRounds → finished │
+ │  If round >= totalRounds → feedback │
  └─────────────────────────────────────┘
  ```
 
@@ -83,7 +89,8 @@
 
  - `e.round` is 0-indexed internally; `currentRound` in `EngineState` is 1-indexed.
  - `advance()` is called when elapsed time >= phase duration.
- - In relax phase, if `nextRound >= config.rounds`, engine enters `finished` status.
+ - In relax phase, if `nextRound >= config.rounds`, engine enters `feedback` status and stops the tick.
+ - `feedback` is a user-confirmed completion view, not a timed training phase.
  - Otherwise, round increments, `round-start` event emitted, and contract phase of next round begins.
 
  ## Pause and Resume Semantics
@@ -96,8 +103,9 @@
 
  ## Stop and Reset Behavior
 
- - `stop()` clears the tick, emits `stopped`, and calls `createInitialEngine()` to reset all internals.
- - Session ID is preserved (incremented only on `start()` and `restart()`).
+- `stop()` clears the tick, emits `stopped`, and calls `createInitialEngine()` to reset all internals.
+- `finish()` clears the completion view without emitting a stop event, then returns the UI to `idle`.
+- Session ID is preserved (incremented only on `start()` and `restart()`).
  - No cooldown or fade-out animation — the state immediately becomes idle.
  - `restart()` reinitializes internals and immediately enters running state (bypassing idle).
 
@@ -113,7 +121,9 @@
  - It calculates `Math.ceil(phaseRemainingMs / 1000)` and checks if that value is ≤ `countdownFrom` and not already announced.
  - `announcedCountdowns` set tracks announced second-markers per phase (cleared on `enterPhase`).
  - This means countdowns are re-evaluated on every tick, but only emitted when the integer second changes.
- - If countdownFrom is 0, no countdown events are generated.
+- If countdownFrom is 0, no countdown events are generated.
+- Countdown defaults to the final 3 seconds for new users.
+- Countdown events are never emitted during `feedback`.
 
  ## Interaction with Voice and Animation
 
