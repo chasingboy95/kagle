@@ -55,17 +55,13 @@ export class VoiceController {
     if (event.type === 'stage-enter') {
       this.stopPlayback();
       this.removeStageItems();
-    } else if (event.type === 'paused') {
-      this.stopPlayback();
-      this.queue = [];
-    } else if (event.type === 'stopped') {
+    } else if (event.type === 'paused' || event.type === 'stopped') {
       this.stopPlayback();
       this.queue = [];
     }
 
     if (!this.settings.enabled || this.settings.mode === 'off') return;
-    if (event.type === 'countdown'
-      && (this.settings.mode !== 'countdown' || this.settings.countdownFrom === 0)) return;
+    if (event.type === 'countdown' && this.settings.countdownFrom === 0) return;
 
     const id = eventId(event, context);
     if (this.seen.has(id)) return;
@@ -99,39 +95,48 @@ export class VoiceController {
       if (!item || item.expiresAt < (fixedNow ?? Date.now())) continue;
 
       this.haptics.trigger(item.event, this.settings.hapticsEnabled);
+
       if (this.settings.mode === 'sound-only') {
+        if (item.event.type === 'countdown') {
+          const countdownAsset = resolveVoiceAsset(item.event, this.settings, this.baseUrl);
+          if (countdownAsset) await this.recorded.play(countdownAsset, this.settings.volume).catch(() => false);
+          continue;
+        }
         const cue = resolveCue(item.event);
         if (cue) await this.audio.playCue(cue);
         continue;
       }
 
+      const playbackGeneration = this.playbackGeneration;
       const assetUrl = resolveVoiceAsset(item.event, this.settings, this.baseUrl);
+      let recordedPlayed = false;
       if (assetUrl) {
-        const playbackGeneration = this.playbackGeneration;
-        let played = false;
-        try {
-          played = await this.recorded.play(assetUrl, this.settings.volume);
-        } catch {
-          // Fall back to a tone when local playback is unavailable.
-        }
-        if (!played && playbackGeneration === this.playbackGeneration) {
-          const cue = resolveCue(item.event);
-          if (cue) await this.audio.playCue(cue);
-        }
-        continue;
+        recordedPlayed = await this.recorded
+          .play(assetUrl, this.settings.volume)
+          .catch(() => false);
       }
+
+      if (recordedPlayed || playbackGeneration !== this.playbackGeneration) continue;
 
       const text = resolveSpeech(item.event, this.settings);
       if (text) {
-        await this.speech.speak({
-          text,
-          language: this.settings.language,
-          volume: this.settings.volume,
-          rate: this.settings.rate,
-          pitch: this.settings.pitch,
-          voiceName: this.settings.voiceName,
-        });
+        try {
+          await this.speech.speak({
+            text,
+            language: this.settings.language,
+            volume: this.settings.volume,
+            rate: this.settings.rate,
+            pitch: this.settings.pitch,
+            voiceName: this.settings.voiceName,
+          });
+          continue;
+        } catch {
+          // Fall through to a non-verbal cue.
+        }
       }
+
+      const cue = resolveCue(item.event);
+      if (cue) await this.audio.playCue(cue);
     }
   }
 
@@ -158,7 +163,7 @@ export class VoiceController {
   }
 
   isSupported(): boolean {
-    return this.recorded.isSupported() || this.speech.isSupported();
+    return this.recorded.isSupported() || this.speech.isSupported() || this.audio.isSupported();
   }
 
   private removeStageItems(): void {
