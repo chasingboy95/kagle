@@ -119,7 +119,7 @@ export default function VoiceSettingsPanel({ settings, supported, onChange, onPr
               <span className="mt-1 block text-[11px] leading-4 text-slate-500">真人录音播放时保持原速；录音不可用并回退系统语音时生效。</span>
             </label>
 
-            <Toggle id="voice-rounds" label="播报训练进度" description="每组开始时播报当前组数" checked={settings.announceRound} disabled={disabled || !coachMode} onChange={announceRound => onChange({ announceRound })} />
+            <Toggle id="voice-rounds" label="播报训练进度" description="每次动作开始时播报当前次数" checked={settings.announceRound} disabled={disabled || !coachMode} onChange={announceRound => onChange({ announceRound })} />
             <Toggle id="voice-haptics" label="震动反馈" description="阶段切换时使用轻柔振动" checked={settings.hapticsEnabled} disabled={disabled} onChange={hapticsEnabled => onChange({ hapticsEnabled })} />
           </div>
         </details>

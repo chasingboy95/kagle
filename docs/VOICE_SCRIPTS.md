@@ -22,7 +22,7 @@
  | `resumed` | "继续训练" |
  | `completed` | "训练完成" |
  | `stopped` | "训练已结束" |
- | `round-start` | "第 N 组，共 M 组" (when announceRound = true) |
+| `round-start` | "第 N 次，共 M 次" (when announceRound = true) |
  | `countdown` | "N" (just the number) |
 
  ### Concise Mode (en-US)
@@ -37,7 +37,7 @@
  | `resumed` | "Continue training" |
  | `completed` | "Training complete" |
  | `stopped` | "Training ended" |
- | `round-start` | "Round N of M" (when announceRound = true) |
+| `round-start` | "Repetition N of M" (when announceRound = true) |
  | `countdown` | "N" |
 
  **Status: Defined in code but language selector not exposed in current Settings UI.** The setting model includes `language: VoiceLanguage` but `VoiceSettingsPanel` does not have a language picker.

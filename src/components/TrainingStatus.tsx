@@ -4,16 +4,16 @@ interface Props {
   streakDays: number;
   isRunning: boolean;
   isPaused: boolean;
-  currentRound: number;
-  totalRounds: number;
+  currentRepetition: number;
+  totalRepetitions: number;
 }
 
 export default function TrainingStatus({
   streakDays,
   isRunning,
   isPaused,
-  currentRound,
-  totalRounds,
+  currentRepetition,
+  totalRepetitions,
 }: Props) {
   return (
     <div className="text-center">
@@ -28,7 +28,7 @@ export default function TrainingStatus({
             animate={{ opacity: 1, y: 0 }}
             className="text-[10px] tracking-wider text-slate-500"
           >
-            Round {currentRound} / {totalRounds}
+            第 {currentRepetition} / {totalRepetitions} 次
           </motion.span>
         ) : (
           <motion.span

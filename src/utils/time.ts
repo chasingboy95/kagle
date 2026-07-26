@@ -11,10 +11,10 @@ export function calcTotalDuration(
   contractTime: number,
   holdTime: number,
   relaxTime: number,
-  rounds: number,
+  repetitions: number,
 ): number {
-  const singleRound = (contractTime + holdTime + relaxTime) * 1000;
-  return READY_DURATION_MS + singleRound * rounds;
+  const singleRepetition = (contractTime + holdTime + relaxTime) * 1000;
+  return READY_DURATION_MS + singleRepetition * repetitions;
 }
 
 export interface DisplayPhaseTiming {

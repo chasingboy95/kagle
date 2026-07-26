@@ -25,6 +25,8 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- Corrected the user-facing training unit: one contract→hold→relax cycle is one repetition, while all configured repetitions together form one set.
+- Training plans now read `3-3-3 × 10 次 = 1 组`; live progress and voice guidance announce repetitions, and completion shows `1 组（10/10 次）`.
 - Training state machine: `start()` now enters `ready` phase instead of `contract`.
 - Training state machine: last `relax` transitions to a persistent `feedback` result view instead of going directly to `finished`.
 - Ready and feedback phases now rely on their lifecycle prompts instead of duplicate stage-enter voice prompts.

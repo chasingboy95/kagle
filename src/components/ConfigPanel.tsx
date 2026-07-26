@@ -61,7 +61,7 @@ function Stepper({ label, value, min, max, step, unit, disabled, onChange }: Ste
 }
 
 export default function ConfigPanel({ config, disabled, onChange }: Props) {
-  const summary = `${config.contractTime}-${config.holdTime}-${config.relaxTime} × ${config.rounds}`;
+  const summary = `${config.contractTime}-${config.holdTime}-${config.relaxTime} × ${config.rounds} 次 = 1 组`;
 
   return (
     <details className="group w-full rounded-2xl border border-white/[0.06] bg-white/[0.03] backdrop-blur-xl">
@@ -108,7 +108,7 @@ export default function ConfigPanel({ config, disabled, onChange }: Props) {
         />
         <div className="h-px bg-white/[0.04]" />
         <Stepper
-          label="循环"
+          label="每组次数"
           value={config.rounds}
           min={CONFIG_RANGE.rounds.min}
           max={CONFIG_RANGE.rounds.max}
@@ -117,6 +117,9 @@ export default function ConfigPanel({ config, disabled, onChange }: Props) {
           disabled={disabled}
           onChange={v => onChange({ rounds: v })}
         />
+        <p className="pt-1 text-right text-[10px] leading-4 text-slate-600">
+          完成以上次数计为 1 组
+        </p>
       </div>
     </details>
   );

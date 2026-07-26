@@ -103,7 +103,7 @@
  | Pause → animation freezes → voice stops | Chrome, Safari, Firefox | Not yet verified |
  | Resume → animation resumes → voice continues | Chrome, Safari, Firefox | Not yet verified |
  | Stop → returns to idle | Chrome, Safari, Firefox | Not yet verified |
- | All rounds complete → "训练完成" shown | Chrome, Safari, Firefox | Not yet verified |
+ | All repetitions complete → one-set "训练完成" summary shown | Chrome, Safari, Firefox | Not yet verified |
  | Change config → start → uses new config | Desktop, Mobile | Not yet verified |
  | Open on mobile → responsive layout | iOS Safari, Android Chrome | Not yet verified |
 
