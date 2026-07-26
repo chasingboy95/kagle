@@ -4,7 +4,7 @@
 
 ## Overview
 
-语音辅助模块由训练引擎事件驱动，不维护独立计时器。中文固定提示优先播放随应用发布的普通话神经 TTS MP3；动态组数与 en-US 文案仍由 Web Speech API 合成。提示音使用 Web Audio API，触觉反馈使用 `navigator.vibrate`。运行时不调用云端 TTS 服务，也不上传音频数据。
+语音辅助模块由训练引擎事件驱动，不维护独立计时器。中文固定提示优先播放随应用发布的普通话神经 TTS MP3；动态次数与 en-US 文案仍由 Web Speech API 合成。提示音使用 Web Audio API，触觉反馈使用 `navigator.vibrate`。运行时不调用云端 TTS 服务，也不上传音频数据。
 
 ## Voice Modes
 
@@ -21,8 +21,8 @@
 - 数量：固定教练录音和倒计时文件随仓库发布。
 - URL：`voiceAssets.ts` 使用 `import.meta.env.BASE_URL` 拼接 `audio/voice/...`，兼容 GitHub Pages 的 `/kagle/` 基路径。
 - `PreRecordedAudioAdapter` 基于 `HTMLAudioElement` 预加载与播放；单次播放 8 秒未结束即超时并返回失败。
-- 中文 `zh-CN` 的 training-ready、阶段、暂停/继续、完成等固定事件使用本地文件；动态组数和录音不可用时的回退文本使用 Web Speech。
-- `round-start` 包含动态组数，无法映射固定文件；en-US 也没有本地资源，两者继续交给 `SpeechSynthesisAdapter`。
+- 中文 `zh-CN` 的 training-ready、阶段、暂停/继续、完成等固定事件使用本地文件；动态次数和录音不可用时的回退文本使用 Web Speech。
+- `round-start` 包含动态次数，无法映射固定文件；en-US 也没有本地资源，两者继续交给 `SpeechSynthesisAdapter`。事件名中的 `round` 仅为内部兼容字段，面向用户统一称为“次”。
 - 修改中文固定文案后，必须手工重新生成对应音频并替换文件；仓库没有可自动复现神经 TTS 产物的生成流水线。
 
 ## Playback Routing and Fallback
@@ -32,7 +32,7 @@
 1. `sound-only` 直接播放提示音。
 2. 其他语音模式先由 `resolveVoiceAsset()` 尝试解析本地中文资源。
 3. 有资源时交给 `PreRecordedAudioAdapter`；加载、播放、error 或 8 秒超时失败后，仅当该事件存在 `resolveCue()` 映射时才降级为对应 Web Audio 提示音。倒计时事件没有 cue 映射，因此倒计时录音失败时静默跳过并继续训练。
-4. 无本地资源时通过 `resolveSpeech()` 和 Web Speech 播放动态组数或 en-US 文案。
+4. 无本地资源时通过 `resolveSpeech()` 和 Web Speech 播放动态次数或 en-US 文案。
 
 阶段切换、暂停、停止或显式停止会同时终止 Web Speech、提示音和本地音频。`VoiceController` 每次打断递增 playback generation；旧的异步本地播放返回后，不得再播放过期的降级提示音。
 
@@ -42,7 +42,7 @@
 
 设置通过 `VoiceSettings` 保存到 localStorage 的 `kegel.voice-settings.v1`：`enabled`、`mode`、`language`、`volume`、`rate`、`pitch`、`voiceName`、`countdownFrom`、`announceRound`、`announceNextStage`、`hapticsEnabled`。字段逐项校验，非法值独立回退默认值。新用户默认使用 `coach` 且 `countdownFrom: 3`。
 
-UI 默认只露出启用辅助、结束前倒计时和试听按钮；辅助方式、音量、回退语速、组数播报和震动反馈放在“高级设置”里，降低首次使用时的配置负担。
+UI 默认只露出启用辅助、结束前倒计时和试听按钮；辅助方式、音量、回退语速、次数播报和震动反馈放在“高级设置”里，降低首次使用时的配置负担。
 
 ## Queue Semantics
 
@@ -77,7 +77,7 @@ UI 默认只露出启用辅助、结束前倒计时和试听按钮；辅助方�
 
 - 不申请麦克风权限，不录音，不上传训练或音频数据。
 - 18 个中文文件随应用静态发布，无运行时云依赖。
-- 动态组数与 en-US 的声音质量、voice 可用性仍取决于浏览器和操作系统。
+- 动态次数与 en-US 的声音质量、voice 可用性仍取决于浏览器和操作系统。
 
 ## Verification Status
 

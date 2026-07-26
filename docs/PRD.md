@@ -4,7 +4,7 @@
 
  ## Product Vision
 
- A browser-based pelvic floor (Kegel) training timer that provides real-time visual and voice guidance during workouts. The application is a training companion, not a diagnostic or medical device. It helps users perform correct timing for each phase of a Kegel exercise: contract, hold, and relax, across configurable rounds.
+A browser-based pelvic floor (Kegel) training timer that provides real-time visual and voice guidance during workouts. The application is a training companion, not a diagnostic or medical device. It helps users perform correct timing for each phase of a Kegel exercise: contract, hold, and relax, across configurable repetitions.
 
  ## Target Users
 
@@ -15,17 +15,17 @@
 
  ## Primary User Scenarios
 
- 1. **Quick session**: User opens the page, adjusts contract/hold/relax times and rounds, presses "开始训练", follows voice and visual cues through the workout.
+1. **Quick session**: User opens the page, adjusts contract/hold/relax times and repetitions per set, presses "开始训练", follows voice and visual cues through the workout.
  2. **Pause and resume**: User needs to interrupt mid-workout; presses "暂停", then "继续" when ready.
  3. **Different voice modes**: User switches between "关闭" (off), "仅提示音" (sound-only), "简洁" (concise), "引导" (guided), or "引导与倒计时" (countdown) to match their preference.
- 4. **Progressive overload**: User gradually increases hold time or rounds over weeks using the stepper controls.
+4. **Progressive overload**: User gradually increases hold time or repetitions per set over weeks using the stepper controls.
  5. **Nighttime use**: User reduces screen brightness; the dark theme is already the default.
 
  ## MVP Scope
 
  The following are implemented and verified in the current codebase (v0.0.0):
 
- - Training timer with configurable contract, hold, relax times (seconds) and rounds.
+- Training timer with configurable contract, hold, relax times (seconds) and repetitions per set.
  - Training state machine: idle → running → paused → running → finished.
  - Phase progression within each round: contract → hold → relax.
  - 100ms-interval tick engine using `performance.now()` for drift-resistant timing.
@@ -36,7 +36,7 @@
  - Progress ring (conic gradient, optional, shown during running state).
  - Progress bar (linear gradient bar at bottom).
  - TimerDisplay with phase name and countdown seconds.
- - ConfigPanel with stepper controls for contract/hold/relax/rounds (disabled during training).
+- ConfigPanel with stepper controls for contract/hold/relax/repetitions per set (disabled during training).
  - Voice assistance with 5 modes (off, sound-only, concise, guided, countdown).
  - Voice scripts in zh-CN for all modes; en-US scripts defined.
  - SpeechSynthesis (Web Speech API) and AudioFileAdapter (Web Audio API tones).
@@ -95,6 +95,6 @@
 
  - Users perform Kegel exercises in a private, quiet environment.
  - Users have basic familiarity with Kegel technique (the app does not teach form).
- - The default configuration (3s contract, 3s hold, 3s relax, 10 rounds = 90s) is suitable for most beginners.
+- The default configuration is 3 seconds contract, 3 seconds hold, and 3 seconds relax, repeated 10 times; those 10 repetitions together form one set (90 seconds of active exercise).
  - Voice mode "引导与倒计时" (countdown) is the preferred mode for users who want the most guidance.
  - Users access the app primarily on mobile devices in portrait orientation.

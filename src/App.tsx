@@ -74,8 +74,8 @@ export default function App() {
           streakDays={3}
           isRunning={state.status === 'running'}
           isPaused={state.status === 'paused'}
-          currentRound={state.currentRound}
-          totalRounds={config.rounds}
+          currentRepetition={state.currentRound}
+          totalRepetitions={config.rounds}
         />
       </div>
 
@@ -116,7 +116,8 @@ export default function App() {
               transition={{ duration: 0.3 }}
             >
               <TrainingFeedback
-                rounds={state.currentRound}
+                completedRepetitions={state.currentRound}
+                totalRepetitions={config.rounds}
                 durationMs={state.totalElapsedMs}
                 onRestart={handleRestart}
                 onDone={finish}
@@ -139,8 +140,8 @@ export default function App() {
               phase={state.phase}
               displayPhaseKey={displayTiming.key}
               phaseRemainingMs={displayTiming.remainingMs}
-              currentRound={state.currentRound}
-              totalRounds={config.rounds}
+              currentRepetition={state.currentRound}
+              totalRepetitions={config.rounds}
               isRunning={isActive || state.status === 'finished'}
             />
 

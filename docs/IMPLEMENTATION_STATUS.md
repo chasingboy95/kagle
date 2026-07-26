@@ -1,6 +1,6 @@
 # Implementation Status
 
-**Last verified against repository:** 2026-07-24
+**Last verified against repository:** 2026-07-26
 
 ## Status Legend
 
@@ -14,7 +14,7 @@
 |-----------|--------|--------|
 | Training Engine | Partial | Core state transitions and timing exist; full integration tests (including the new ready→feedback lifecycle) remain outstanding. |
 | Training Lifecycle | Complete | READY (5s) and persistent FEEDBACK completion view added. State machine updated: idle → ready → contract → hold → relax → (repeat) → feedback → user confirmation → idle or restart, with feedback using a dedicated status for completion UI. |
-| Timer / Rounds | Partial | Display timing separates ready, contract, hold, and relax phases. Feedback is no longer counted as training time. Unit tests cover phase timing and action hints. Still no component or E2E tests. |
+| Timer / Repetitions | Partial | Each contract→hold→relax cycle is presented as one repetition; all configured repetitions form one set. Display timing separates ready, contract, hold, and relax phases. Feedback is no longer counted as training time. Unit tests cover phase timing and action hints. Still no component or E2E tests. |
 | MuscleSphere | Partial | Ready (slow breathing) and feedback (release/calm) animation variants added. No automated rendering tests. |
 | Voice Controller | Partial | Three-mode scheduling, queueing, interruption, independent countdown, recorded-first playback, speech fallback, and prompt timing logic are implemented and unit tests were updated. |
 | Voice Scripts | Complete | Added `ready` and `feedback` script keys for stage-enter speech in both zh-CN and en-US. |
@@ -44,6 +44,7 @@
 - If system speech also fails, the controller uses a non-verbal cue when one exists.
 - Contract, hold, and relax stage prompts play immediately on phase entry.
 - Contract and hold have separate user-facing copy: "开始收缩" then "保持住".
+- Dynamic progress announcements use "第 N 次，共 M 次"; internal `round` field names remain an engine implementation detail.
 - Countdown cues keep a short playback grace window so the final cue can still play at the phase boundary.
 - The ready phase uses the `training-ready` lifecycle prompt only, avoiding duplicate stage-enter speech.
 - The feedback phase uses the `completed` lifecycle prompt only, avoiding duplicate stage-enter speech.
@@ -62,7 +63,8 @@
 - Feedback phase action hint.
 - Countdown events during ready phase.
 - Countdown events are suppressed during feedback.
+- Chinese and English progress announcements use repetition terminology.
 
 ## Verification Gap
 
-`npm test`, `npm run build`, and `npm run lint` passed on 2026-07-24 after the completion-view and voice-settings revisions. iOS and Android real-device QA remains outstanding.
+`npm test -- --run` (11 files, 63 tests), `npm run build`, and `npm run lint` passed on 2026-07-26 after the repetition/set terminology correction. iOS and Android real-device QA remains outstanding.

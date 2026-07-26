@@ -1,6 +1,6 @@
 # Task List
 
-**Last verified against repository:** 2026-07-24
+**Last verified against repository:** 2026-07-26
 
 ## In Progress
 
@@ -41,6 +41,9 @@
 
 ## Completed
 
+- [x] Corrected the training-unit terminology: one contract→hold→relax cycle is one repetition, and all configured repetitions together count as one set.
+- [x] Updated the plan summary, live progress, voice announcement, settings copy, and completion summary to use repetitions rather than sets.
+- [x] Added voice-script tests that prevent repetition announcements from regressing to set/round terminology.
 - [x] Applied user-level trial feedback from the GitHub Pages build.
 - [x] Changed completion feedback into a persistent result view that hides the training timer, progress, settings, and stage copy.
 - [x] Added a completion action so users can leave the result view intentionally.

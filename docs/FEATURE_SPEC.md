@@ -5,10 +5,10 @@
  ## Training Configuration
 
  - **Status**: Complete
- - **Expected behavior**: User can adjust contract time (3–20s), hold time (1–30s), relax time (3–20s), and rounds (1–50) via stepper controls.
+ - **Expected behavior**: User can adjust contract time (3–20s), hold time (1–30s), relax time (3–20s), and repetitions per set (1–50) via stepper controls.
  - **Current implementation**: `ConfigPanel` component renders four `Stepper` controls with increment/decrement buttons. Ranges defined in `CONFIG_RANGE` constant. Disabled during active training (`disabled={isActive}`). Updates are instant via `updateConfig()`.
  - **Edge cases**: Clamping on min/max ensures values cannot go out of range. Controls disabled during running/paused states.
- - **Acceptance**: All ranges match `CONFIG_RANGE` values. Defaults from `DEFAULT_CONFIG`: 3s contract, 3s hold, 3s relax, 10 rounds.
+ - **Acceptance**: All ranges match `CONFIG_RANGE` values. Defaults from `DEFAULT_CONFIG`: 3s contract, 3s hold, 3s relax, 10 repetitions. These 10 repetitions together form one set. The internal `rounds` property is retained for compatibility.
 
  ## Start
 
@@ -42,13 +42,13 @@
  - **Edge cases**: Stop transitions to idle instantly (no cooldown animation). Stopped event has highest priority in VoiceController.
  - **Acceptance**: Engine returns to idle. Renders "准备开始". All voice silenced.
 
- ## Rounds
+ ## Repetitions and Sets
 
  - **Status**: Complete
- - **Expected behavior**: Each round progresses contract → hold → relax. After the last relax, training marks as finished. Round count displayed in TimerDisplay and TrainingStatus.
- - **Current implementation**: `advance()` cycles through phases. Round counter increments at the end of relax phase before re-entering contract. When `nextRound >= config.rounds`, status set to 'finished' and `completed` event emitted.
- - **Edge cases**: `rounds = 1` works: one full cycle then finished. When finished, phase becomes 'idle' and round resets to 0.
- - **Acceptance**: Rounds count correctly. Last round triggers finished state.
+ - **Expected behavior**: Each repetition progresses contract → hold → relax. After the configured repetitions are complete, the user has completed one set. The repetition count is displayed in TimerDisplay and TrainingStatus.
+ - **Current implementation**: `advance()` cycles through phases. The internal round counter increments at the end of relax before re-entering contract. When `nextRound >= config.rounds`, the engine enters feedback and emits `completed`.
+ - **Edge cases**: `rounds = 1` works: one full repetition then feedback. When the user finishes the result view, the engine returns to idle.
+ - **Acceptance**: Repetitions count correctly; the UI never describes an individual repetition as a set. The last repetition triggers the one-set completion view.
 
  ## Contract
 

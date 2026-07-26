@@ -2,7 +2,8 @@ import { motion } from 'framer-motion';
 import { useMemo } from 'react';
 
 interface TrainingFeedbackProps {
-  rounds: number;
+  completedRepetitions: number;
+  totalRepetitions: number;
   durationMs: number;
   onRestart?: () => void;
   onDone?: () => void;
@@ -31,7 +32,15 @@ function QualityDots({ value, max }: { value: number; max: number }) {
   );
 }
 
-export default function TrainingFeedback({ rounds, durationMs, onRestart, onDone, quality = 4, maxQuality = 5 }: TrainingFeedbackProps) {
+export default function TrainingFeedback({
+  completedRepetitions,
+  totalRepetitions,
+  durationMs,
+  onRestart,
+  onDone,
+  quality = 4,
+  maxQuality = 5,
+}: TrainingFeedbackProps) {
   const qualityValue = useMemo(() => Math.min(quality, maxQuality), [quality, maxQuality]);
 
   return (
@@ -46,7 +55,7 @@ export default function TrainingFeedback({ rounds, durationMs, onRestart, onDone
       </div>
       <h2 className="text-xl font-semibold text-white">训练完成</h2>
       <p className="mt-1 text-sm text-slate-400">
-        本次完成 {rounds} 组，节奏保持得不错
+        本次完成 1 组（{completedRepetitions}/{totalRepetitions} 次），节奏保持得不错
       </p>
 
       <div className="mt-5 grid grid-cols-2 gap-3 text-sm text-slate-300">

@@ -7,8 +7,8 @@ interface Props {
   phase: TrainingPhase;
   displayPhaseKey: DisplayPhaseTiming['key'];
   phaseRemainingMs: number;
-  currentRound: number;
-  totalRounds: number;
+  currentRepetition: number;
+  totalRepetitions: number;
   isRunning: boolean;
 }
 
@@ -16,8 +16,8 @@ export default function TimerDisplay({
   phase,
   displayPhaseKey,
   phaseRemainingMs,
-  currentRound,
-  totalRounds,
+  currentRepetition,
+  totalRepetitions,
   isRunning,
 }: Props) {
   const showTimer = isRunning && phase !== 'idle';
@@ -53,14 +53,14 @@ export default function TimerDisplay({
         {showTimer ? seconds : '--'}
       </motion.div>
 
-      {/* 轮次信息 */}
+      {/* 当前组内的动作次数 */}
       <div className="flex items-center gap-2 text-xs text-slate-500 tabular-nums mt-1">
         <span className="text-[10px] tracking-widest text-slate-600">第</span>
         <span className="font-semibold text-slate-300 text-sm">
-          {showTimer ? currentRound : 0}
+          {showTimer ? currentRepetition : 0}
         </span>
         <span className="text-slate-600">/</span>
-        <span className="text-slate-400">{totalRounds}</span>
+        <span className="text-slate-400">{totalRepetitions}</span>
         <span className="text-[10px] tracking-widest text-slate-600">次</span>
       </div>
     </div>

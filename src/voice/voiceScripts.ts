@@ -39,8 +39,8 @@ export function resolveSpeech(event: VoiceEvent, settings: VoiceSettings): strin
   if (event.type === 'round-start') {
     if (!settings.announceRound) return null;
     return settings.language === 'zh-CN'
-      ? `第 ${event.round} 组，共 ${event.totalRounds} 组`
-      : `Round ${event.round} of ${event.totalRounds}`;
+      ? `第 ${event.round} 次，共 ${event.totalRounds} 次`
+      : `Repetition ${event.round} of ${event.totalRounds}`;
   }
 
   const scripts = coachScripts[settings.language];

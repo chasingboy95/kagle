@@ -25,7 +25,7 @@
           │       ┌─────────┐
           │       │ running │
           │       └────┬────┘
-          │            │ (all rounds complete)
+          │            │ (all repetitions complete)
           │            ▼
           │       ┌──────────┐
           │       │ feedback │
@@ -50,18 +50,18 @@
 | idle → running | `start()` called | Reset counters, increment sessionId, emit `training-ready`, enter `ready` phase, start tick |
 | running → paused | `pause()` called | Record `pauseStartedAt`, set status to paused, emit `paused` |
 | paused → running | `resume()` called | Adjust `phaseStartedAt` by pause duration, add to `totalPausedMs`, emit `resumed` |
-| running → feedback | All rounds complete in `advance()` | Emit `completed`, enter `feedback` phase, stop tick, preserve session summary |
+| running → feedback | All repetitions complete in `advance()` | Emit `completed`, enter `feedback` phase, stop tick, preserve session summary |
 | feedback → idle | `finish()` called | Reset internals and return to the start screen |
 | running → idle | `stop()` called | Stop tick, emit `stopped`, reset internals |
 | paused → idle | `stop()` called | Same as above |
  | finished → running | `restart()` called | Same logic as start but without updating config |
  | idle → idle (same) | `stop()` called when already idle | No-op |
 
- ## Phase Progression within a Round
+ ## Phase Progression within a Repetition
 
  ```
  ┌─────────────────────────────────────┐
- │          Round N                    │
+ │       Repetition N                  │
  │  contract ──▶ hold ──▶ relax       │
  │     │           │         │         │
  │     │           │         │         │
@@ -85,9 +85,11 @@
  - **Pause compensation**: On resume, `phaseStartedAt += pauseDuration`. This ensures that the computed elapsed time (`now - phaseStartedAt`) excludes the paused period.
  - **Render state**: Derived in `buildState()` on every tick, using the current `EngineInternals` ref snapshot.
 
- ## Round Progression
+ ## Repetition Progression
 
- - `e.round` is 0-indexed internally; `currentRound` in `EngineState` is 1-indexed.
+- `e.round`, `config.rounds`, and `currentRound` are legacy internal names. They represent repetitions, not sets.
+- `e.round` is 0-indexed internally; `currentRound` in `EngineState` is the 1-indexed current repetition.
+- One full contract→hold→relax cycle is one repetition. Completing all configured repetitions counts as one set.
  - `advance()` is called when elapsed time >= phase duration.
  - In relax phase, if `nextRound >= config.rounds`, engine enters `feedback` status and stops the tick.
  - `feedback` is a user-confirmed completion view, not a timed training phase.
@@ -139,7 +141,7 @@
  | `resume()` called when not paused | No-op |
  | `stop()` called when idle | Safe no-op (internals already at initial state) |
  | Phase duration = 0 | `advance()` called on next tick; effectively skips the phase |
- | Very large round count (e.g. 50 with 20s phases) | Works, total duration up to ~50 minutes |
+ | Very large repetition count (e.g. 50 with 20s phases) | Works, total duration up to ~50 minutes |
  | Multiple rapid start/stop | Each session gets a unique `sessionId`; no state leakage |
  | Component unmount mid-workout | Cleanup effect stops the tick; settings are persisted; engine ref is lost |
  | `voice.emit` throws | Caught inside the engine's `emitVoice`, logged with `// Voice assistance must never interrupt the training engine.` |
@@ -152,4 +154,4 @@
  | Event sequence overflow | Starts at 0, increments per event; reset per session |
  | Hardware sleep during workout | Wake Lock attempts to prevent this. If sleep occurs, tick resumes on wake but elapsed time includes sleep period — actual elapsed may exceed phase duration significantly, causing skipped phases. Not addressed for MVP. |
  | Finished state after stop | stop() resets to idle, never enters finished if stopped mid-workout |
- | Round 1 totalRounds | Works correctly: one full contract→hold→relax, then finished |
+ | One configured repetition | Works correctly: one full contract→hold→relax, then feedback |
