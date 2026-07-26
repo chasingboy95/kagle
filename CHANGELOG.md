@@ -14,6 +14,10 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- Training-engine integration tests for lifecycle progression, pause/resume compensation, early stop, and completion.
+- React Testing Library component tests for training configuration and completion feedback.
+- A Playwright Chromium smoke test covering configuration, pause/resume, completion, and return to idle.
+- End-to-end testing as a required GitHub Pages deployment quality gate.
 - Training Ready Phase: 5-second preparation phase with breathing animation and countdown before the first contraction.
 - Training Feedback Lifecycle: persistent completion result view after the last relaxation.
 - READY_DURATION_MS (5000) and FEEDBACK_DURATION_MS (0) constants for lifecycle timing.
