@@ -1,7 +1,6 @@
 import { motion } from 'framer-motion';
 
 interface Props {
-  streakDays: number;
   isRunning: boolean;
   isPaused: boolean;
   currentRepetition: number;
@@ -9,7 +8,6 @@ interface Props {
 }
 
 export default function TrainingStatus({
-  streakDays,
   isRunning,
   isPaused,
   currentRepetition,
@@ -32,13 +30,12 @@ export default function TrainingStatus({
           </motion.span>
         ) : (
           <motion.span
-            key="streak"
+            key="ready"
             initial={{ opacity: 0, y: 2 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex items-center gap-1.5 text-[10px] tracking-wider"
+            className="text-[10px] tracking-wider text-slate-500"
           >
-            <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400/60" />
-            <span className="text-slate-500">连续 {streakDays} 天</span>
+            准备开始
           </motion.span>
         )}
       </div>

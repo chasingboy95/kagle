@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-07-26
+
+### Changed
+
+- Removed hard-coded streak and completion-quality claims until real training history is implemented.
+- Completion feedback now shows only measured duration and completed repetitions.
+- GitHub Pages deployment now requires tests, lint, TypeScript checks, and a successful production build.
+
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]

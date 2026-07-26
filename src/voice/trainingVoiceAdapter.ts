@@ -1,4 +1,4 @@
-import type { VoiceEvent } from './voiceEvents'
+import type { CoachVoiceEvent } from './voiceEvents'
 
 export type TrainingPhase =
   | 'idle'
@@ -14,7 +14,7 @@ export interface TrainingVoiceInput {
 }
 
 export interface TrainingVoiceOutput {
-  event: VoiceEvent
+  event: CoachVoiceEvent
   priority: 'critical' | 'important' | 'normal' | 'ambient'
   interrupt: boolean
 }

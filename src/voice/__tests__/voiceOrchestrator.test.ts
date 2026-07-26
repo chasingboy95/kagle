@@ -10,6 +10,7 @@ describe('Voice orchestration contracts', () => {
       event: 'contraction-sustain',
       priority: 'normal',
       interrupt: false,
+      createdAt: Date.now(),
       expiresAt: Date.now() + 1000,
     });
 
@@ -18,6 +19,7 @@ describe('Voice orchestration contracts', () => {
       event: 'paused',
       priority: 'critical',
       interrupt: true,
+      createdAt: Date.now(),
       expiresAt: Date.now() + 1000,
     });
 

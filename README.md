@@ -39,9 +39,15 @@ bun run test
 # Lint
 bun run lint
 
+# TypeScript checks
+bun run typecheck
+
 # Preview production build
 bun run preview
 ```
+
+GitHub Pages deployment runs tests, lint, TypeScript checks, and the production
+build first. Deployment is skipped if any quality check fails.
 
 ## Key Documentation
 
