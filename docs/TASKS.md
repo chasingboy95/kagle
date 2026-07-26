@@ -41,6 +41,10 @@
 
 ## Completed
 
+- [x] Removed hard-coded streak and completion-quality claims until real training history exists.
+- [x] Changed completion feedback to show only objective session duration and repetition counts.
+- [x] Added GitHub Actions quality gates for tests, lint, TypeScript checks, and production build before deployment.
+- [x] Added a reusable `typecheck` package script and completion-summary tests.
 - [x] Corrected the training-unit terminology: one contract→hold→relax cycle is one repetition, and all configured repetitions together count as one set.
 - [x] Updated the plan summary, live progress, voice announcement, settings copy, and completion summary to use repetitions rather than sets.
 - [x] Added voice-script tests that prevent repetition announcements from regressing to set/round terminology.

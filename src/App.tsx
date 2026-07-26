@@ -71,7 +71,6 @@ export default function App() {
 
       <div className="pt-4 pb-1">
         <TrainingStatus
-          streakDays={3}
           isRunning={state.status === 'running'}
           isPaused={state.status === 'paused'}
           currentRepetition={state.currentRound}

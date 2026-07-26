@@ -23,7 +23,8 @@
 | Voice Settings | Complete | Three modes are validated, final 3-second countdown is the default for new users, and legacy five-mode values migrate to `coach`. |
 | Voice Settings Panel | Untested | UI now exposes common controls first: enable, final countdown, and preview. Mode, volume, fallback speech rate, progress announcement, and haptics live under "高级设置". No component test yet. |
 | PWA / GitHub Pages | Partial | Manifest, service worker, subpath, and safe-area support exist; real-device QA remains incomplete. |
-| CI/CD | Complete | GitHub Pages deployment workflow exists. |
+| Session Statistics | Partial | The completion view shows only objective current-session duration and repetition counts. Streaks and quality scores are hidden until real training history exists. |
+| CI/CD | Complete | GitHub Pages deployment is blocked on passing tests, lint, TypeScript checks, and production build; the verified build artifact is then deployed. |
 
 ## Voice Behavior
 
@@ -67,4 +68,4 @@
 
 ## Verification Gap
 
-`npm test -- --run` (11 files, 63 tests), `npm run build`, and `npm run lint` passed on 2026-07-26 after the repetition/set terminology correction. iOS and Android real-device QA remains outstanding.
+`bun run test`, `bun run lint`, `bun run typecheck`, and `bun run build` passed on 2026-07-26 after the release-quality gate update. iOS and Android real-device QA remains outstanding.

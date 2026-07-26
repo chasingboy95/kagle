@@ -10,6 +10,7 @@ describe('VoiceQueue', () => {
       event: 'contraction-sustain',
       priority: 'ambient',
       interrupt: false,
+      createdAt: Date.now(),
       expiresAt: Date.now() + 1000,
     });
 
@@ -18,6 +19,7 @@ describe('VoiceQueue', () => {
       event: 'paused',
       priority: 'critical',
       interrupt: true,
+      createdAt: Date.now(),
       expiresAt: Date.now() + 1000,
     });
 
@@ -32,6 +34,7 @@ describe('VoiceQueue', () => {
       event: 'training-ready',
       priority: 'normal',
       interrupt: false,
+      createdAt: Date.now(),
       expiresAt: Date.now() - 1,
     });
 
