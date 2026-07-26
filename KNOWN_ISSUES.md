@@ -139,19 +139,17 @@
 
 ### No training engine integration tests
 
-- **Status**: Open
+- **Status**: Resolved 2026-07-26
 - **Severity**: High
 - **Affected area**: `src/hooks/useKegelEngine.ts`
-- **Description**: The engine has only 1 test (for the `getCountdownEvent` helper). No tests for state transitions, phase progression, pause compensation, or timing accuracy.
-- **Workaround**: Manual testing.
-- **Planned resolution**: Add comprehensive engine integration tests.
+- **Resolution**: Fake-clock tests now cover the complete lifecycle, pause/resume compensation, early stop, and completion reset. Playwright covers a complete browser training flow.
 
-### No component tests
+### Limited component tests
 
 - **Status**: Open
 - **Severity**: Medium
 - **Affected area**: All components in `src/components/`
-- **Description**: None of the 9 UI components have test files. MuscleSphere has no automated rendering tests.
+- **Description**: ConfigPanel and TrainingFeedback now have React Testing Library coverage. MuscleSphere and VoiceSettingsPanel still need automated rendering and interaction tests.
 - **Workaround**: Manual testing.
 - **Planned resolution**: Add Vitest + React Testing Library tests.
 

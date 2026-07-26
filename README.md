@@ -17,7 +17,7 @@ A browser-based pelvic floor (Kegel) training timer with real-time visual animat
 - **Voice**: Web Speech API, Web Audio API
 - **Haptics**: Navigator Vibration API
 - **Persistence**: localStorage
-- **Testing**: Vitest
+- **Testing**: Vitest, React Testing Library, Playwright
 - **Linting**: Oxlint
 - **CI/CD**: GitHub Actions to GitHub Pages
 
@@ -36,6 +36,10 @@ bun run build
 # Run tests
 bun run test
 
+# Run the browser smoke test (after `bunx playwright install chromium`)
+bun run build
+bun run test:e2e
+
 # Lint
 bun run lint
 
@@ -46,8 +50,9 @@ bun run typecheck
 bun run preview
 ```
 
-GitHub Pages deployment runs tests, lint, TypeScript checks, and the production
-build first. Deployment is skipped if any quality check fails.
+GitHub Pages deployment runs unit/integration/component tests, lint, TypeScript
+checks, a production build, and the Playwright browser smoke test first.
+Deployment is skipped if any quality check fails.
 
 ## Key Documentation
 

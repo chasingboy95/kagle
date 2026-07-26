@@ -12,9 +12,9 @@
 
 | Subsystem | Status | Reason |
 |-----------|--------|--------|
-| Training Engine | Partial | Core state transitions and timing exist; full integration tests (including the new ready→feedback lifecycle) remain outstanding. |
+| Training Engine | Complete | Fake-clock integration tests cover the full ready→contract→hold→relax→feedback lifecycle, pause compensation, resume, early stop, and user-confirmed completion. |
 | Training Lifecycle | Complete | READY (5s) and persistent FEEDBACK completion view added. State machine updated: idle → ready → contract → hold → relax → (repeat) → feedback → user confirmation → idle or restart, with feedback using a dedicated status for completion UI. |
-| Timer / Repetitions | Partial | Each contract→hold→relax cycle is presented as one repetition; all configured repetitions form one set. Display timing separates ready, contract, hold, and relax phases. Feedback is no longer counted as training time. Unit tests cover phase timing and action hints. Still no component or E2E tests. |
+| Timer / Repetitions | Complete | Each contract→hold→relax cycle is presented as one repetition; all configured repetitions form one set. Unit, component, integration, and browser-flow coverage protect timing and terminology. |
 | MuscleSphere | Partial | Ready (slow breathing) and feedback (release/calm) animation variants added. No automated rendering tests. |
 | Voice Controller | Partial | Three-mode scheduling, queueing, interruption, independent countdown, recorded-first playback, speech fallback, and prompt timing logic are implemented and unit tests were updated. |
 | Voice Scripts | Complete | Added `ready` and `feedback` script keys for stage-enter speech in both zh-CN and en-US. |
@@ -24,7 +24,7 @@
 | Voice Settings Panel | Untested | UI now exposes common controls first: enable, final countdown, and preview. Mode, volume, fallback speech rate, progress announcement, and haptics live under "高级设置". No component test yet. |
 | PWA / GitHub Pages | Partial | Manifest, service worker, subpath, and safe-area support exist; real-device QA remains incomplete. |
 | Session Statistics | Partial | The completion view shows only objective current-session duration and repetition counts. Streaks and quality scores are hidden until real training history exists. |
-| CI/CD | Complete | GitHub Pages deployment is blocked on passing tests, lint, TypeScript checks, and production build; the verified build artifact is then deployed. |
+| CI/CD | Complete | GitHub Pages deployment is blocked on passing tests, lint, TypeScript checks, production build, and a Chromium Playwright smoke test; the verified build artifact is then deployed. |
 
 ## Voice Behavior
 
@@ -65,7 +65,15 @@
 - Countdown events during ready phase.
 - Countdown events are suppressed during feedback.
 - Chinese and English progress announcements use repetition terminology.
+- Full ready → contract → hold → relax → feedback engine progression.
+- Pause/resume timing compensation and early-stop reset.
+- ConfigPanel repetition/set copy and disabled controls.
+- TrainingFeedback objective results and completion actions.
+- Playwright smoke flow from configuration through completion and back to idle.
 
 ## Verification Gap
 
-`bun run test`, `bun run lint`, `bun run typecheck`, and `bun run build` passed on 2026-07-26 after the release-quality gate update. iOS and Android real-device QA remains outstanding.
+`bun run test`, `bun run lint`, `bun run typecheck`, and `bun run build` passed
+on 2026-07-26 with 13 test files and 71 tests. The local sandbox could not
+download the Chromium archive, so the Playwright smoke test is pending its
+first GitHub Actions run. iOS and Android real-device QA remains outstanding.

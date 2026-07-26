@@ -1,8 +1,13 @@
  # Test Plan
 
- **Last verified against repository:** 2026-07-23
+ **Last verified against repository:** 2026-07-26
 
- ## Existing Tests (4 files, 11 tests — all passing)
+ ## Automated Status
+
+ - Vitest: 13 files, 71 tests passing.
+ - Engine integration: complete lifecycle, pause/resume compensation, and early stop.
+ - Component tests: ConfigPanel and TrainingFeedback.
+ - Playwright: one Chromium complete-training smoke test; first CI execution pending.
 
  ### Unit: getCountdownEvent (`src/hooks/useKegelEngine.test.ts`)
 
@@ -186,6 +191,13 @@
  bun run test
  ```
 
+ Run the browser smoke test:
+ ```bash
+ bunx playwright install chromium
+ bun run build
+ bun run test:e2e
+ ```
+
  Build verification:
  ```bash
  bun run build
@@ -196,7 +208,7 @@
  bun run lint
  ```
 
- As of 2026-07-23:
- - Tests: 4/4 files passing (11/11 tests)
- - Build: passes
- - Lint: not yet run
+ As of 2026-07-26:
+ - Tests: 13/13 files passing (71/71 tests)
+ - Build, lint, and typecheck: passing
+ - Playwright: configured in CI; local sandbox browser download unavailable

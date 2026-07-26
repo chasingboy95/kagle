@@ -16,13 +16,9 @@
   - Verify sustain and contraction prompts play promptly on phase entry.
   - Verify recording failure falls back to system speech.
 
-2. **Add training engine integration tests**
-  - Test start, pause, resume, stop, restart, phase timing, and pause compensation.
-  - Test the full lifecycle: ready → contract → hold → relax → feedback → user confirmation → idle.
-
-3. **Add component and E2E tests**
+2. **Expand component coverage**
   - Cover `VoiceSettingsPanel` mode selection and countdown controls.
-  - Add a complete training-flow smoke test.
+  - Add MuscleSphere rendering and reduced-motion coverage.
 
 ## Backlog
 
@@ -45,6 +41,9 @@
 - [x] Changed completion feedback to show only objective session duration and repetition counts.
 - [x] Added GitHub Actions quality gates for tests, lint, TypeScript checks, and production build before deployment.
 - [x] Added a reusable `typecheck` package script and completion-summary tests.
+- [x] Added fake-clock training-engine integration tests for lifecycle progression, pause/resume compensation, early stop, and completion.
+- [x] Added React Testing Library coverage for the plan and completion components.
+- [x] Added a Playwright complete-training smoke test and made it a deployment gate.
 - [x] Corrected the training-unit terminology: one contract→hold→relax cycle is one repetition, and all configured repetitions together count as one set.
 - [x] Updated the plan summary, live progress, voice announcement, settings copy, and completion summary to use repetitions rather than sets.
 - [x] Added voice-script tests that prevent repetition announcements from regressing to set/round terminology.

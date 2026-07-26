@@ -60,11 +60,14 @@ Future animation updates may modify the wrong asset version.
 
 ## 3. Training Engine Integration Coverage
 
-**Status:** Open
+**Status:** Resolved 2026-07-26
 
 **Description:**
 
-The training engine state machine is implemented, but integration-level testing is incomplete. The new ready→feedback lifecycle adds additional transitions that are not covered by automated integration tests.
+The training engine state machine now has fake-clock integration coverage for
+the full ready→feedback lifecycle, pause/resume compensation, early stop, and
+user confirmation back to idle. A Playwright smoke test covers the complete UI
+flow in Chromium.
 
 **Impact:**
 
@@ -72,14 +75,14 @@ Complex flows may regress without detection.
 
 **Planned Fix:**
 
-Add integration tests covering:
+Implemented coverage:
 
 - start → ready phase
 - ready → contract transition (timing-dependent)
 - full round progression with ready/contract/hold/relax
 - last relax → feedback → finished lifecycle
 - pause/resume during ready phase
-- stop during feedback phase
+- early stop back to idle
 
 ---
 
