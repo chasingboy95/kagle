@@ -1,6 +1,7 @@
 # Task List
 
 **Last verified against repository:** 2026-07-27
+**Last verified against repository:** 2026-07-27
 
 ## In Progress
 
@@ -20,12 +21,8 @@
 
 ## Backlog
 
-- Accessibility audit.
 - Performance profiling.
-- Replace the conic progress ring with an SVG circle if smoother interpolation is needed.
 - Add English recorded prompts before exposing a language selector.
-- Investigate the unused Ripple component and `hero.png`.
-- Evaluate a Web Worker for background-tab timing.
 - Implement TrainingFeedback summary component with session statistics.
 
 ## Blocked
@@ -34,6 +31,10 @@
 
 ## Completed
 
+- [x] **Web Worker background-tab timing**: Created `timingWorker.ts` + `createTimer.ts` utility; engine uses Worker-based timer in browsers with fallback to setInterval in tests. Timer keeps ticking at full rate even when browser tab is backgrounded.
+- [x] **SVG circle progress ring**: Replaced CSS `conic-gradient` progress ring with a proper SVG `<circle>` using `stroke-dasharray`/`stroke-dashoffset` for smoother rendering.
+- [x] **Accessibility audit**: Added `aria-live="polite"` regions to TimerDisplay and TrainingStatus; implemented auto-focus management in ControlButtons to keep keyboard/screen-reader users in the control flow after state transitions.
+- [x] **Investigated unused Ripple component**: Confirmed `Ripple.tsx` is defined but never imported anywhere in `src/`; no code removal (dead code retained per project conventions).
 - [x] **Expanded component coverage**: Added VoiceSettingsPanel tests (mode selector, countdown radios, volume/rate sliders, disable states, unsupported warning) and MuscleSphere tests (rendering for all 6 stages, 9 SVG layers, size prop, progress ring, reduced motion mode).
 - [x] Removed hard-coded streak and completion-quality claims until real training history exists.
 - [x] Changed completion feedback to show only objective session duration and repetition counts.

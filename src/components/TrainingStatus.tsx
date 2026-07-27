@@ -14,7 +14,7 @@ export default function TrainingStatus({
   totalRepetitions,
 }: Props) {
   return (
-    <div className="text-center">
+    <div className="text-center" aria-live="polite" aria-atomic="true">
       <h1 className="text-sm font-semibold tracking-[0.15em] text-slate-300/90">
         Kegel Training
       </h1>

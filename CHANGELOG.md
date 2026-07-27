@@ -1,6 +1,28 @@
 # Changelog
- 
- ## 2026-07-27
+
+## 2026-07-27 (second)
+
+### Added
+
+- Web Worker background-tab timing: `createTimer` utility uses a dedicated Worker so
+  the training engine keeps ticking at full rate when the browser tab is backgrounded.
+  Falls back to main-thread `setInterval` automatically in test environments.
+- `aria-live="polite"` regions on TimerDisplay and TrainingStatus for screen-reader
+  timer and status announcements.
+- Auto-focus management in ControlButtons so keyboard users keep focus after state
+  transitions (idle → running → paused → finished).
+
+### Changed
+
+- Progress ring in MuscleSphere: replaced CSS `conic-gradient` with an SVG `<circle>`
+  using `stroke-dasharray`/`stroke-dashoffset` for smoother rendering.
+
+### Other
+
+- Confirmed `Ripple.tsx` is unused; noted for future cleanup.
+- 16 test files, 92 tests all passing.
+
+## 2026-07-27
  
  ### Fixed
  
