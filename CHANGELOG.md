@@ -2,6 +2,10 @@
 ## [Unreleased]
 
 ### Added
+
+### Fixed
+- Training completion page no longer auto-disappears after 6 seconds (#20). The feedback phase is now persistent — the tick stops on entering feedback, `onSessionEnd` fires once, and the completion page remains until the user explicitly clicks 完成, 再次训练, or 查看训练记录.
+
 - Unified storage layer (`StorageAdapter`) with schema validation, versioned keys, upgrade chain, and corruption recovery (#17).
 - Training history: records persisted via storage layer, stats (weekly, streak, total), scrollable history UI with delete/clear (#8).
 - Progressive training suggestions: rule engine suggests parameter increases after 3 same-config completions, 3-day cooldown after dismiss (#12).

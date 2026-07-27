@@ -13,7 +13,7 @@
 | Subsystem | Status | Reason |
 |-----------|--------|--------|
 | Training Engine | Complete | Fake-clock integration tests cover the full ready→contract→hold→relax→feedback lifecycle, pause compensation, resume, early stop, and user-confirmed completion. |
-| Training Lifecycle | Complete | READY (5s) and persistent FEEDBACK completion view added. State machine updated: idle → ready → contract → hold → relax → (repeat) → feedback → user confirmation → idle or restart, with feedback using a dedicated status for completion UI. |
+| Training Lifecycle | Complete | READY (5s) and persistent FEEDBACK completion view with three explicit actions (完成/再次训练/查看训练记录). Feedback phase no longer auto-advances — tick stops on entry and onSessionEnd fires once. State machine: idle → ready → contract → hold → relax → (repeat) → feedback → user confirmation → idle or restart. |
 | Timer / Repetitions | Complete | Each contract→hold→relax cycle is presented as one repetition; all configured repetitions form one set. Unit, component, integration, and browser-flow coverage protect timing and terminology. |
 | MuscleSphere | Complete | Ready (slow breathing) and feedback (release/calm) animation variants added. No automated rendering tests. |
 | Voice Controller | Partial | Three-mode scheduling, queueing, interruption, independent countdown, recorded-first playback, speech fallback, and prompt timing logic are implemented and unit tests were updated. |
@@ -81,6 +81,6 @@
 ## Verification Gap
 
 `bun run test`, `bun run lint`, `bun run typecheck`, and `bun run build` passed
-on 2026-07-27 with 19 test files and 133 tests. The Playwright smoke test
+on 2026-07-27 with 19 test files and 144 tests. Feedback phase persistence and onViewHistory are covered by unit and component tests. The Playwright smoke test
 has passed in GitHub Actions CI (chromium). iOS and Android real-device
 QA remains outstanding.
