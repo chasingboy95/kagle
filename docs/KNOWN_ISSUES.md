@@ -161,6 +161,27 @@ The training completion voice prompt (`completed` event) relied exclusively on s
 
 ---
 
+---
+
+## 9. Missing Global Error Boundary
+
+**Status:** Resolved (2026-07-27)
+
+**Description:**
+
+The application lacked a global error recovery mechanism. Uncaught exceptions in training components, animations, voice, or localStorage could leave users with a blank page.
+
+**Resolution:**
+
+- React Error Boundary wraps the root `<App />` in `main.tsx`.
+- `ErrorRecoveryUI` renders a privacy-safe production recovery page with "重新加载" and "清除数据并重置" buttons.
+- In dev mode, full error message and component stack are exposed behind a `<details>` disclosure.
+- On error, the `onError` callback clears all `kegel.*` localStorage keys to prevent corrupted session recovery.
+- 6 component tests cover: child rendering, recovery UI display, dev-mode details, onError callback, re-render reset, and reload/reset button behavior.
+- No third-party monitoring or data upload is introduced.
+
+
 ## Resolved Issues
 
 - Feedback phase UI no longer exposes pause/stop controls during the completion celebration.
+- Global error boundary with local recovery and privacy-safe production UI (#16).

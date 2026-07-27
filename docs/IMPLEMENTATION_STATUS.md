@@ -31,6 +31,7 @@
 | Onboarding | Complete | Three-page first-time guided modal (什么是凯格尔训练/呼吸与安全/关于本应用) with skip, page indicators, ARIA dialog attributes, localStorage persistence, and re-entry button in idle section. |
 | Session Recovery | Complete | Engine saves snapshot to localStorage on state changes; recovery UI offers continue/discard after page refresh with time compensation; 8 integration tests. |
 | Session Statistics | Complete | The completion view shows only objective current-session duration and repetition counts. Streaks and quality scores are hidden until real training history exists. |
+| Error Boundary | Complete | Global React ErrorBoundary wraps root <App />, ErrorRecoveryUI renders privacy-safe recovery page with reload/reset, 6 component tests. |
 | CI/CD | Complete | All quality gates pass: tests, lint, TypeScript, build, and Playwright E2E. Deployment is automatic via GitHub Actions to GitHub Pages. |
 
 ## Voice Behavior
@@ -81,6 +82,6 @@
 ## Verification Gap
 
 `bun run test`, `bun run lint`, `bun run typecheck`, and `bun run build` passed
-on 2026-07-27 with 19 test files and 144 tests. Feedback phase persistence and onViewHistory are covered by unit and component tests. The Playwright smoke test
+on 2026-07-27 with 20 test files and 156 tests. Feedback phase persistence and onViewHistory are covered by unit and component tests. The Playwright smoke test
 has passed in GitHub Actions CI (chromium). iOS and Android real-device
 QA remains outstanding.

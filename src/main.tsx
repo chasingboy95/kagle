@@ -2,6 +2,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App'
+import ErrorBoundary from './components/ErrorBoundary'
 
 function showUpdatePrompt(registration: ServiceWorkerRegistration) {
   if (document.getElementById('pwa-update-prompt')) return
@@ -96,6 +97,15 @@ if ('serviceWorker' in navigator) {
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App />
+    <ErrorBoundary onError={() => {
+      // Clear session snapshot on error to prevent auto-resume with corrupted state
+      for (const key of Object.keys(localStorage)) {
+        if (key.startsWith('kegel.')) {
+          localStorage.removeItem(key);
+        }
+      }
+    }}>
+      <App />
+    </ErrorBoundary>
   </StrictMode>,
 )
