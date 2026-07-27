@@ -90,29 +90,53 @@ function phaseMs(phase: TrainingPhase, config: TrainingConfig): number {
   }
 }
 
+function finiteNonNegative(value: number): number {
+  return Number.isFinite(value) ? Math.max(0, value) : 0;
+}
+
+export function calculateActiveDurationMs(
+  now: number,
+  sessionStartedAt: number,
+  totalPausedMs: number,
+  pauseStartedAt?: number,
+  frozenDurationMs?: number,
+): number {
+  if (frozenDurationMs !== undefined) {
+    return finiteNonNegative(frozenDurationMs);
+  }
+  const activeUntil = pauseStartedAt ?? now;
+  return finiteNonNegative(activeUntil - sessionStartedAt - totalPausedMs);
+}
+
+/** Calculate active session time, excluding completed and currently-open pauses. */
+function activeDurationMs(e: EngineInternals, now: number): number {
+  if (e.status === 'idle') return 0;
+  if (e.status === 'feedback' || e.status === 'finished') {
+    return calculateActiveDurationMs(now, e.sessionStartedAt, e.totalPausedMs, undefined, e.feedbackElapsedSnapshot);
+  }
+  return calculateActiveDurationMs(
+    now,
+    e.sessionStartedAt,
+    e.totalPausedMs,
+    e.status === 'paused' ? e.pauseStartedAt : undefined,
+  );
+}
+
 /** 从当前引擎快照构建渲染状态 */
 function buildState(e: EngineInternals, now: number): EngineState {
   const isPaused = e.status === 'paused';
   const phaseDur = phaseMs(e.phase, e.config);
 
   let phaseRemaining = 0;
-  let totalRunningMs = 0;
-
   if (e.status === 'idle' || e.status === 'finished') {
     phaseRemaining = 0;
-    totalRunningMs = e.status === 'finished' && e.feedbackElapsedSnapshot > 0
-      ? e.feedbackElapsedSnapshot
-      : 0;
-  } else if (e.status === 'feedback' && e.feedbackElapsedSnapshot > 0) {
+  } else if (e.status === 'feedback') {
     phaseRemaining = Math.max(0, phaseDur - (now - e.phaseStartedAt));
-    totalRunningMs = e.feedbackElapsedSnapshot;
   } else if (isPaused) {
     phaseRemaining = Math.max(0, phaseDur - (e.pauseStartedAt - e.phaseStartedAt));
-    totalRunningMs = Math.max(0, e.pauseStartedAt - e.sessionStartedAt - e.totalPausedMs);
   } else {
     const elapsed = now - e.phaseStartedAt;
     phaseRemaining = Math.max(0, phaseDur - elapsed);
-    totalRunningMs = Math.max(0, now - e.sessionStartedAt - e.totalPausedMs);
   }
 
   return {
@@ -120,7 +144,7 @@ function buildState(e: EngineInternals, now: number): EngineState {
     phase: e.phase,
     currentRound: e.round + 1,
     phaseRemainingMs: Math.ceil(phaseRemaining),
-    totalElapsedMs: Math.ceil(totalRunningMs),
+    totalElapsedMs: Math.ceil(activeDurationMs(e, now)),
     totalDurationMs: calcTotalDuration(
       e.config.contractTime,
       e.config.holdTime,
@@ -184,12 +208,13 @@ export function useKegelEngine(options: KegelEngineVoiceOptions = {}): UseKegelE
     const s = buildState(e, now);
     setState(s);
     if (e.status === 'running' || e.status === 'paused' || e.status === 'feedback') {
+      const phaseElapsedAt = e.status === 'paused' ? e.pauseStartedAt : now;
       const snap: SessionSnapshot = {
         status: e.status,
         phase: e.phase,
         round: e.round,
-        phaseElapsedMs: Math.round(now - e.phaseStartedAt),
-        sessionElapsedMs: Math.max(0, Math.round(now - e.sessionStartedAt - e.totalPausedMs)),
+        phaseElapsedMs: finiteNonNegative(Math.round(phaseElapsedAt - e.phaseStartedAt)),
+        sessionElapsedMs: Math.round(activeDurationMs(e, now)),
         totalPausedMs: e.totalPausedMs,
         config: e.config,
         announcedCountdowns: [...e.announcedCountdowns],
@@ -253,7 +278,7 @@ export function useKegelEngine(options: KegelEngineVoiceOptions = {}): UseKegelE
     if (e.phase === 'relax') {
       const nextRound = e.round + 1;
       if (nextRound >= cfg.rounds) {
-        e.feedbackElapsedSnapshot = Math.max(0, performance.now() - e.sessionStartedAt - e.totalPausedMs);
+        e.feedbackElapsedSnapshot = activeDurationMs(e, performance.now());
         emitVoice({ type: 'completed' });
         e.status = 'feedback';
         enterPhase('feedback', false);
@@ -384,7 +409,7 @@ export function useKegelEngine(options: KegelEngineVoiceOptions = {}): UseKegelE
     storedSnapRef.current = null;
     stopTick();
     emitVoice({ type: 'stopped' });
-    const duration = Math.max(0, performance.now() - e.sessionStartedAt - e.totalPausedMs);
+    const duration = activeDurationMs(e, performance.now());
     // `round` is the zero-based index of the repetition currently in progress.
     // A repetition only becomes completed after its relax phase advances to the next round.
     try {

@@ -1,6 +1,20 @@
 import { act, renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { useKegelEngine } from './useKegelEngine';
+import { calculateActiveDurationMs, useKegelEngine } from './useKegelEngine';
+
+describe('calculateActiveDurationMs', () => {
+  it('returns a finite non-negative duration for invalid clock inputs', () => {
+    expect(calculateActiveDurationMs(Number.NaN, 0, 0)).toBe(0);
+    expect(calculateActiveDurationMs(Number.POSITIVE_INFINITY, 0, 0)).toBe(0);
+    expect(calculateActiveDurationMs(100, 200, 0)).toBe(0);
+    expect(calculateActiveDurationMs(100, 0, 0, undefined, Number.NaN)).toBe(0);
+  });
+
+  it('uses the pause boundary or frozen completion duration when supplied', () => {
+    expect(calculateActiveDurationMs(50_000, 1_000, 2_000, 8_000)).toBe(5_000);
+    expect(calculateActiveDurationMs(50_000, 1_000, 2_000, undefined, 7_500)).toBe(7_500);
+  });
+});
 
 describe('useKegelEngine stopped-session repetition count', () => {
   beforeEach(() => {
@@ -86,6 +100,47 @@ describe('useKegelEngine stopped-session repetition count', () => {
     expect(result.current.state.status).toBe('feedback');
     expect(onSessionEnd).toHaveBeenCalledWith(
       expect.objectContaining({ status: 'completed', completedReps: 1 }),
+    );
+  });
+
+  it('excludes an open pause when stopped without resuming', () => {
+    const { result, onSessionEnd } = setup();
+
+    advance(6_000);
+    act(() => result.current.pause());
+    const activeDurationAtPause = result.current.state.totalElapsedMs;
+    advance(30_000);
+    act(() => result.current.stop());
+
+    expect(onSessionEnd).toHaveBeenCalledWith(
+      expect.objectContaining({
+        status: 'stopped',
+        actualDurationMs: activeDurationAtPause,
+      }),
+    );
+  });
+
+  it('counts active time across repeated pauses and a final open pause', () => {
+    const { result, onSessionEnd } = setup();
+
+    advance(2_000);
+    act(() => result.current.pause());
+    advance(4_000);
+    act(() => result.current.resume());
+    advance(1_500);
+    act(() => result.current.pause());
+    advance(8_000);
+    act(() => result.current.resume());
+    advance(500);
+    act(() => result.current.pause());
+    advance(20_000);
+    act(() => result.current.stop());
+
+    expect(onSessionEnd).toHaveBeenCalledWith(
+      expect.objectContaining({
+        status: 'stopped',
+        actualDurationMs: 4_000,
+      }),
     );
   });
 });
