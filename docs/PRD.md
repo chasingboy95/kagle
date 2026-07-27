@@ -1,10 +1,10 @@
  # Product Requirements Document (PRD)
 
- **Last verified against repository:** 2026-07-23
+ **Last verified against repository:** 2026-07-27
 
  ## Product Vision
 
-A browser-based pelvic floor (Kegel) training timer that provides real-time visual and voice guidance during workouts. The application is a training companion, not a diagnostic or medical device. It helps users perform correct timing for each phase of a Kegel exercise: contract, hold, and relax, across configurable repetitions.
+A browser-based pelvic floor (Kegel) training timer that provides real-time visual and voice guidance during workouts. The application is a training companion, not a diagnostic or medical device. It helps users perform correct timing for each phase of a Kegel exercise: ready, contract, hold, relax, and feedback, across configurable repetitions.
 
  ## Target Users
 
@@ -17,7 +17,7 @@ A browser-based pelvic floor (Kegel) training timer that provides real-time visu
 
 1. **Quick session**: User opens the page, adjusts contract/hold/relax times and repetitions per set, presses "开始训练", follows voice and visual cues through the workout.
  2. **Pause and resume**: User needs to interrupt mid-workout; presses "暂停", then "继续" when ready.
- 3. **Different voice modes**: User switches between "关闭" (off), "仅提示音" (sound-only), "简洁" (concise), "引导" (guided), or "引导与倒计时" (countdown) to match their preference.
+ 3. **Different voice modes**: User switches between "静音" (off), "节奏提示" (sound-only), or "语音教练" (coach) to match their preference.
 4. **Progressive overload**: User gradually increases hold time or repetitions per set over weeks using the stepper controls.
  5. **Nighttime use**: User reduces screen brightness; the dark theme is already the default.
 
@@ -26,27 +26,27 @@ A browser-based pelvic floor (Kegel) training timer that provides real-time visu
  The following are implemented and verified in the current codebase (v0.0.0):
 
 - Training timer with configurable contract, hold, relax times (seconds) and repetitions per set.
- - Training state machine: idle → running → paused → running → finished.
- - Phase progression within each round: contract → hold → relax.
+ - Training state machine: idle → ready → contract → hold → relax → feedback → idle.
+ - Phase progression (after ready): contract → hold → relax.
  - 100ms-interval tick engine using `performance.now()` for drift-resistant timing.
  - Pause accounts for elapsed pause duration when resuming (phase timing adjusted).
  - Stop resets to idle; restart replays full session.
  - Screen Wake Lock API to prevent sleep during training.
  - MuscleSphere 9-layer SVG composited animation (idle, contract, hold, relax stages).
- - Progress ring (conic gradient, optional, shown during running state).
+ - Progress ring (SVG circle stroke-dasharray, optional, shown during running state).
  - Progress bar (linear gradient bar at bottom).
  - TimerDisplay with phase name and countdown seconds.
 - ConfigPanel with stepper controls for contract/hold/relax/repetitions per set (disabled during training).
- - Voice assistance with 5 modes (off, sound-only, concise, guided, countdown).
+ - Voice assistance with 3 modes (off, sound-only, coach).
  - Voice scripts in zh-CN for all modes; en-US scripts defined.
  - SpeechSynthesis (Web Speech API) and AudioFileAdapter (Web Audio API tones).
  - Haptic feedback via `navigator.vibrate` (contract 40ms, relax 25ms, complete [35,80,35]).
- - VoiceSettingsPanel with mode selector, volume, rate, countdown-from, announce-round, haptics toggle.
+ - VoiceSettingsPanel with enable, final countdown selector, advanced settings (mode, volume, rate, progress announcements, haptics).
  - Voice setting persistence in localStorage (`kegel.voice-settings.v1`).
  - All validations and safety checks for localStorage unavailability, API unsupported, etc.
  - Dark, mobile-first responsive layout using Tailwind CSS.
  - CI/CD pipeline (GitHub Actions → GitHub Pages).
- - 4 test suites (11 tests): engine countdown events, VoiceController queue rules, SpeechSynthesisAdapter fallback, voiceSettings validation, all passing.
+ - 16 test suites (92 tests): engine countdown events, VoiceController queue rules, SpeechSynthesisAdapter fallback, voiceSettings validation, all passing.
 
  ## Non-goals (explicitly out of scope for MVP)
 
@@ -59,8 +59,6 @@ A browser-based pelvic floor (Kegel) training timer that provides real-time visu
  - No social features or sharing.
  - No push notifications.
  - No native mobile app.
- - No Web Workers for timing.
- - No PWA service worker registration.
 
  ## Success Criteria
 
@@ -89,12 +87,12 @@ A browser-based pelvic floor (Kegel) training timer that provides real-time visu
  - No user analytics or tracking.
  - All settings stored in `localStorage` only.
  - No network requests except for initial page load and asset loading.
- - Application works fully offline after first load.
+ - Application works fully offline after first load. (PWA service worker in progress)
 
  ## Known Product Assumptions
 
  - Users perform Kegel exercises in a private, quiet environment.
  - Users have basic familiarity with Kegel technique (the app does not teach form).
 - The default configuration is 3 seconds contract, 3 seconds hold, and 3 seconds relax, repeated 10 times; those 10 repetitions together form one set (90 seconds of active exercise).
- - Voice mode "引导与倒计时" (countdown) is the preferred mode for users who want the most guidance.
+ - Default voice mode is "coach" with a final 3-second countdown for new users.
  - Users access the app primarily on mobile devices in portrait orientation.

@@ -40,8 +40,6 @@
 │   │   └── voiceSettings.ts       # 默认值、验证、localStorage 持久化
 │   └── assets/
 │       └── muscle-sphere/         # 9 个 SVG 图层文件（构建唯一来源）
-├── assets/muscle-sphere/   # SVG 副本（待清理）
-├── public/muscle-sphere/   # SVG 副本（待清理）
 ├── docs/                   # 完整文档基线
 │   ├── PRD.md, ARCHITECTURE.md, FEATURE_SPEC.md
 │   ├── TRAINING_ENGINE_SPEC.md, MUSCLE_SPHERE_MOTION_SPEC.md
@@ -155,7 +153,6 @@ docs: 更新 AGENTS.md 匹配实际架构
 
 - 修改 `src/` 中的 `.tsx`/`.ts` 文件时注意保留模块导入顺序和已有组件结构。
 - 新增功能应嵌入现有组件或创建新组件文件，不修改 `index.html`。
-- `src/assets/muscle-sphere/` 中的 SVG 是构建用到的唯一来源；`assets/muscle-sphere/` 和 `public/muscle-sphere/` 是待清理的副本。
 - 所有语音 API（SpeechSynthesis、AudioContext、WakeLock、Vibration）都经过适配器封装和 `isSupported()` 检查；修改语音相关逻辑时需遵循适配器模式。
 - MuscleSphere 是纯视觉组件，不应引入训练引擎或语音逻辑。
 - 训练引擎（`useKegelEngine`）是整个应用的唯一权威时间源，语音和动画不从属独立计时器。

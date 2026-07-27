@@ -93,8 +93,7 @@
  │   │   └── voiceSettings.test.ts # Validation and fallback tests
  │   │
  │   └── assets/
- │       ├── hero.png             # Hero image (unused?)
- │       ├── vite.svg             # Vite logo
+  │       ├── vite.svg             # Vite logo
  │       └── muscle-sphere/       # 9 SVG files (source of truth for build)
  │           ├── aura.svg
  │           ├── core.svg
@@ -106,9 +105,7 @@
  │           ├── ripple.svg
  │           └── shadow.svg
  │
- ├── assets/muscle-sphere/        # Copy of SVGs (may differ from src/ copy)
- ├── public/muscle-sphere/        # Public static copy of SVGs (unreferenced in imports)
- └── dist/                        # Build output (gitignored)
+   └── dist/                        # Build output (gitignored)
  ```
 
  ## Main Data Flow
@@ -182,8 +179,7 @@
  ## Known Architectural Risks
 
  1. **setInterval drift**: `setInterval` accumulates drift over time on background tabs (browsers throttle to 1s+). If a user switches tabs during a workout, timing may lag significantly. Mitigation: not yet addressed. Consider `requestAnimationFrame` or Web Worker timer.
- 2. **Three SVG directories**: SVGs exist in `src/assets/muscle-sphere/`, `assets/muscle-sphere/`, and `public/muscle-sphere/` with subtle differences. This is confusing and risks editing the wrong copy.
- 3. **Stray files**: `script_content.txt` at repo root with no known purpose.
+  3. **Stray files**: `script_content.txt` at repo root with no known purpose.
  4. **useInterval hook unused**: `src/hooks/useInterval.ts` exists but is not imported by any component. The engine manages its own interval via ref.
  5. **Ripple component parallel to MuscleSphere**: `src/components/Ripple.tsx` renders a floating ripple effect that is separate from the `ripple.svg` layer inside MuscleSphere. Having two ripple visualizations may be redundant.
  6. **AGENTS.md is stale**: Describes a single-file vanilla HTML project that no longer exists.

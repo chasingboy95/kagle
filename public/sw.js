@@ -4,6 +4,9 @@ const APP_SHELL = [
   '/kagle/index.html',
   '/kagle/manifest.webmanifest',
   '/kagle/favicon.svg',
+  '/kagle/icon-192.png',
+  '/kagle/icon-512.png',
+  '/kagle/apple-touch-icon.png',
 ];
 
 const VOICE_FILES = [
@@ -27,7 +30,7 @@ self.addEventListener('install', (event) => {
       await Promise.allSettled(
         VOICE_ASSETS.map((asset) => cache.add(asset)),
       );
-    }),
+    }).then(() => self.skipWaiting()),
   );
 });
 
@@ -45,7 +48,14 @@ self.addEventListener('activate', (event) => {
           .filter((key) => key !== CACHE_NAME)
           .map((key) => caches.delete(key)),
       ))
-      .then(() => self.clients.claim()),
+      .then(() => self.clients.claim())
+      .then(() => {
+        return self.clients.matchAll().then((clients) => {
+          clients.forEach((client) => {
+            client.postMessage({ type: 'SW_UPDATED' });
+          });
+        });
+      }),
   );
 });
 
