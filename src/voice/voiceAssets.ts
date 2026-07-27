@@ -35,7 +35,7 @@ export function resolveVoiceAsset(
   if (event.type === 'resumed') return audioUrl('zh-CN/resumed.mp3', baseUrl);
   if (event.type === 'stopped') return audioUrl('voice/common/stopped.mp3', baseUrl);
   if (event.type === 'training-ready') return audioUrl('zh-CN/ready.mp3', baseUrl);
-  // completed 使用 TTS 播报，避免 mp3 阻塞 drain
+  if (event.type === 'completed') return audioUrl('zh-CN/complete.mp3', baseUrl);
 
   if (event.type === 'stage-enter') {
     switch (event.stage) {

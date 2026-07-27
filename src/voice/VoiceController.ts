@@ -64,7 +64,7 @@ export class VoiceController {
     if (event.type === 'stage-enter') {
       this.stopPlayback();
       this.removeStageItems();
-    } else if (event.type === 'paused' || event.type === 'stopped') {
+    } else if (event.type === 'paused' || event.type === 'stopped' || event.type === 'completed') {
       this.stopPlayback();
       this.queue = [];
     }

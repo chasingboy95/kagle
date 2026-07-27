@@ -14,9 +14,14 @@ class FakeAdapter implements VoicePlaybackAdapter {
   cues: SoundCue[] = [];
   stopCalls = 0;
   supported = true;
+  /** When true, speak() throws instead of recording text, simulating TTS failure. */
+  failSpeak = false;
 
   async preload() {}
-  async speak(options: SpeakOptions) { this.spoken.push(options.text); }
+  async speak(options: SpeakOptions) {
+    if (this.failSpeak) throw new Error('TTS unavailable');
+    this.spoken.push(options.text);
+  }
   async playCue(cue: SoundCue) { this.cues.push(cue); }
   stop() { this.stopCalls += 1; }
   pause() {}
@@ -140,6 +145,60 @@ describe('VoiceController', () => {
     await controller.flush(context.now);
 
     expect(speech.spoken).toEqual(['准备开始训练']);
+  });
+
+
+  it('uses complete.mp3 recording for completed event in coach mode', async () => {
+    const { controller, recorded } = setup();
+    controller.enqueue({ type: 'completed' }, context);
+    await controller.flush(context.now);
+
+    expect(recorded.played[0]?.url).toBe('/kagle/audio/zh-CN/complete.mp3');
+  });
+
+  it('falls back to TTS when complete.mp3 playback fails', async () => {
+    const { controller, recorded, speech } = setup();
+    recorded.playResult = false;
+    controller.enqueue({ type: 'completed' }, context);
+    await controller.flush(context.now);
+
+    expect(speech.spoken).toContain('训练完成，做得很好');
+  });
+
+  it('falls back to cue when both recording and TTS fail', async () => {
+    const { controller, recorded, speech, audio } = setup();
+    recorded.playResult = false;
+    speech.failSpeak = true;
+    controller.enqueue({ type: 'completed' }, context);
+    await controller.flush(context.now);
+
+    expect(audio.cues).toEqual(['complete']);
+    expect(speech.spoken).toEqual([]);
+  });
+
+  it('clears queue and stops playback when completed event arrives', () => {
+    const { controller, speech } = setup();
+    // Enqueue a stage-enter first
+    controller.enqueue({ type: 'stage-enter', stage: 'contract' }, context);
+    expect(controller.inspectQueue().length).toBeGreaterThan(0);
+
+    const stopsBefore = speech.stopCalls;
+
+    // Enqueue completed — should clear queue and stop playback
+    controller.enqueue({ type: 'completed' }, context);
+    expect(speech.stopCalls).toBe(stopsBefore + 1);
+    // Queue should contain only the completed item
+    expect(controller.inspectQueue().length).toBe(1);
+    expect(controller.inspectQueue()[0].event.type).toBe('completed');
+  });
+
+  it('plays completed cue in rhythm mode', async () => {
+    const { controller, audio, recorded } = setup({ mode: 'sound-only' });
+    controller.enqueue({ type: 'completed' }, context);
+    await controller.flush(context.now);
+
+    expect(audio.cues).toEqual(['complete']);
+    expect(recorded.played).toEqual([]);
   });
 
   it('keeps silent mode out of the queue', () => {

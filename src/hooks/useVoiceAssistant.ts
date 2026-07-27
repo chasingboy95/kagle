@@ -48,7 +48,7 @@ export function useVoiceAssistant(): UseVoiceAssistantReturn {
     const controller = controllerRef.current;
     if (!controller) return;
     controller.enqueue(event, context);
-    void controller.flush().catch(() => undefined);
+    void controller.flush().catch((err: unknown) => { console.warn('[VoiceAssistant] flush failed:', err); });
   }, []);
 
   const updateSettings = useCallback((updates: Partial<VoiceSettings>) => {
