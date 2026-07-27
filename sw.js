@@ -1,16 +1,40 @@
-const CACHE_NAME = 'kagle-pwa-v3';
+const CACHE_NAME = 'kagle-pwa-v4';
 const APP_SHELL = [
   '/kagle/',
   '/kagle/index.html',
   '/kagle/manifest.webmanifest',
+  '/kagle/favicon.svg',
 ];
+
+const VOICE_FILES = [
+  'ready.mp3',
+  'contraction-start.mp3',
+  'contraction-sustain.mp3',
+  'release-start.mp3',
+  'complete.mp3',
+  'paused.mp3',
+  'resumed.mp3',
+];
+
+const VOICE_ASSETS = ['zh-CN', 'en-US'].flatMap((language) =>
+  VOICE_FILES.map((filename) => `/kagle/audio/${language}/${filename}`),
+);
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then((cache) => cache.addAll(APP_SHELL))
-      .then(() => self.skipWaiting()),
+    caches.open(CACHE_NAME).then(async (cache) => {
+      await cache.addAll(APP_SHELL);
+      await Promise.allSettled(
+        VOICE_ASSETS.map((asset) => cache.add(asset)),
+      );
+    }),
   );
+});
+
+self.addEventListener('message', (event) => {
+  if (event.data?.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });
 
 self.addEventListener('activate', (event) => {
@@ -64,7 +88,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  if (url.pathname.includes('/assets/')) {
+  if (url.pathname.includes('/assets/') || url.pathname.includes('/audio/')) {
     event.respondWith(cacheFirst(event.request));
     return;
   }
