@@ -1,4 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion';
+import { useEffect, useRef } from 'react';
 import type { TrainingStatus } from '../types/training';
 
 interface Props {
@@ -18,6 +19,11 @@ export default function ControlButtons({
   onStop,
   onRestart,
 }: Props) {
+  /* Auto-focus primary action after state transitions */
+  const primaryRef = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    primaryRef.current?.focus();
+  }, [status]);
   return (
     <AnimatePresence mode="wait">
       {status === 'idle' && (
@@ -30,6 +36,7 @@ export default function ControlButtons({
           className="flex justify-center"
         >
           <motion.button
+            ref={primaryRef}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.96 }}
             onClick={onStart}
@@ -52,6 +59,7 @@ export default function ControlButtons({
           className="flex items-center justify-center gap-3"
         >
           <motion.button
+            ref={primaryRef}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.96 }}
             onClick={onPause}
@@ -84,6 +92,7 @@ export default function ControlButtons({
           className="flex items-center justify-center gap-3"
         >
           <motion.button
+            ref={primaryRef}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.96 }}
             onClick={onResume}
@@ -122,6 +131,7 @@ export default function ControlButtons({
             <span className="text-[11px] tracking-wider">完成</span>
           </div>
           <motion.button
+            ref={primaryRef}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.96 }}
             onClick={onRestart}

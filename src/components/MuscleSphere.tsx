@@ -346,15 +346,9 @@ export function MuscleSphere({
   );
 
   /* Progress ring style */
-  const progressRingStyle = useMemo(
-    () => ({
-      background: `conic-gradient(
-        rgba(148,163,184,0.08) ${p * 360}deg,
-        rgba(148,163,184,0.02) 0deg
-      )`,
-    }),
-    [p],
-  );
+  const ringRadius = size / 2 - 2;
+  const ringCircumference = 2 * Math.PI * ringRadius;
+  const ringOffset = ringCircumference * (1 - p);
 
   return (
     <div
@@ -369,13 +363,34 @@ export function MuscleSphere({
     >
       {/* ── Progress ring (outside animated container) ─────────── */}
       {showProgressRing && (
-        <div
-          className="absolute inset-0 rounded-full p-[2px] pointer-events-none"
-          style={progressRingStyle}
+        <svg
+          className="absolute inset-0 pointer-events-none"
+          width={size}
+          height={size}
+          viewBox={`0 0 ${size} ${size}`}
           aria-hidden="true"
         >
-          <div className="h-full w-full rounded-full bg-slate-950/80" />
-        </div>
+          <circle
+            cx={size / 2}
+            cy={size / 2}
+            r={ringRadius}
+            fill="rgb(30 41 59 / 0.8)"
+            stroke="rgba(148,163,184,0.02)"
+            strokeWidth={4}
+          />
+          <circle
+            cx={size / 2}
+            cy={size / 2}
+            r={ringRadius}
+            fill="none"
+            stroke="rgba(148,163,184,0.08)"
+            strokeWidth={4}
+            strokeLinecap="round"
+            strokeDasharray={ringCircumference}
+            strokeDashoffset={ringOffset}
+            transform={`rotate(-90 ${size / 2} ${size / 2})`}
+          />
+        </svg>
       )}
 
       {/* ── Muscle animation container ─────────────────────────── */}

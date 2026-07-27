@@ -24,7 +24,11 @@ export default function TimerDisplay({
   const seconds = formatSeconds(phaseRemainingMs);
 
   return (
-    <div className="flex flex-col items-center space-y-1.5">
+    <div
+      className="flex flex-col items-center space-y-1.5"
+      aria-live="polite"
+      aria-atomic="true"
+    >
       {/* 用户阶段提示：contract 与 hold 不再触发文案切换 */}
       <AnimatePresence mode="wait">
         {showTimer && (

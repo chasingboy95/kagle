@@ -1,6 +1,7 @@
 # Implementation Status
 
 **Last verified against repository:** 2026-07-26
+**Last verified against repository:** 2026-07-27
 
 ## Status Legend
 
@@ -22,6 +23,8 @@
 | Voice Rhythm Mode | Partial | Uses non-verbal cues and independent countdown, but its audible differentiation still needs device QA. |
 | Voice Settings | Complete | Three modes are validated, final 3-second countdown is the default for new users, and legacy five-mode values migrate to `coach`. |
 | Voice Settings Panel | Complete | UI now exposes common controls first: enable, final countdown, and preview. Mode, volume, fallback speech rate, progress announcement, and haptics live under "高级设置". No component test yet. |
+| Accessibility | Partial | `aria-live="polite"` regions added to TimerDisplay and TrainingStatus; auto-focus management in ControlButtons. Screen-reader and keyboard-navigation audit remains outstanding. |
+| Background-Tab Timing | Complete | Engineering evaluation done. Worker-based timer (`createTimer` + `timingWorker`) provides reliable ticks even when browser tab is backgrounded, with transparent fallback to setInterval. |
 | PWA / GitHub Pages | Partial | Manifest, service worker, subpath, and safe-area support exist; real-device QA remains incomplete. |
 | Session Statistics | Partial | The completion view shows only objective current-session duration and repetition counts. Streaks and quality scores are hidden until real training history exists. |
 | CI/CD | Complete | GitHub Pages deployment is blocked on passing tests, lint, TypeScript checks, production build, and a Chromium Playwright smoke test; the verified build artifact is then deployed. |
@@ -74,6 +77,6 @@
 ## Verification Gap
 
 `bun run test`, `bun run lint`, `bun run typecheck`, and `bun run build` passed
-on 2026-07-26 with 13 test files and 71 tests. The local sandbox could not
+on 2026-07-27 with 16 test files and 92 tests. The local sandbox could not
 download the Chromium archive, so the Playwright smoke test is pending its
 first GitHub Actions run. iOS and Android real-device QA remains outstanding.

@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
+import { createTimer, type TimerHandle } from '../utils/createTimer';
 import type { TrainingConfig, TrainingStatus, TrainingPhase, EngineState } from '../types/training';
 import { DEFAULT_CONFIG } from '../types/training';
 import { calcTotalDuration } from '../utils/time';
@@ -139,7 +140,7 @@ export function useKegelEngine(options: KegelEngineVoiceOptions = {}): UseKegelE
   }));
 
   const eng = useRef<EngineInternals>(createInitialEngine(DEFAULT_CONFIG));
-  const tickId = useRef<ReturnType<typeof setInterval> | null>(null);
+  const timerRef = useRef<TimerHandle | null>(null);
   const optionsRef = useRef(options);
   optionsRef.current = options;
 
@@ -180,9 +181,9 @@ export function useKegelEngine(options: KegelEngineVoiceOptions = {}): UseKegelE
   }, [emitVoice]);
 
   const stopTick = useCallback(() => {
-    if (tickId.current !== null) {
-      clearInterval(tickId.current);
-      tickId.current = null;
+    if (timerRef.current !== null) {
+      timerRef.current.stop();
+      timerRef.current = null;
     }
   }, []);
 
@@ -243,23 +244,32 @@ export function useKegelEngine(options: KegelEngineVoiceOptions = {}): UseKegelE
       pushState();
       return;
     }
-  }, [emitVoice, enterPhase, pushState, stopTick]);
+ }, [emitVoice, enterPhase, pushState, stopTick]);
+
+  /**
+   * Tick handler – runs on each timer tick (~100 ms).
+   * Stored in a ref so `startTick` can pass a stable reference to `createTimer`.
+   */
+  const tickRef = useRef<() => void>(() => {});
+  tickRef.current = useCallback(() => {
+    const e = eng.current;
+    if (e.status !== 'running' && e.status !== 'feedback') return;
+
+    const now = performance.now();
+    const elapsed = now - e.phaseStartedAt;
+    const dur = phaseMs(e.phase, e.config);
+
+    if (elapsed >= dur) {
+      advance();
+    }
+    pushState();
+  }, [advance, pushState]);
 
   const startTick = useCallback(() => {
     stopTick();
-    tickId.current = setInterval(() => {
-      const e = eng.current;
-      if (e.status !== 'running' && e.status !== 'feedback') return;
-
-      const now = performance.now();
-      const elapsed = now - e.phaseStartedAt;
-      const dur = phaseMs(e.phase, e.config);
-
-      if (elapsed >= dur) {
-        advance();
-      }
-      pushState();
-    }, 100);
+    const handle = createTimer(() => tickRef.current());
+    timerRef.current = handle;
+    handle.start();
   }, [advance, pushState, stopTick]);
 
  // 清理 tick
@@ -278,7 +288,9 @@ export function useKegelEngine(options: KegelEngineVoiceOptions = {}): UseKegelE
         wakeLock.addEventListener('release', () => { wakeLock = null; });
       } catch {
         /* API 不支持或权限不足 —— 静默忽略 */
-      }
+ }
+
+  /* ── tickRef was accidentally placed after return above; removed.  */
     }
  
     async function release() {
@@ -402,5 +414,5 @@ export function useKegelEngine(options: KegelEngineVoiceOptions = {}): UseKegelE
     finish,
     restart,
     updateConfig,
-  };
+ };
 }
