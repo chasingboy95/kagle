@@ -1,4 +1,12 @@
 # Changelog
+ 
+ ## 2026-07-27
+ 
+ ### Fixed
+ 
+ - CI 中 `typecheck` 因缺少 `@types/node` 和 `VoiceSettingsPanel` 残留的 `onPreview` 参数失败。
+ - CI 中 `test:e2e` 脚本缺失导致 workflow 崩溃。
+ - 本地 `jsdom` 未安装导致测试全部无法运行（lockfile 未包含依赖）。
 
 ## 2026-07-26
 
