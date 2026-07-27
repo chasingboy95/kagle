@@ -1,4 +1,9 @@
 # Changelog
+## [Unreleased]
+
+### Changed
+- CI 拆分为 ci.yml（PR + main push）和 deploy.yml（main CI 成功后部署），固定 Bun 1.3.14，增加缓存与并发控制
+
 
 ## 2026-07-27 (second)
 

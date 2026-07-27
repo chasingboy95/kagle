@@ -38,7 +38,7 @@ bun run test
 
 # Run the browser smoke test (after `bunx playwright install chromium`)
 bun run build
-bun run test:e2e
+bun run test:e2e (requires `bunx playwright install chromium`)
 
 # Lint
 bun run lint
@@ -50,7 +50,7 @@ bun run typecheck
 bun run preview
 ```
 
-GitHub Pages deployment runs unit/integration/component tests, lint, TypeScript
+CI (.github/workflows/ci.yml) runs on every PR and push to main. Deployment (.github/workflows/deploy.yml) proceeds only after CI passes on main, using the verified build artifact. Quality gates include tests, lint, TypeScript
 checks, a production build, and the Playwright browser smoke test first.
 Deployment is skipped if any quality check fails.
 
