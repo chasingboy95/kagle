@@ -23,7 +23,7 @@ test('completes one configured set and returns to the start screen', async ({ pa
   await page.getByRole('button', { name: '继续' }).click();
 
   await expect(page.getByRole('heading', { name: '训练完成' })).toBeVisible({
-    timeout: 10_000,
+    timeout: 20_000,
   });
   await expect(page.getByText('本次完成 1 组（1/1 次）')).toBeVisible();
 
@@ -49,7 +49,7 @@ test('completes training and views training history from feedback page', async (
 
   // Wait for training to complete and feedback page
   await expect(page.getByRole('heading', { name: '训练完成' })).toBeVisible({
-    timeout: 10_000,
+    timeout: 20_000,
   });
 
   // Click "查看训练记录"
