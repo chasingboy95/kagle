@@ -1,14 +1,16 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { createTimer, type TimerHandle } from '../utils/createTimer';
 import type { TrainingConfig, TrainingStatus, TrainingPhase, EngineState } from '../types/training';
-import { DEFAULT_CONFIG } from '../types/training';
+import { DEFAULT_CONFIG, TRAINING_CONFIG_SCHEMA } from '../types/training';
 import { calcTotalDuration } from '../utils/time';
 import type { VoiceEvent } from '../voice/types';
 import type { VoiceEventContext } from '../voice/VoiceController';
+import { defaultStorage } from '../utils/storage';
 
 export interface KegelEngineVoiceOptions {
   onVoiceEvent?: (event: VoiceEvent, context: VoiceEventContext) => void;
   countdownFrom?: 0 | 3 | 5;
+  onSessionEnd?: (data: { completedReps: number; actualDurationMs: number; status: 'completed' | 'stopped'; startedAt: string }) => void;
 }
 
 export interface UseKegelEngineReturn {
@@ -29,6 +31,8 @@ interface EngineInternals {
   round: number;
   phaseStartedAt: number;
   sessionStartedAt: number;
+  /** ISO timestamp captured when start() is called. */
+  sessionStartedAtIso: string;
   totalPausedMs: number;
   pauseStartedAt: number;
   config: TrainingConfig;
@@ -45,6 +49,7 @@ function createInitialEngine(config: TrainingConfig): EngineInternals {
     round: 0,
     phaseStartedAt: 0,
     sessionStartedAt: 0,
+    sessionStartedAtIso: '',
     totalPausedMs: 0,
     pauseStartedAt: 0,
     config,
@@ -124,7 +129,8 @@ function buildState(e: EngineInternals, now: number): EngineState {
 }
 
 export function useKegelEngine(options: KegelEngineVoiceOptions = {}): UseKegelEngineReturn {
-  const [config, setConfig] = useState<TrainingConfig>(DEFAULT_CONFIG);
+  const loadedConfig = defaultStorage.read(TRAINING_CONFIG_SCHEMA);
+  const [config, setConfig] = useState<TrainingConfig>(loadedConfig);
   const [state, setState] = useState<EngineState>(() => ({
     status: 'idle',
     phase: 'idle',
@@ -132,10 +138,10 @@ export function useKegelEngine(options: KegelEngineVoiceOptions = {}): UseKegelE
     phaseRemainingMs: 0,
     totalElapsedMs: 0,
     totalDurationMs: calcTotalDuration(
-      DEFAULT_CONFIG.contractTime,
-      DEFAULT_CONFIG.holdTime,
-      DEFAULT_CONFIG.relaxTime,
-      DEFAULT_CONFIG.rounds,
+      loadedConfig.contractTime,
+      loadedConfig.holdTime,
+      loadedConfig.relaxTime,
+      loadedConfig.rounds,
     ),
   }));
 
@@ -235,6 +241,7 @@ export function useKegelEngine(options: KegelEngineVoiceOptions = {}): UseKegelE
     }
     if (e.phase === 'feedback') {
       e.status = 'finished';
+      try { optionsRef.current.onSessionEnd?.({ completedReps: e.round + 1, actualDurationMs: e.feedbackElapsedSnapshot, status: 'completed', startedAt: e.sessionStartedAtIso }); } catch { /* ignore */ }
       e.phase = 'idle';
       e.round = 0;
       e.phaseStartedAt = 0;
@@ -316,6 +323,7 @@ export function useKegelEngine(options: KegelEngineVoiceOptions = {}): UseKegelE
     e.status = 'running';
     e.round = 0;
     e.sessionStartedAt = performance.now();
+    e.sessionStartedAtIso = new Date().toISOString();
     e.totalPausedMs = 0;
     e.config = config;
     e.pauseStartedAt = 0;
@@ -351,6 +359,8 @@ export function useKegelEngine(options: KegelEngineVoiceOptions = {}): UseKegelE
     const e = eng.current;
     stopTick();
     emitVoice({ type: 'stopped' });
+    const duration = Math.max(0, performance.now() - e.sessionStartedAt - e.totalPausedMs);
+    try { optionsRef.current.onSessionEnd?.({ completedReps: e.round + 1, actualDurationMs: duration, status: 'stopped', startedAt: e.sessionStartedAtIso }); } catch { /* ignore */ }
     const sessionId = e.sessionId;
     Object.assign(e, createInitialEngine(e.config));
     e.sessionId = sessionId;
@@ -388,6 +398,7 @@ export function useKegelEngine(options: KegelEngineVoiceOptions = {}): UseKegelE
     e.status = 'running';
     e.round = 0;
     e.sessionStartedAt = performance.now();
+    e.sessionStartedAtIso = new Date().toISOString();
     e.totalPausedMs = 0;
     e.pauseStartedAt = 0;
     emitVoice({ type: 'training-ready' });
@@ -399,7 +410,8 @@ export function useKegelEngine(options: KegelEngineVoiceOptions = {}): UseKegelE
   const updateConfig = useCallback((updates: Partial<TrainingConfig>) => {
     setConfig(prev => {
       const next = { ...prev, ...updates };
-      eng.current.config = next;
+      eng.current.config = { ...next };
+      defaultStorage.write(TRAINING_CONFIG_SCHEMA, next);
       return next;
     });
   }, []);

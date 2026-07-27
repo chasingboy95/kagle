@@ -1,7 +1,6 @@
 # Task List
 
 **Last verified against repository:** 2026-07-27
-**Last verified against repository:** 2026-07-27
 
 ## In Progress
 
@@ -23,6 +22,11 @@
 - [x] **Issue #7: 文档对齐 README/PRD/FEATURE_SPEC**: 修正 Live Demo 地址，统一为 3 种语音模式描述，删除过时的 5 模式引用，更新状态机描述包含 ready/feedback 阶段
 - [x] **Issue #6: 清理冗余资源**: 删除 `assets/muscle-sphere/`、`public/muscle-sphere/`、`src/assets/hero.png`、`vite.config.ts`，更新所有文档引用
 - [x] **Issue #5: PWA 图标与更新体验**: 生成标准 PNG 图标 (192/512/180)，添加 apple-touch-icon，更新 manifest 为 standalone 模式，service worker 缓存音频+静态资源，添加版本更新提示 UI
+- [x] **Issue #17: 统一存储层**: `StorageAdapter` 实现 schema 验证、版本化 key、升级链、损坏恢复；训练配置与历史持久化；16 个测试。
+- [x] **Issue #8: 训练历史**: `TrainingRecord` 类型、`useTrainingHistory` Hook、`TrainingHistory` 组件、周完成次数/连续天数/总时长统计；7 个测试。
+- [x] **Issue #12: 渐进训练建议**: `evaluateSuggestion` 规则引擎 — 连续 3 次相同配置完成后建议提升参数；`ProgressiveSuggestion` 组件支持接受/忽略/解除操作；9 个测试。
+- [x] **Issue #13: CI 拆分**: ci.yml（PR + main push）执行 lint → typecheck → test → build，deploy.yml 在 CI 成功后自动部署；固定 Bun 1.3.14；增加缓存与并发控制。
+
 - [x] **Issue #4: 创建真机验证清单**: 建立 `docs/REAL_DEVICE_TEST_CHECKLIST.md`，覆盖语音/震动/前后台/PWA/训练/无障碍/布局
 
 ## Backlog
