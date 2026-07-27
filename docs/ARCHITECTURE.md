@@ -1,6 +1,6 @@
  # Architecture
 
- **Last verified against repository:** 2026-07-23
+ **Last verified against repository:** 2026-07-27
 
  ## High-Level Module Map
 
@@ -9,6 +9,12 @@
  │                    App.tsx                           │
  │  ┌──────────┐  ┌──────────────┐  ┌───────────────┐  │
  │  │ ConfigPanel│  │ VoiceSettings│  │ ControlButtons│  │
+│  │           │  │   Panel      │  │               │  │
+│  └──────────┘  └──────────────┘  └───────────────┘  │
+│  ┌──────────────────────────────────────────────────┐│
+│  │               ErrorBoundary                     ││
+│  │  Catches uncaught errors → ErrorRecoveryUI      ││
+│  └──────────────────────────────────────────────────┘│
  │  │           │  │   Panel      │  │               │  │
  │  └──────────┘  └──────────────┘  └───────────────┘  │
  │  ┌──────────┐  ┌──────────────┐  ┌───────────────┐  │
@@ -171,6 +177,9 @@
 
  MuscleSphere ──────── depends on ──────▶  9 SVG files, framer-motion
                            ignores           training engine, voice module
+
+ErrorBoundary ──────── wraps ─────────────▶  <App />, handles uncaught errors
+                           renders          ErrorRecoveryUI on failure
 
  VoiceController ───── depends on ──────▶  adapters, voiceScripts, types
                            ignores           React, DOM, training engine
