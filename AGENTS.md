@@ -150,6 +150,7 @@ docs: 更新 AGENTS.md 匹配实际架构
 ```
 
 ## Agent 注意事项
+- 修复 GitHub issues 时，每个 issue 应单独一个 commit、单独关闭，禁止将多个 issue 的实现合并到一个 commit 中。
 
 - 修改 `src/` 中的 `.tsx`/`.ts` 文件时注意保留模块导入顺序和已有组件结构。
 - 新增功能应嵌入现有组件或创建新组件文件，不修改 `index.html`。
