@@ -71,27 +71,31 @@ Implemented coverage:
 
 ---
 
+---
 ## 4. Mobile Browser Validation
 
-**Status:** Open
+**Status:** Partially addressed (2026-07-27)
 
 **Description:**
 
 The application uses mobile-oriented APIs including speech, vibration, and audio playback, but complete device testing has not been performed.
 
-**Impact:**
+**Progress:**
 
-Browser-specific behavior may differ on iOS Safari and Android Chrome.
+- Bundle size baseline recorded in `.github/bundle-baseline.json`.
+- CI bundle size check added (15% threshold on main JS/CSS bundles).
+- Performance baseline documented in `docs/PERFORMANCE_BASELINE.md`.
 
-**Planned Fix:**
-
-Perform manual QA for:
+**Remaining:**
 
 - iOS Safari audio behavior
 - Android Chrome speech behavior
-- vibration support
-- animation performance (particularly ready breathing and feedback release)
-- screen-lock behavior
+- Vibration support
+- Animation frame rate on real devices
+- Memory trend over 10-minute sessions
+- Screen-lock behavior
+
+
 
 ---
 

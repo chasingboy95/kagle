@@ -55,6 +55,9 @@ jobs:
       - name: Build
         run: bun run build
 
+      - name: Check bundle size vs baseline
+        run: python3 scripts/check_bundle_size.py
+
       - name: Cache Playwright browsers
         uses: actions/cache@v4
         with:

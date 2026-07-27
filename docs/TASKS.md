@@ -7,6 +7,7 @@
 - Verify the simplified voice-assistance modes on real iOS and Android devices.
 - Verify the revised completion view and simplified voice settings on a real mobile device.
 
+- [x] **Issue #18: 移动端性能基线与回归检查**: 记录构建资源基线（.github/bundle-baseline.json），CI bundle size check（15% 阈值），性能基线文档（docs/PERFORMANCE_BASELINE.md），真实设备测试留存于 KNOWN_ISSUES.md。
 - [x] **Issue #16: 全局错误边界**: ErrorBoundary 包裹根组件，ErrorRecoveryUI 生产安全恢复页（重新加载/清除数据并重置），开发环境保留完整技术详情，onError 清除 kegel.* localStorage 防止损坏会话恢复，6 个组件测试。
 
 ## Next (Priority Order)

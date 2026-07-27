@@ -1,0 +1,123 @@
+{
+  "recordedAt": "2026-07-27T10:47:09Z",
+  "commit": "4bed0ec",
+  "bundles": {
+    "mainJS": {
+      "bytes": 404808,
+      "human": "404808B",
+      "files": [
+        "assets/index-CmKqOq1a.js"
+      ]
+    },
+    "mainCSS": {
+      "bytes": 40652,
+      "human": "40652B",
+      "files": [
+        "assets/index-B2AGftC8.css"
+      ]
+    },
+    "workerJS": {
+      "bytes": 206,
+      "human": "206B",
+      "files": [
+        "assets/timingWorker-DU-bSc-e.js"
+      ]
+    },
+    "svgs": {
+      "bytes": 12308,
+      "human": "12308B",
+      "files": [
+        "assets/fascia-DCFoetpq.svg",
+        "assets/fibers-CuhFGZmi.svg"
+      ]
+    }
+  },
+  "audio": {
+    "zhCN": {
+      "bytes": 69264,
+      "human": "69264B",
+      "files": [
+        "audio/zh-CN/complete.mp3",
+        "audio/zh-CN/contraction-start.mp3",
+        "audio/zh-CN/contraction-sustain.mp3",
+        "audio/zh-CN/paused.mp3",
+        "audio/zh-CN/ready.mp3",
+        "audio/zh-CN/release-start.mp3",
+        "audio/zh-CN/resumed.mp3"
+      ]
+    },
+    "enUS": {
+      "bytes": 92016,
+      "human": "92016B",
+      "files": [
+        "audio/voice/en-US/complete.mp3",
+        "audio/voice/en-US/contraction-start.mp3",
+        "audio/voice/en-US/contraction-sustain.mp3",
+        "audio/voice/en-US/paused.mp3",
+        "audio/voice/en-US/ready.mp3",
+        "audio/voice/en-US/release-start.mp3",
+        "audio/voice/en-US/resumed.mp3"
+      ]
+    },
+    "guided": {
+      "bytes": 88848,
+      "human": "88848B",
+      "files": [
+        "audio/voice/guided/completed.mp3",
+        "audio/voice/guided/contract.mp3",
+        "audio/voice/guided/hold.mp3",
+        "audio/voice/guided/ready.mp3",
+        "audio/voice/guided/relax.mp3"
+      ]
+    },
+    "concise": {
+      "bytes": 40320,
+      "human": "40320B",
+      "files": [
+        "audio/voice/concise/completed.mp3",
+        "audio/voice/concise/contract.mp3",
+        "audio/voice/concise/hold.mp3",
+        "audio/voice/concise/ready.mp3",
+        "audio/voice/concise/relax.mp3"
+      ]
+    },
+    "countdown": {
+      "bytes": 34704,
+      "human": "34704B",
+      "files": [
+        "audio/voice/countdown/1.mp3",
+        "audio/voice/countdown/2.mp3",
+        "audio/voice/countdown/3.mp3",
+        "audio/voice/countdown/4.mp3",
+        "audio/voice/countdown/5.mp3"
+      ]
+    },
+    "common": {
+      "bytes": 27216,
+      "human": "27216B",
+      "files": [
+        "audio/voice/common/paused.mp3",
+        "audio/voice/common/resumed.mp3",
+        "audio/voice/common/stopped.mp3"
+      ]
+    },
+    "total": {
+      "bytes": 352368,
+      "human": "352368B"
+    }
+  },
+  "totalDist": {
+    "bytes": 838454,
+    "human": "838454B"
+  },
+  "gzipEstimates": {
+    "mainJS": {
+      "bytes": 122085,
+      "human": "122085B"
+    },
+    "mainCSS": {
+      "bytes": 7091,
+      "human": "7091B"
+    }
+  }
+}
