@@ -1,13 +1,11 @@
 import { expect, test } from '@playwright/test';
 
 test('completes one configured set and returns to the start screen', async ({ page }) => {
+  // Pre-seed localStorage to skip onboarding modal on first visit
+  await page.context().addInitScript(() => {
+    localStorage.setItem('kegel.onboarding.v1', JSON.stringify(false));
+  });
   await page.goto('.');
-
-  // Dismiss onboarding modal if present (first visit)
-  const skipBtn = page.locator('button:has-text("跳过")');
-  if (await skipBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
-    await skipBtn.click();
-  }
 
   // Expand config panel via the <details> toggle
   await page.locator('details').first().click();
