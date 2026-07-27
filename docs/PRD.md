@@ -87,7 +87,7 @@ A browser-based pelvic floor (Kegel) training timer that provides real-time visu
  - No user analytics or tracking.
  - All settings stored in `localStorage` only.
  - No network requests except for initial page load and asset loading.
- - Application works fully offline after first load. (PWA service worker in progress)
+ - Application works fully offline after first load. PWA service worker caches app shell, audio assets, and provides version update notification.
 
  ## Known Product Assumptions
 
