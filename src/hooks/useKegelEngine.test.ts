@@ -137,3 +137,190 @@ describe('getCountdownEvent', () => {
     expect(getCountdownEvent(6000, 'feedback', 0, new Set())).toBeNull();
   });
 });
+
+describe('useKegelEngine session recovery', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    localStorage.clear();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    localStorage.clear();
+  });
+
+  function advance(ms: number) {
+    act(() => {
+      vi.advanceTimersByTime(ms);
+    });
+  }
+
+  it('saves snapshot to storage when training is running', () => {
+    const { result } = renderHook(() => useKegelEngine());
+
+    act(() => {
+      result.current.updateConfig({ contractTime: 1, holdTime: 1, relaxTime: 1, rounds: 1 });
+    });
+    act(() => {
+      result.current.start();
+    });
+
+    advance(5_100);
+
+    const raw = localStorage.getItem('kegel.session-snapshot.v1');
+    expect(raw).not.toBeNull();
+    const snap = JSON.parse(raw!);
+    expect(snap.status).toBe('running');
+    expect(snap.phase).toBe('contract');
+    expect(snap.round).toBe(0);
+  });
+
+  it('saves snapshot when paused', () => {
+    const { result } = renderHook(() => useKegelEngine());
+
+    act(() => {
+      result.current.updateConfig({ contractTime: 1, holdTime: 1, relaxTime: 1, rounds: 1 });
+    });
+    act(() => {
+      result.current.start();
+    });
+    advance(5_100);
+
+    act(() => result.current.pause());
+
+    const raw = localStorage.getItem('kegel.session-snapshot.v1');
+    expect(raw).not.toBeNull();
+    const snap = JSON.parse(raw!);
+    expect(snap.status).toBe('paused');
+  });
+
+  it('clears snapshot when stopped', () => {
+    const { result } = renderHook(() => useKegelEngine());
+
+    act(() => {
+      result.current.updateConfig({ contractTime: 1, holdTime: 1, relaxTime: 1, rounds: 1 });
+    });
+    act(() => {
+      result.current.start();
+    });
+    advance(5_100);
+
+    act(() => result.current.stop());
+
+    expect(localStorage.getItem('kegel.session-snapshot.v1')).toBeNull();
+  });
+
+  it('clears snapshot when finished', () => {
+    const { result } = renderHook(() => useKegelEngine());
+
+    act(() => {
+      result.current.updateConfig({ contractTime: 1, holdTime: 1, relaxTime: 1, rounds: 1 });
+    });
+    act(() => {
+      result.current.start();
+    });
+    advance(5_000); // ready
+    advance(1_100); // contract → hold
+    advance(1_100); // hold → relax
+    advance(1_100); // relax → feedback
+    advance(100);   // some feedback progress
+
+    expect(result.current.state.status).toBe('feedback');
+    act(() => result.current.finish());
+
+    expect(localStorage.getItem('kegel.session-snapshot.v1')).toBeNull();
+  });
+
+  it('detects existing snapshot and exposes recoverableSession', () => {
+    const snap = {
+      status: 'running',
+      phase: 'contract',
+      round: 2,
+      phaseElapsedMs: 500,
+      sessionElapsedMs: 15_000,
+      totalPausedMs: 0,
+      config: { contractTime: 1, holdTime: 1, relaxTime: 1, rounds: 5 },
+      announcedCountdowns: [3, 2, 1],
+      sessionStartedAtIso: new Date().toISOString(),
+    };
+    localStorage.setItem('kegel.session-snapshot.v1', JSON.stringify(snap));
+
+    const { result } = renderHook(() => useKegelEngine());
+
+    expect(result.current.recoverableSession).not.toBeNull();
+    expect(result.current.recoverableSession?.phase).toBe('contract');
+    expect(result.current.recoverableSession?.round).toBe(2);
+  });
+
+  it('discardSession clears the snapshot and the state', () => {
+    const snap = {
+      status: 'running',
+      phase: 'contract',
+      round: 0,
+      phaseElapsedMs: 500,
+      sessionElapsedMs: 5_000,
+      totalPausedMs: 0,
+      config: { contractTime: 1, holdTime: 1, relaxTime: 1, rounds: 3 },
+      announcedCountdowns: [],
+      sessionStartedAtIso: new Date().toISOString(),
+    };
+    localStorage.setItem('kegel.session-snapshot.v1', JSON.stringify(snap));
+
+    const { result } = renderHook(() => useKegelEngine());
+    expect(result.current.recoverableSession).not.toBeNull();
+
+    act(() => result.current.discardSession());
+
+    expect(result.current.recoverableSession).toBeNull();
+    expect(localStorage.getItem('kegel.session-snapshot.v1')).toBeNull();
+  });
+
+  it('recovers a running session and continues from where it left off', () => {
+    const snap = {
+      status: 'running',
+      phase: 'contract',
+      round: 2,
+      phaseElapsedMs: 500,
+      sessionElapsedMs: 15_000,
+      totalPausedMs: 0,
+      config: { contractTime: 1, holdTime: 1, relaxTime: 1, rounds: 5 },
+      announcedCountdowns: [],
+      sessionStartedAtIso: new Date().toISOString(),
+    };
+    localStorage.setItem('kegel.session-snapshot.v1', JSON.stringify(snap));
+
+    const { result } = renderHook(() => useKegelEngine());
+    expect(result.current.recoverableSession).not.toBeNull();
+
+    act(() => result.current.recoverSession());
+
+    expect(result.current.state.status).toBe('running');
+    expect(result.current.state.phase).toBe('contract');
+    expect(result.current.state.currentRound).toBe(3);
+    expect(result.current.state.phaseRemainingMs).toBeGreaterThan(0);
+    expect(result.current.state.phaseRemainingMs).toBeLessThanOrEqual(600);
+  });
+
+  it('recovers a paused session in paused state', () => {
+    const snap = {
+      status: 'paused',
+      phase: 'hold',
+      round: 1,
+      phaseElapsedMs: 300,
+      sessionElapsedMs: 7_000,
+      totalPausedMs: 0,
+      config: { contractTime: 1, holdTime: 1, relaxTime: 1, rounds: 3 },
+      announcedCountdowns: [],
+      sessionStartedAtIso: new Date().toISOString(),
+    };
+    localStorage.setItem('kegel.session-snapshot.v1', JSON.stringify(snap));
+
+    const { result } = renderHook(() => useKegelEngine());
+
+    act(() => result.current.recoverSession());
+
+    // Should be paused right after recovery
+    expect(result.current.state.status).toBe('paused');
+    expect(result.current.state.phase).toBe('hold');
+  });
+});

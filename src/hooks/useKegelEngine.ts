@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { createTimer, type TimerHandle } from '../utils/createTimer';
-import type { TrainingConfig, TrainingStatus, TrainingPhase, EngineState } from '../types/training';
-import { DEFAULT_CONFIG, TRAINING_CONFIG_SCHEMA } from '../types/training';
+import type { TrainingConfig, TrainingStatus, TrainingPhase, EngineState, SessionSnapshot } from '../types/training';
+import { DEFAULT_CONFIG, TRAINING_CONFIG_SCHEMA, SESSION_SNAPSHOT_SCHEMA } from '../types/training';
 import { calcTotalDuration } from '../utils/time';
 import type { VoiceEvent } from '../voice/types';
 import type { VoiceEventContext } from '../voice/VoiceController';
@@ -21,6 +21,9 @@ export interface UseKegelEngineReturn {
   resume: () => void;
   stop: () => void;
   finish: () => void;
+  recoverableSession: SessionSnapshot | null;
+  discardSession: () => void;
+  recoverSession: () => void;
   restart: () => void;
   updateConfig: (updates: Partial<TrainingConfig>) => void;
 }
@@ -144,6 +147,9 @@ export function useKegelEngine(options: KegelEngineVoiceOptions = {}): UseKegelE
       loadedConfig.rounds,
     ),
   }));
+  const [recoverableSession, setRecoverableSession] = useState<SessionSnapshot | null>(null);
+  const storedSnapRef = useRef<SessionSnapshot | null>(null);
+  useEffect(() => { const snap = defaultStorage.read(SESSION_SNAPSHOT_SCHEMA); if (snap) { storedSnapRef.current = snap; setRecoverableSession(snap); } }, []);
 
   const eng = useRef<EngineInternals>(createInitialEngine(DEFAULT_CONFIG));
   const timerRef = useRef<TimerHandle | null>(null);
@@ -172,6 +178,21 @@ export function useKegelEngine(options: KegelEngineVoiceOptions = {}): UseKegelE
     const e = eng.current;
     const s = buildState(e, now);
     setState(s);
+    if (e.status === 'running' || e.status === 'paused' || e.status === 'feedback') {
+      const snap: SessionSnapshot = {
+        status: e.status,
+        phase: e.phase,
+        round: e.round,
+        phaseElapsedMs: Math.round(now - e.phaseStartedAt),
+        sessionElapsedMs: Math.max(0, Math.round(now - e.sessionStartedAt - e.totalPausedMs)),
+        totalPausedMs: e.totalPausedMs,
+        config: e.config,
+        announcedCountdowns: [...e.announcedCountdowns],
+        sessionStartedAtIso: e.sessionStartedAtIso,
+      };
+      defaultStorage.write(SESSION_SNAPSHOT_SCHEMA, snap);
+      storedSnapRef.current = snap;
+    }
     if (e.status !== 'running' && e.status !== 'feedback') return;
 
     const countdown = getCountdownEvent(
@@ -357,6 +378,8 @@ export function useKegelEngine(options: KegelEngineVoiceOptions = {}): UseKegelE
 
   const stop = useCallback(() => {
     const e = eng.current;
+    defaultStorage.remove(SESSION_SNAPSHOT_SCHEMA);
+    storedSnapRef.current = null;
     stopTick();
     emitVoice({ type: 'stopped' });
     const duration = Math.max(0, performance.now() - e.sessionStartedAt - e.totalPausedMs);
@@ -376,6 +399,8 @@ export function useKegelEngine(options: KegelEngineVoiceOptions = {}): UseKegelE
 
   const finish = useCallback(() => {
     const e = eng.current;
+    defaultStorage.remove(SESSION_SNAPSHOT_SCHEMA);
+    storedSnapRef.current = null;
     stopTick();
     const sessionId = e.sessionId;
     Object.assign(e, createInitialEngine(e.config));
@@ -416,6 +441,40 @@ export function useKegelEngine(options: KegelEngineVoiceOptions = {}): UseKegelE
     });
   }, []);
 
+
+  const discardSession = useCallback(() => {
+    defaultStorage.remove(SESSION_SNAPSHOT_SCHEMA);
+    storedSnapRef.current = null;
+    setRecoverableSession(null);
+  }, []);
+
+  const recoverSession = useCallback(() => {
+    const snap = storedSnapRef.current;
+    if (!snap) return;
+    setRecoverableSession(null);
+    const e = eng.current;
+    const now = performance.now();
+    e.status = snap.status;
+    e.phase = snap.phase;
+    e.round = snap.round;
+    e.config = snap.config;
+    e.sessionStartedAtIso = snap.sessionStartedAtIso;
+    e.totalPausedMs = snap.totalPausedMs;
+    e.announcedCountdowns = new Set(snap.announcedCountdowns);
+    e.sessionId += 1;
+    e.eventSequence = 0;
+    e.phaseStartedAt = now - snap.phaseElapsedMs;
+    e.sessionStartedAt = now - snap.sessionElapsedMs - snap.totalPausedMs;
+    if (snap.status === 'paused') {
+      e.pauseStartedAt = now;
+      pushState();
+    } else {
+      e.pauseStartedAt = 0;
+      startTick();
+      pushState();
+    }
+  }, [startTick, pushState]);
+
   return {
     state,
     config,
@@ -426,5 +485,8 @@ export function useKegelEngine(options: KegelEngineVoiceOptions = {}): UseKegelE
     finish,
     restart,
     updateConfig,
+    recoverableSession,
+    discardSession,
+    recoverSession,
  };
 }

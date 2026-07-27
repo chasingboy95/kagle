@@ -13,6 +13,7 @@ import { useTrainingHistory, buildTrainingRecord } from './hooks/useTrainingHist
 import TrainingHistory from './components/TrainingHistory';
 import ProgressiveSuggestion from './components/ProgressiveSuggestion';
 import Onboarding from './components/Onboarding';
+import SessionRecovery from './components/SessionRecovery';
 import { evaluateSuggestion, DEFAULT_PROGRESSIVE_STATE, type ProgressiveSuggestion as SuggestionType, type ProgressiveSuggestionState } from './utils/progressiveTraining';
 import { defineSchema } from './utils/storage';
 import { defaultStorage } from './utils/storage';
@@ -43,7 +44,7 @@ const PROGRESSIVE_SCHEMA = defineSchema({
   const [suggestion, setSuggestion] = useState<SuggestionType | null>(null);
   const [progState, setProgState] = useState<ProgressiveSuggestionState>(() => defaultStorage.read(PROGRESSIVE_SCHEMA));
   const [showOnboarding, setShowOnboarding] = useState(() => defaultStorage.read(ONBOARDING_SCHEMA));
-  const { state, config, start, pause, resume, stop, finish, restart, updateConfig } =
+  const { state, config, start, pause, resume, stop, finish, restart, updateConfig, recoverableSession, discardSession, recoverSession } =
     useKegelEngine({
       onVoiceEvent: voice.emit,
       countdownFrom: voice.settings.enabled && voice.settings.mode !== 'off'
@@ -115,6 +116,7 @@ const PROGRESSIVE_SCHEMA = defineSchema({
   return (
     <>
       {showOnboarding && <Onboarding onComplete={handleOnboardingComplete} />}
+      {recoverableSession && <SessionRecovery snapshot={recoverableSession} onContinue={recoverSession} onDiscard={discardSession} />}
     <div className="relative min-h-dvh bg-gradient-to-b from-[#020617] via-slate-900 to-[#111827] flex flex-col items-center px-5 pt-6 pb-8 overflow-x-hidden selection:bg-white/10">
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <motion.div
