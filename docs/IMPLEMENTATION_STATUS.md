@@ -12,7 +12,7 @@
 
 | Subsystem | Status | Reason |
 |-----------|--------|--------|
-| Training Engine | Complete | Fake-clock integration tests cover the full ready→contract→hold→relax→feedback lifecycle, pause compensation, resume, early stop, and user-confirmed completion. |
+| Training Engine | Complete | Fake-clock integration tests cover the full lifecycle, repeated pause compensation, stopping directly from pause, early stop, and user-confirmed completion. UI state, recovery snapshots, completion, and stopped-session history share one active-duration calculation. |
 | Training Lifecycle | Complete | READY (5s) and persistent FEEDBACK completion view with three explicit actions (完成/再次训练/查看训练记录). Feedback phase no longer auto-advances — tick stops on entry and onSessionEnd fires once. State machine: idle → ready → contract → hold → relax → (repeat) → feedback → user confirmation → idle or restart. |
 | Timer / Repetitions | Complete | Each contract→hold→relax cycle is presented as one repetition; all configured repetitions form one set. Unit, component, integration, and browser-flow coverage protect timing and terminology. |
 | MuscleSphere | Complete | Ready (slow breathing) and feedback (release/calm) animation variants added. No automated rendering tests. |
