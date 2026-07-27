@@ -184,7 +184,22 @@
  | Animation smoothness at 60fps | Not tested |
  | Memory usage over long sessions | Not tested |
 
- ## Test Execution
+ 
+## PWA Compliance Tests
+
+Automated Playwright E2E tests in `e2e/pwa.spec.ts`.
+
+| Test | Status |
+|------|--------|
+| Manifest accessible and has required fields (name, short_name, start_url, scope, display, icons) | Automated |
+| All icons return 200 OK (192x192, 512x512, apple-touch-icon, favicon) | Automated |
+| Service Worker registers after page load | Automated |
+| Cached app shell loads offline (install → cache → offline → reload) | Automated |
+| Voice assets cached and available offline | Automated |
+| Update prompt appears via showUpdatePrompt | Automated |
+| Update prompt does not force page refresh without user action | Automated |
+
+## Test Execution
 
  Run all automated tests:
  ```bash
