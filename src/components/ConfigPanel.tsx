@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
-import { CONFIG_RANGE } from '../types/training';
+import { useState, useEffect } from 'react';
+import { CONFIG_RANGE, TRAINING_PRESETS, resolvePreset } from '../types/training';
 import type { TrainingConfig } from '../types/training';
 
 interface Props {
@@ -61,19 +62,77 @@ function Stepper({ label, value, min, max, step, unit, disabled, onChange }: Ste
 }
 
 export default function ConfigPanel({ config, disabled, onChange }: Props) {
+  const [presetId, setPresetId] = useState<string | null>(
+    () => resolvePreset(config)?.id ?? null,
+  );
+
+  // Sync presetId when parent config changes externally (e.g. progressive suggestion)
+  useEffect(() => {
+    setPresetId(resolvePreset(config)?.id ?? null);
+  }, [config]);
+
   const summary = `${config.contractTime}-${config.holdTime}-${config.relaxTime} × ${config.rounds} 次 = 1 组`;
+
+  const handlePresetChange = (id: string | null) => {
+    setPresetId(id);
+    if (id) {
+      const preset = TRAINING_PRESETS.find((p) => p.id === id);
+      if (preset) onChange({ ...preset.config });
+    }
+  };
+
+  const handleParamChange = (field: keyof TrainingConfig) => (value: number) => {
+    setPresetId(null);
+    onChange({ [field]: value });
+  };
+
+  const activePreset = presetId ? TRAINING_PRESETS.find((p) => p.id === presetId) : null;
 
   return (
     <details className="group w-full rounded-2xl border border-white/[0.06] bg-white/[0.03] backdrop-blur-xl">
       <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-3.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-indigo-300">
         <span>
-          <span className="block text-[10px] font-medium tracking-[0.15em] text-slate-500">训练计划</span>
+          <span className="block text-[10px] font-medium tracking-[0.15em] text-slate-500">
+            {activePreset ? activePreset.label : '训练计划'}
+          </span>
           <span className="mt-0.5 block text-sm text-slate-200 tabular-nums">{summary}</span>
         </span>
         <span aria-hidden="true" className="text-slate-500 transition-transform group-open:rotate-180">⌄</span>
       </summary>
 
       <div className="space-y-1 border-t border-white/[0.05] px-4 pb-4 pt-2">
+        {/* Preset selector */}
+        <div className="flex items-center gap-2 py-1.5">
+          <span className="text-xs text-slate-400 tracking-wide flex-shrink-0">预设</span>
+          <div className="flex gap-1 flex-wrap">
+            {TRAINING_PRESETS.map((p) => (
+              <motion.button
+                key={p.id}
+                type="button"
+                whileTap={{ scale: 0.95 }}
+                onClick={() => handlePresetChange(presetId === p.id ? null : p.id)}
+                disabled={disabled}
+                className={`px-2.5 py-1 rounded-full text-xs font-medium transition-colors select-none
+                  ${presetId === p.id
+                    ? 'bg-indigo-500/30 text-indigo-200'
+                    : 'bg-white/[0.06] text-slate-400 hover:bg-white/[0.10] hover:text-slate-300'
+                  }
+                  disabled:opacity-20`}
+                aria-label={p.label}
+              >
+                {p.label}
+              </motion.button>
+            ))}
+          </div>
+        </div>
+        <p className="text-[10px] text-slate-600 leading-4">
+          {activePreset
+            ? activePreset.description
+            : '自定义节奏模板，不代表医疗建议'}
+        </p>
+
+        <div className="h-px bg-white/[0.04] mt-1" />
+
         <Stepper
           label="收缩"
           value={config.contractTime}
@@ -82,7 +141,7 @@ export default function ConfigPanel({ config, disabled, onChange }: Props) {
           step={CONFIG_RANGE.contractTime.step}
           unit="秒"
           disabled={disabled}
-          onChange={v => onChange({ contractTime: v })}
+          onChange={handleParamChange('contractTime')}
         />
         <div className="h-px bg-white/[0.04]" />
         <Stepper
@@ -93,7 +152,7 @@ export default function ConfigPanel({ config, disabled, onChange }: Props) {
           step={CONFIG_RANGE.holdTime.step}
           unit="秒"
           disabled={disabled}
-          onChange={v => onChange({ holdTime: v })}
+          onChange={handleParamChange('holdTime')}
         />
         <div className="h-px bg-white/[0.04]" />
         <Stepper
@@ -104,7 +163,7 @@ export default function ConfigPanel({ config, disabled, onChange }: Props) {
           step={CONFIG_RANGE.relaxTime.step}
           unit="秒"
           disabled={disabled}
-          onChange={v => onChange({ relaxTime: v })}
+          onChange={handleParamChange('relaxTime')}
         />
         <div className="h-px bg-white/[0.04]" />
         <Stepper
@@ -115,7 +174,7 @@ export default function ConfigPanel({ config, disabled, onChange }: Props) {
           step={CONFIG_RANGE.rounds.step}
           unit="次"
           disabled={disabled}
-          onChange={v => onChange({ rounds: v })}
+          onChange={handleParamChange('rounds')}
         />
         <p className="pt-1 text-right text-[10px] leading-4 text-slate-600">
           完成以上次数计为 1 组

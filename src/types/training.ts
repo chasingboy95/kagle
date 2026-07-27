@@ -78,6 +78,49 @@ export const TRAINING_CONFIG_SCHEMA: StorageSchema<TrainingConfig> = defineSchem
   },
 });
 
+
+/* ── Training Presets ──────────────────────────────────────────── */
+
+export interface TrainingPreset {
+  id: string;
+  label: string;
+  /** Short description shown in the preset selector. */
+  description: string;
+  config: TrainingConfig;
+}
+
+/** Detects which preset matches the given config, or null if none match. */
+export function resolvePreset(config: TrainingConfig): TrainingPreset | null {
+  return TRAINING_PRESETS.find(
+    (p) =>
+      p.config.contractTime === config.contractTime &&
+      p.config.holdTime === config.holdTime &&
+      p.config.relaxTime === config.relaxTime &&
+      p.config.rounds === config.rounds,
+  ) ?? null;
+}
+
+export const TRAINING_PRESETS: TrainingPreset[] = [
+  {
+    id: 'gentle',
+    label: '轻松入门',
+    description: '低强度，适合初次尝试凯格尔训练',
+    config: { contractTime: 3, holdTime: 3, relaxTime: 3, rounds: 5 },
+  },
+  {
+    id: 'daily',
+    label: '日常训练',
+    description: '中等强度，适合日常维持',
+    config: { contractTime: 3, holdTime: 3, relaxTime: 3, rounds: 10 },
+  },
+  {
+    id: 'endurance',
+    label: '耐力提升',
+    description: '延长保持时间，逐步增强耐力',
+    config: { contractTime: 5, holdTime: 8, relaxTime: 5, rounds: 10 },
+  },
+];
+
 /* ── Training History ──────────────────────────────────────────── */
 
 /** Completion status of a training session. */
