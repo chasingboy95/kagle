@@ -25,6 +25,9 @@
 | Accessibility | Partial | `aria-live="polite"` regions added to TimerDisplay and TrainingStatus; auto-focus management in ControlButtons. Screen-reader and keyboard-navigation audit remains outstanding. |
 | Background-Tab Timing | Complete | Engineering evaluation done. Worker-based timer (`createTimer` + `timingWorker`) provides reliable ticks even when browser tab is backgrounded, with transparent fallback to setInterval. |
 | PWA / GitHub Pages | Partial | Manifest, service worker, subpath, safe-area, standard PNG icons, apple-touch-icon, and version update notification support exist; real-device QA remains incomplete. |
+| Storage Layer | Complete | `StorageAdapter` with schema validation, versioned keys, upgrade chain, and corruption recovery. Wired to engine config + training history. 16 tests. |
+| Training History | Complete | `TrainingRecord` persisted via storage layer, stats (weekly, streak, total), scrollable history UI with delete/clear. 7 tests. |
+| Progressive Training | Complete | Rule engine suggests parameter increases after 3 consecutive same-config completions, with 3-day cooldown after dismiss. 9 tests. |
 | Session Statistics | Complete | The completion view shows only objective current-session duration and repetition counts. Streaks and quality scores are hidden until real training history exists. |
 | CI/CD | Complete | All quality gates pass: tests, lint, TypeScript, build, and Playwright E2E. Deployment is automatic via GitHub Actions to GitHub Pages. |
 
@@ -76,6 +79,6 @@
 ## Verification Gap
 
 `bun run test`, `bun run lint`, `bun run typecheck`, and `bun run build` passed
-on 2026-07-27 with 16 test files and 92 tests. The Playwright smoke test
+on 2026-07-27 with 19 test files and 125 tests. The Playwright smoke test
 has passed in GitHub Actions CI (chromium). iOS and Android real-device
 QA remains outstanding.

@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import MuscleSphere from './components/MuscleSphere';
 import TrainingStatus from './components/TrainingStatus';
 import TimerDisplay from './components/TimerDisplay';
@@ -9,17 +9,51 @@ import ConfigPanel from './components/ConfigPanel';
 import VoiceSettingsPanel from './components/VoiceSettingsPanel';
 import { useKegelEngine } from './hooks/useKegelEngine';
 import { useVoiceAssistant } from './hooks/useVoiceAssistant';
+import { useTrainingHistory, buildTrainingRecord } from './hooks/useTrainingHistory';
+import TrainingHistory from './components/TrainingHistory';
+import ProgressiveSuggestion from './components/ProgressiveSuggestion';
+import { evaluateSuggestion, DEFAULT_PROGRESSIVE_STATE, type ProgressiveSuggestion as SuggestionType, type ProgressiveSuggestionState } from './utils/progressiveTraining';
+import { defineSchema } from './utils/storage';
+import { defaultStorage } from './utils/storage';
 import TrainingFeedback from './components/TrainingFeedback';
 import { actionHint, calcDisplayPhaseTiming, calcTotalDuration } from './utils/time';
 
 export default function App() {
+const PROGRESSIVE_SCHEMA = defineSchema({
+  category: 'progressive-suggestion',
+  version: 1,
+  defaultValue: DEFAULT_PROGRESSIVE_STATE,
+  validate(value: unknown): ProgressiveSuggestionState {
+    if (!value || typeof value !== 'object') return { ...DEFAULT_PROGRESSIVE_STATE };
+    const v = value as Record<string, unknown>;
+    return {
+      lastSuggestedAt: typeof v.lastSuggestedAt === 'string' ? v.lastSuggestedAt : '',
+      lastAction: v.lastAction === 'accept' || v.lastAction === 'ignore' || v.lastAction === 'dismiss' ? v.lastAction : null,
+      ignoreCount: typeof v.ignoreCount === 'number' && Number.isFinite(v.ignoreCount) ? Math.max(0, Math.floor(v.ignoreCount)) : 0,
+    };
+  },
+});
+
   const voice = useVoiceAssistant();
+  const history = useTrainingHistory();
+  const [showHistory, setShowHistory] = useState(false);
+  const [suggestion, setSuggestion] = useState<SuggestionType | null>(null);
+  const [progState, setProgState] = useState<ProgressiveSuggestionState>(() => defaultStorage.read(PROGRESSIVE_SCHEMA));
   const { state, config, start, pause, resume, stop, finish, restart, updateConfig } =
     useKegelEngine({
       onVoiceEvent: voice.emit,
       countdownFrom: voice.settings.enabled && voice.settings.mode !== 'off'
         ? voice.settings.countdownFrom
         : 0,
+      onSessionEnd: (data) => {
+        history.addRecord(buildTrainingRecord(config, data.completedReps, data.actualDurationMs, data.status, data.startedAt));
+        // Evaluate progressive suggestion
+        if (data.status === 'completed') {
+          const currentProgState = defaultStorage.read(PROGRESSIVE_SCHEMA);
+          const s = evaluateSuggestion(history.records, currentProgState);
+          if (s) setSuggestion(s);
+        }
+      },
     });
 
   const isIdle = state.status === 'idle';
@@ -45,6 +79,22 @@ export default function App() {
       ),
     [config],
   );
+
+  const handleSuggestionAction = (action: 'accept' | 'ignore' | 'dismiss') => {
+    if (!suggestion) return;
+    const now = new Date().toISOString();
+    const next: ProgressiveSuggestionState = {
+      lastSuggestedAt: now,
+      lastAction: action,
+      ignoreCount: action === 'ignore' ? progState.ignoreCount + 1 : 0,
+    };
+    setProgState(next);
+    defaultStorage.write(PROGRESSIVE_SCHEMA, next);
+    if (action === 'accept') {
+      updateConfig(suggestion.after);
+    }
+    setSuggestion(null);
+  };
 
   const handleStart = () => {
     void voice.unlock();
@@ -152,7 +202,10 @@ export default function App() {
       </div>
 
       <div className="w-full max-w-sm space-y-4 pt-2 pb-safe">
-        {!showFeedback && (
+        {suggestion && isIdle && !showHistory && (
+          <ProgressiveSuggestion suggestion={suggestion} onAction={handleSuggestionAction} />
+        )}
+        {!showFeedback && !showHistory && (
           <>
             <ConfigPanel config={config} disabled={isActive} onChange={updateConfig} />
 
@@ -162,6 +215,14 @@ export default function App() {
               onChange={voice.updateSettings}
             />
 
+            {isIdle && (
+              <button
+                onClick={() => setShowHistory(true)}
+                className="w-full rounded-lg bg-white/5 text-slate-400 py-2.5 text-sm font-medium hover:bg-white/10 transition-colors"
+              >
+                训练记录
+              </button>
+            )}
             <ControlButtons
               status={state.status}
               onStart={handleStart}
@@ -171,6 +232,15 @@ export default function App() {
               onRestart={handleRestart}
             />
           </>
+        )}
+        {showHistory && isIdle && (
+          <TrainingHistory
+            records={history.records}
+            stats={history.stats}
+            onRemoveRecord={history.removeRecord}
+            onClearAll={history.clearAll}
+            onClose={() => setShowHistory(false)}
+          />
         )}
       </div>
     </div>

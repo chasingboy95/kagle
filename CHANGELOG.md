@@ -1,6 +1,13 @@
 # Changelog
 ## [Unreleased]
 
+### Added
+- Unified storage layer (`StorageAdapter`) with schema validation, versioned keys, upgrade chain, and corruption recovery (#17).
+- Training history: records persisted via storage layer, stats (weekly, streak, total), scrollable history UI with delete/clear (#8).
+- Progressive training suggestions: rule engine suggests parameter increases after 3 same-config completions, 3-day cooldown after dismiss (#12).
+- CI split into ci.yml (PR + main push) and deploy.yml (auto-deploy after CI success) (#13).
+
+
 ### Changed
 - CI 拆分为 ci.yml（PR + main push）和 deploy.yml（main CI 成功后部署），固定 Bun 1.3.14，增加缓存与并发控制
 
@@ -16,6 +23,13 @@
   timer and status announcements.
 - Auto-focus management in ControlButtons so keyboard users keep focus after state
   transitions (idle → running → paused → finished).
+
+### Added
+- Unified storage layer (`StorageAdapter`) with schema validation, versioned keys, upgrade chain, and corruption recovery (#17).
+- Training history: records persisted via storage layer, stats (weekly, streak, total), scrollable history UI with delete/clear (#8).
+- Progressive training suggestions: rule engine suggests parameter increases after 3 same-config completions, 3-day cooldown after dismiss (#12).
+- CI split into ci.yml (PR + main push) and deploy.yml (auto-deploy after CI success) (#13).
+
 
 ### Changed
 
@@ -36,6 +50,13 @@
  - 本地 `jsdom` 未安装导致测试全部无法运行（lockfile 未包含依赖）。
 
 ## 2026-07-26
+
+### Added
+- Unified storage layer (`StorageAdapter`) with schema validation, versioned keys, upgrade chain, and corruption recovery (#17).
+- Training history: records persisted via storage layer, stats (weekly, streak, total), scrollable history UI with delete/clear (#8).
+- Progressive training suggestions: rule engine suggests parameter increases after 3 same-config completions, 3-day cooldown after dismiss (#12).
+- CI split into ci.yml (PR + main push) and deploy.yml (auto-deploy after CI success) (#13).
+
 
 ### Changed
 
@@ -69,6 +90,13 @@ All notable changes to this project will be documented in this file.
 - Collapsible training-plan panel with a compact `contract-hold-relax × rounds` summary.
 - Persistent completion result view with explicit "再次训练" and "完成" actions.
 - Voice settings now include a simplified first-level panel with advanced options tucked away.
+
+### Added
+- Unified storage layer (`StorageAdapter`) with schema validation, versioned keys, upgrade chain, and corruption recovery (#17).
+- Training history: records persisted via storage layer, stats (weekly, streak, total), scrollable history UI with delete/clear (#8).
+- Progressive training suggestions: rule engine suggests parameter increases after 3 same-config completions, 3-day cooldown after dismiss (#12).
+- CI split into ci.yml (PR + main push) and deploy.yml (auto-deploy after CI success) (#13).
+
 
 ### Changed
 
