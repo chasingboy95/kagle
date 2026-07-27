@@ -458,6 +458,9 @@ export function useKegelEngine(options: KegelEngineVoiceOptions = {}): UseKegelE
     if (snap.status === 'paused') {
       e.pauseStartedAt = now;
       pushState();
+    } else if (snap.status === 'feedback') {
+      e.feedbackElapsedSnapshot = snap.sessionElapsedMs;
+      pushState();
     } else {
       e.pauseStartedAt = 0;
       startTick();
