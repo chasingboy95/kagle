@@ -1,0 +1,1 @@
+(function(){let e=null;self.onmessage=t=>{switch(t.data.type){case`start`:if(e!==null)return;e=setInterval(()=>{self.postMessage(null)},100);break;case`stop`:e!==null&&(clearInterval(e),e=null);break}}})();
