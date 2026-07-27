@@ -33,6 +33,7 @@ interface EngineInternals {
   config: TrainingConfig;
   sessionId: number;
   eventSequence: number;
+  feedbackElapsedSnapshot: number;
   announcedCountdowns: Set<number>;
 }
 
@@ -48,6 +49,7 @@ function createInitialEngine(config: TrainingConfig): EngineInternals {
     config,
     sessionId: 0,
     eventSequence: 0,
+    feedbackElapsedSnapshot: 0,
     announcedCountdowns: new Set(),
   };
 }
@@ -74,7 +76,7 @@ function phaseMs(phase: TrainingPhase, config: TrainingConfig): number {
     case 'contract': return config.contractTime * 1000;
     case 'hold': return config.holdTime * 1000;
     case 'relax': return config.relaxTime * 1000;
-    case 'feedback': return 0;
+    case 'feedback': return 6000;
     default: return 0;
   }
 }
@@ -90,7 +92,12 @@ function buildState(e: EngineInternals, now: number): EngineState {
 
   if (e.status === 'idle' || e.status === 'finished') {
     phaseRemaining = 0;
-    totalRunningMs = 0;
+    totalRunningMs = e.status === 'finished' && e.feedbackElapsedSnapshot > 0
+      ? e.feedbackElapsedSnapshot
+      : 0;
+  } else if (e.status === 'feedback' && e.feedbackElapsedSnapshot > 0) {
+    phaseRemaining = Math.max(0, phaseDur - (now - e.phaseStartedAt));
+    totalRunningMs = e.feedbackElapsedSnapshot;
   } else if (isPaused) {
     phaseRemaining = Math.max(0, phaseDur - (e.pauseStartedAt - e.phaseStartedAt));
     totalRunningMs = Math.max(0, e.pauseStartedAt - e.sessionStartedAt - e.totalPausedMs);
@@ -158,7 +165,7 @@ export function useKegelEngine(options: KegelEngineVoiceOptions = {}): UseKegelE
     const e = eng.current;
     const s = buildState(e, now);
     setState(s);
-    if (e.status !== 'running') return;
+    if (e.status !== 'running' && e.status !== 'feedback') return;
 
     const countdown = getCountdownEvent(
       s.phaseRemainingMs,
@@ -213,10 +220,10 @@ export function useKegelEngine(options: KegelEngineVoiceOptions = {}): UseKegelE
     if (e.phase === 'relax') {
       const nextRound = e.round + 1;
       if (nextRound >= cfg.rounds) {
+        e.feedbackElapsedSnapshot = Math.max(0, performance.now() - e.sessionStartedAt - e.totalPausedMs);
         emitVoice({ type: 'completed' });
         e.status = 'feedback';
         enterPhase('feedback', false);
-        stopTick();
         pushState();
         return;
       }
@@ -242,7 +249,7 @@ export function useKegelEngine(options: KegelEngineVoiceOptions = {}): UseKegelE
     stopTick();
     tickId.current = setInterval(() => {
       const e = eng.current;
-      if (e.status !== 'running') return;
+      if (e.status !== 'running' && e.status !== 'feedback') return;
 
       const now = performance.now();
       const elapsed = now - e.phaseStartedAt;
@@ -308,7 +315,7 @@ export function useKegelEngine(options: KegelEngineVoiceOptions = {}): UseKegelE
 
   const pause = useCallback(() => {
     const e = eng.current;
-    if (e.status !== 'running') return;
+    if (e.status !== 'running' && e.status !== 'feedback') return;
     e.status = 'paused';
     e.pauseStartedAt = performance.now();
     emitVoice({ type: 'paused' });

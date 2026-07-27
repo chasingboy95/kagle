@@ -4,7 +4,6 @@ interface VoiceSettingsPanelProps {
   settings: VoiceSettings;
   supported: boolean;
   onChange: (updates: Partial<VoiceSettings>) => void;
-  onPreview: () => void;
 }
 
 const modeLabels: Record<VoiceMode, string> = {
@@ -76,15 +75,6 @@ export default function VoiceSettingsPanel({ settings, supported, onChange, onPr
         {!supported && coachMode && settings.enabled && (
           <p className="py-2 text-xs leading-5 text-amber-200/70" role="status">当前浏览器无法播放录音或系统语音，可改用“节奏提示”。</p>
         )}
-
-        <button
-          type="button"
-          onClick={onPreview}
-          disabled={disabled || settings.mode === 'off' || (coachMode && !supported)}
-          className="mt-2 w-full rounded-xl border border-white/10 bg-white/[0.05] px-4 py-2.5 text-sm text-slate-200 transition-colors hover:bg-white/[0.08] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300 disabled:cursor-not-allowed disabled:opacity-35"
-        >
-          试听当前方式
-        </button>
 
         <details className="group/advanced mt-3 rounded-xl border border-white/[0.05] bg-black/10">
           <summary className="flex cursor-pointer list-none items-center justify-between px-3 py-2.5 text-sm text-slate-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-indigo-300">

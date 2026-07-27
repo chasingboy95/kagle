@@ -4,7 +4,7 @@ export function formatSeconds(ms: number): string {
 }
 
 export const READY_DURATION_MS = 5000;
-export const FEEDBACK_DURATION_MS = 0;
+export const FEEDBACK_DURATION_MS = 6000;
 
 /** 计算总训练时长（毫秒） */
 export function calcTotalDuration(
@@ -14,7 +14,7 @@ export function calcTotalDuration(
   repetitions: number,
 ): number {
   const singleRepetition = (contractTime + holdTime + relaxTime) * 1000;
-  return READY_DURATION_MS + singleRepetition * repetitions;
+  return READY_DURATION_MS + singleRepetition * repetitions + FEEDBACK_DURATION_MS;
 }
 
 export interface DisplayPhaseTiming {
