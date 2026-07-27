@@ -1,6 +1,6 @@
 # Voice Assistant Specification
 
-**Last verified against repository:** 2026-07-24
+**Last verified against repository:** 2026-07-27
 
 ## Overview
 
@@ -33,6 +33,7 @@
 2. 其他语音模式先由 `resolveVoiceAsset()` 尝试解析本地中文资源。
 3. 有资源时交给 `PreRecordedAudioAdapter`；加载、播放、error 或 8 秒超时失败后，仅当该事件存在 `resolveCue()` 映射时才降级为对应 Web Audio 提示音。倒计时事件没有 cue 映射，因此倒计时录音失败时静默跳过并继续训练。
 4. 无本地资源时通过 `resolveSpeech()` 和 Web Speech 播放动态次数或 en-US 文案。
+5. `completed` 事件在教练模式下优先使用 `zh-CN/complete.mp3` 录音；录音失败后降级到 Web Speech（"训练完成，做得很好"）；Web Speech 也失败时使用 `complete` 提示音。`completed` 入队时会清空队列并停止当前播放，确保完成提示不被残留阶段或倒计时事件干扰。
 
 阶段切换、暂停、停止或显式停止会同时终止 Web Speech、提示音和本地音频。`VoiceController` 每次打断递增 playback generation；旧的异步本地播放返回后，不得再播放过期的降级提示音。
 

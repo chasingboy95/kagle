@@ -143,6 +143,24 @@ The feedback phase is now persistent — the tick stops on entry and `onSessionE
 
 ---
 
+## 8. Completed Voice Prompt Unreliable on Mobile
+
+**Status:** Resolved (2026-07-27)
+
+**Description:**
+
+The training completion voice prompt (`completed` event) relied exclusively on system SpeechSynthesis without a recorded mp3 fallback. `resolveVoiceAsset()` deliberately skipped the existing `zh-CN/complete.mp3`. On mobile browsers and PWAs where SpeechSynthesis is unreliable, the completion prompt would silently fail.
+
+**Resolution:**
+
+- `resolveVoiceAsset()` now returns `zh-CN/complete.mp3` for `completed` events in coach mode.
+- `VoiceController.enqueue()` clears the queue and stops playback when a `completed` event arrives, preventing stale items from interfering.
+- The drain fallback chain (recording → TTS → non-verbal cue) is preserved for `completed` like all other coach events.
+- `useVoiceAssistant` now logs flush errors via `console.warn` instead of silently swallowing them.
+- 5 new VoiceController tests cover the completed flow: recording, TTS fallback, cue fallback, queue clearing, and rhythm-mode cue.
+
+---
+
 ## Resolved Issues
 
 - Feedback phase UI no longer exposes pause/stop controls during the completion celebration.

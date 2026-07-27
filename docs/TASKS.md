@@ -41,6 +41,8 @@
 
 ## Completed
 
+- [x] **Issue #19: 完成提示语音不稳定修复**: `resolveVoiceAsset()` 为 `completed` 启用 `complete.mp3`；`VoiceController.enqueue()` 在 completed 入队时清空队列并停止播放；降级链（录音→TTS→提示音）覆盖 completed 事件；新增 5 个 VoiceController 测试覆盖完成事件流程。
+
 - [x] **Issue #20: 训练完成页自动消失修复**: 反馈阶段不再自动推进，tick 在进入 feedback 时停止，onSessionEnd 在 feedback 进入时触发一次。完成页增加"查看训练记录"按钮。引擎假时钟测试 + 组件测试 + E2E 测试覆盖。
 
 - [x] **Issue #10: 首次使用引导**: 三页全屏引导模态（什么是凯格尔训练/呼吸与安全/关于本应用），带跳过/页码指示器/ARIA role=dialog/localStorage 持久化，idle 状态下提供"重新查看引导"按钮。
