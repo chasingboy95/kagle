@@ -24,7 +24,7 @@
 | Voice Settings Panel | Complete | UI now exposes common controls first: enable, final countdown, and preview. Mode, volume, fallback speech rate, progress announcement, and haptics live under "高级设置". No component test yet. |
 | Accessibility | Partial | `aria-live="polite"` regions added to TimerDisplay and TrainingStatus; auto-focus management in ControlButtons. Screen-reader and keyboard-navigation audit remains outstanding. |
 | Background-Tab Timing | Complete | Engineering evaluation done. Worker-based timer (`createTimer` + `timingWorker`) provides reliable ticks even when browser tab is backgrounded, with transparent fallback to setInterval. |
-| PWA / GitHub Pages | Partial | Manifest, service worker, subpath, safe-area, standard PNG icons, apple-touch-icon, and version update notification support exist; real-device QA remains incomplete. |
+| PWA / GitHub Pages | Complete | Manifest, service worker, subpath, safe-area, standard PNG icons, apple-touch-icon, version update notification, offline caching, and voice asset cache verified by Playwright E2E tests (e2e/pwa.spec.ts). Real-device QA remains outstanding. |
 | Storage Layer | Complete | `StorageAdapter` with schema validation, versioned keys, upgrade chain, and corruption recovery. Wired to engine config + training history. 16 tests. |
 | Training History | Complete | `TrainingRecord` persisted via storage layer, stats (weekly, streak, total), scrollable history UI with delete/clear. 7 tests. |
 | Progressive Training | Complete | Rule engine suggests parameter increases after 3 consecutive same-config completions, with 3-day cooldown after dismiss. 9 tests. |
