@@ -41,7 +41,7 @@ function Toggle({ id, label, description, checked, disabled = false, onChange }:
   );
 }
 
-export default function VoiceSettingsPanel({ settings, supported, onChange, onPreview }: VoiceSettingsPanelProps) {
+export default function VoiceSettingsPanel({ settings, supported, onChange }: VoiceSettingsPanelProps) {
   const disabled = !settings.enabled;
   const audible = settings.mode !== 'off';
   const coachMode = settings.mode === 'coach';
