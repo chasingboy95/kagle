@@ -176,3 +176,43 @@ export const TRAINING_HISTORY_SCHEMA: StorageSchema<TrainingRecord[]> = defineSc
     return value.filter(isTrainingRecord);
   },
 });
+
+
+/* ── Session Recovery Snapshot ──────────────────────────────────────────── */
+
+/** Snapshot of an in-progress training session, saved to localStorage
+ *  so the user can resume after a page refresh or tab close. */
+export interface SessionSnapshot {
+  status: 'running' | 'paused' | 'feedback';
+  phase: TrainingPhase;
+  round: number;
+  /** How many ms of the current phase have elapsed. */
+  phaseElapsedMs: number;
+  /** Total session elapsed ms (excludes pauses). */
+  sessionElapsedMs: number;
+  totalPausedMs: number;
+  config: TrainingConfig;
+  announcedCountdowns: number[];
+  sessionStartedAtIso: string;
+}
+
+/** Storage schema for the session snapshot. Key: kegel.session-snapshot.v1 */
+export const SESSION_SNAPSHOT_SCHEMA = defineSchema<SessionSnapshot | null>({
+  category: 'session-snapshot',
+  version: 1,
+  defaultValue: null,
+  validate(value: unknown): SessionSnapshot | null {
+    if (!value || typeof value !== 'object') return null;
+    const v = value as Record<string, unknown>;
+    if (typeof v.status !== 'string' || !['running', 'paused', 'feedback'].includes(v.status)) return null;
+    if (typeof v.phase !== 'string') return null;
+    if (typeof v.round !== 'number') return null;
+    if (typeof v.phaseElapsedMs !== 'number') return null;
+    if (typeof v.sessionElapsedMs !== 'number') return null;
+    if (typeof v.totalPausedMs !== 'number') return null;
+    if (!v.config || typeof v.config !== 'object') return null;
+    if (!Array.isArray(v.announcedCountdowns)) return null;
+    if (typeof v.sessionStartedAtIso !== 'string') return null;
+    return value as SessionSnapshot;
+  },
+});

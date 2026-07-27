@@ -42,6 +42,8 @@
 ## Completed
 
 - [x] **Issue #10: 首次使用引导**: 三页全屏引导模态（什么是凯格尔训练/呼吸与安全/关于本应用），带跳过/页码指示器/ARIA role=dialog/localStorage 持久化，idle 状态下提供"重新查看引导"按钮。
+- [x] **Issue #11: 训练中断恢复**: Engine 在状态变更时保存快照到 localStorage；页面刷新后检测未完成会话，提供"继续训练"/"放弃"UI 并补偿时间；8 个集成测试覆盖运行/暂停/恢复/清空场景。
+
 - [x] **Issue #9: 训练预设**: TrainingPreset 类型、TRAINING_PRESETS 数组（轻松入门/日常训练/耐力提升）、resolvePreset()、ConfigPanel 预设选择器，8 个测试。
 
 - [x] **Web Worker background-tab timing**: Created `timingWorker.ts` + `createTimer.ts` utility; engine uses Worker-based timer in browsers with fallback to setInterval in tests. Timer keeps ticking at full rate even when browser tab is backgrounded.
