@@ -7,6 +7,7 @@ interface TrainingFeedbackProps {
   durationMs: number;
   onRestart?: () => void;
   onDone?: () => void;
+  onViewHistory?: () => void;
 }
 
 export default function TrainingFeedback({
@@ -15,6 +16,7 @@ export default function TrainingFeedback({
   durationMs,
   onRestart,
   onDone,
+  onViewHistory,
 }: TrainingFeedbackProps) {
   return (
     <motion.div
@@ -59,6 +61,14 @@ export default function TrainingFeedback({
             className="w-full rounded-full border border-white/10 bg-transparent py-3 text-sm font-medium text-slate-300 transition-colors active:bg-white/[0.06]"
           >
             完成
+          </button>
+        )}
+        {onViewHistory && (
+          <button
+            onClick={onViewHistory}
+            className="w-full rounded-full bg-white/5 py-3 text-sm font-medium text-indigo-300/80 transition-colors active:bg-white/10"
+          >
+            查看训练记录
           </button>
         )}
       </div>

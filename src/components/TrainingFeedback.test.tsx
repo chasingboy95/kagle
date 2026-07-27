@@ -34,4 +34,35 @@ describe('TrainingFeedback objective session copy', () => {
     expect(onRestart).toHaveBeenCalledOnce();
     expect(onDone).toHaveBeenCalledOnce();
   });
+
+  it('renders onViewHistory button when provided and calls it on click', () => {
+    const onViewHistory = vi.fn();
+    render(
+      <TrainingFeedback
+        completedRepetitions={10}
+        totalRepetitions={10}
+        durationMs={65_900}
+        onRestart={vi.fn()}
+        onDone={vi.fn()}
+        onViewHistory={onViewHistory}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: '查看训练记录' }));
+    expect(onViewHistory).toHaveBeenCalledOnce();
+  });
+
+  it('does not render onViewHistory button when callback is not provided', () => {
+    render(
+      <TrainingFeedback
+        completedRepetitions={10}
+        totalRepetitions={10}
+        durationMs={65_900}
+      />,
+    );
+
+    expect(
+      screen.queryByRole('button', { name: '查看训练记录' }),
+    ).not.toBeInTheDocument();
+  });
 });

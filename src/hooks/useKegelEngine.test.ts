@@ -56,6 +56,58 @@ describe('useKegelEngine lifecycle', () => {
     });
   });
 
+  
+  it('keeps the feedback phase persistent without auto-advancing to finished', () => {
+    const onSessionEnd = vi.fn();
+    const { result } = renderHook(() =>
+      useKegelEngine({ countdownFrom: 0, onSessionEnd }),
+    );
+
+    act(() => {
+      result.current.updateConfig({
+        contractTime: 1,
+        holdTime: 1,
+        relaxTime: 1,
+        rounds: 1,
+      });
+    });
+    act(() => {
+      result.current.start();
+    });
+
+    // ready → contract → hold → relax → feedback
+    advance(5_000); // ready
+    advance(1_100); // contract
+    advance(1_100); // hold
+    advance(1_100); // relax → feedback
+
+    expect(result.current.state).toMatchObject({
+      status: 'feedback',
+      phase: 'feedback',
+    });
+    expect(onSessionEnd).toHaveBeenCalledOnce();
+    expect(onSessionEnd).toHaveBeenCalledWith(
+      expect.objectContaining({ status: 'completed', completedReps: 1 }),
+    );
+
+    // Wait well past the 6s feedback duration — should NOT auto-advance
+    advance(10_000);
+    expect(result.current.state).toMatchObject({
+      status: 'feedback',
+      phase: 'feedback',
+    });
+    expect(onSessionEnd).toHaveBeenCalledOnce(); // still only once
+
+    // User explicitly finishes
+    act(() => result.current.finish());
+    expect(result.current.state).toMatchObject({
+      status: 'idle',
+      phase: 'idle',
+      currentRound: 0,
+    });
+    expect(onSessionEnd).toHaveBeenCalledOnce();
+  });
+
   it('preserves the phase while paused and resumes from the remaining time', () => {
     const { result } = renderHook(() => useKegelEngine());
 

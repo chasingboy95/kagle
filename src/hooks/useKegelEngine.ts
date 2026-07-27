@@ -252,24 +252,14 @@ export function useKegelEngine(options: KegelEngineVoiceOptions = {}): UseKegelE
         emitVoice({ type: 'completed' });
         e.status = 'feedback';
         enterPhase('feedback', false);
+        stopTick();
+        try { optionsRef.current.onSessionEnd?.({ completedReps: e.round + 1, actualDurationMs: e.feedbackElapsedSnapshot, status: 'completed', startedAt: e.sessionStartedAtIso }); } catch { /* ignore */ }
         pushState();
         return;
       }
       e.round = nextRound;
       emitVoice({ type: 'round-start', round: e.round + 1, totalRounds: cfg.rounds });
       enterPhase('contract');
-      return;
-    }
-    if (e.phase === 'feedback') {
-      e.status = 'finished';
-      try { optionsRef.current.onSessionEnd?.({ completedReps: e.round + 1, actualDurationMs: e.feedbackElapsedSnapshot, status: 'completed', startedAt: e.sessionStartedAtIso }); } catch { /* ignore */ }
-      e.phase = 'idle';
-      e.round = 0;
-      e.phaseStartedAt = 0;
-      e.sessionStartedAt = 0;
-      e.totalPausedMs = 0;
-      stopTick();
-      pushState();
       return;
     }
  }, [emitVoice, enterPhase, pushState, stopTick]);

@@ -180,6 +180,7 @@ const PROGRESSIVE_SCHEMA = defineSchema({
                 durationMs={state.totalElapsedMs}
                 onRestart={handleRestart}
                 onDone={finish}
+                onViewHistory={() => { finish(); setShowHistory(true); }}
               />
             </motion.div>
           </div>

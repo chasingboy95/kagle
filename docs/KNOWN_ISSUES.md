@@ -129,6 +129,20 @@ No further fix planned.
 
 ---
 
+## 7. Training Completion Page Auto-Disappear
+
+**Status:** Resolved (2026-07-27)
+
+**Description:**
+
+After training completed, the feedback/completion page would auto-disappear after 6 seconds because the engine auto-advanced from `feedback` to `finished` phase. After auto-advance, `status = finished` but home-screen buttons required `status = idle`, leaving the user in a half-completed state where the training history button was hidden.
+
+**Resolution:**
+
+The feedback phase is now persistent — the tick stops on entry and `onSessionEnd` fires once at that point. The completion page stays until the user explicitly clicks "完成", "再次训练", or "查看训练记录". The `finish()` function resets the engine fully to `idle`. Engine fake-clock tests, component tests, and E2E tests cover the persistent feedback behavior.
+
+---
+
 ## Resolved Issues
 
 - Feedback phase UI no longer exposes pause/stop controls during the completion celebration.
