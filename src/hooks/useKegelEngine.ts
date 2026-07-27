@@ -90,7 +90,6 @@ function phaseMs(phase: TrainingPhase, config: TrainingConfig): number {
   }
 }
 
-
 /** 从当前引擎快照构建渲染状态 */
 function buildState(e: EngineInternals, now: number): EngineState {
   const isPaused = e.status === 'paused';
@@ -149,7 +148,13 @@ export function useKegelEngine(options: KegelEngineVoiceOptions = {}): UseKegelE
   }));
   const [recoverableSession, setRecoverableSession] = useState<SessionSnapshot | null>(null);
   const storedSnapRef = useRef<SessionSnapshot | null>(null);
-  useEffect(() => { const snap = defaultStorage.read(SESSION_SNAPSHOT_SCHEMA); if (snap) { storedSnapRef.current = snap; setRecoverableSession(snap); } }, []);
+  useEffect(() => {
+    const snap = defaultStorage.read(SESSION_SNAPSHOT_SCHEMA);
+    if (snap) {
+      storedSnapRef.current = snap;
+      setRecoverableSession(snap);
+    }
+  }, []);
 
   const eng = useRef<EngineInternals>(createInitialEngine(DEFAULT_CONFIG));
   const timerRef = useRef<TimerHandle | null>(null);
@@ -253,7 +258,16 @@ export function useKegelEngine(options: KegelEngineVoiceOptions = {}): UseKegelE
         e.status = 'feedback';
         enterPhase('feedback', false);
         stopTick();
-        try { optionsRef.current.onSessionEnd?.({ completedReps: e.round + 1, actualDurationMs: e.feedbackElapsedSnapshot, status: 'completed', startedAt: e.sessionStartedAtIso }); } catch { /* ignore */ }
+        try {
+          optionsRef.current.onSessionEnd?.({
+            completedReps: e.round + 1,
+            actualDurationMs: e.feedbackElapsedSnapshot,
+            status: 'completed',
+            startedAt: e.sessionStartedAtIso,
+          });
+        } catch {
+          /* ignore */
+        }
         pushState();
         return;
       }
@@ -262,7 +276,7 @@ export function useKegelEngine(options: KegelEngineVoiceOptions = {}): UseKegelE
       enterPhase('contract');
       return;
     }
- }, [emitVoice, enterPhase, pushState, stopTick]);
+  }, [emitVoice, enterPhase, pushState, stopTick]);
 
   /**
    * Tick handler – runs on each timer tick (~100 ms).
@@ -290,44 +304,42 @@ export function useKegelEngine(options: KegelEngineVoiceOptions = {}): UseKegelE
     handle.start();
   }, [advance, pushState, stopTick]);
 
- // 清理 tick
- useEffect(() => {
-   return () => stopTick();
- }, [stopTick]);
+  // 清理 tick
+  useEffect(() => {
+    return () => stopTick();
+  }, [stopTick]);
 
   /* ── Screen Wake Lock ──────────────────────────────────────── */
   // 训练时阻止手机自动熄屏
   useEffect(() => {
     let wakeLock: WakeLockSentinel | null = null;
- 
+
     async function acquire() {
       try {
         wakeLock = await navigator.wakeLock.request('screen');
         wakeLock.addEventListener('release', () => { wakeLock = null; });
       } catch {
         /* API 不支持或权限不足 —— 静默忽略 */
- }
-
-  /* ── tickRef was accidentally placed after return above; removed.  */
+      }
     }
- 
+
     async function release() {
       if (wakeLock) {
         try { await wakeLock.release(); } catch { /* ignore */ }
         wakeLock = null;
       }
     }
- 
+
     if (state.status === 'running') {
       acquire();
     } else {
       release();
     }
- 
+
     return () => { release(); };
   }, [state.status]);
 
- const start = useCallback(() => {
+  const start = useCallback(() => {
     const e = eng.current;
     e.sessionId += 1;
     e.eventSequence = 0;
@@ -373,7 +385,18 @@ export function useKegelEngine(options: KegelEngineVoiceOptions = {}): UseKegelE
     stopTick();
     emitVoice({ type: 'stopped' });
     const duration = Math.max(0, performance.now() - e.sessionStartedAt - e.totalPausedMs);
-    try { optionsRef.current.onSessionEnd?.({ completedReps: e.round + 1, actualDurationMs: duration, status: 'stopped', startedAt: e.sessionStartedAtIso }); } catch { /* ignore */ }
+    // `round` is the zero-based index of the repetition currently in progress.
+    // A repetition only becomes completed after its relax phase advances to the next round.
+    try {
+      optionsRef.current.onSessionEnd?.({
+        completedReps: e.round,
+        actualDurationMs: duration,
+        status: 'stopped',
+        startedAt: e.sessionStartedAtIso,
+      });
+    } catch {
+      /* ignore */
+    }
     const sessionId = e.sessionId;
     Object.assign(e, createInitialEngine(e.config));
     e.sessionId = sessionId;
@@ -431,7 +454,6 @@ export function useKegelEngine(options: KegelEngineVoiceOptions = {}): UseKegelE
     });
   }, []);
 
-
   const discardSession = useCallback(() => {
     defaultStorage.remove(SESSION_SNAPSHOT_SCHEMA);
     storedSnapRef.current = null;
@@ -481,5 +503,5 @@ export function useKegelEngine(options: KegelEngineVoiceOptions = {}): UseKegelE
     recoverableSession,
     discardSession,
     recoverSession,
- };
+  };
 }
