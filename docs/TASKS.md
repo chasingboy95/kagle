@@ -1,6 +1,6 @@
 # Task List
 
-**Last verified against repository:** 2026-07-26
+**Last verified against repository:** 2026-07-27
 
 ## In Progress
 
@@ -16,13 +16,10 @@
   - Verify sustain and contraction prompts play promptly on phase entry.
   - Verify recording failure falls back to system speech.
 
-2. **Expand component coverage**
-  - Cover `VoiceSettingsPanel` mode selection and countdown controls.
-  - Add MuscleSphere rendering and reduced-motion coverage.
+2. **Cross-browser manual testing**: desktop Chrome/Safari/Firefox, iOS Safari, Android Chrome.
 
 ## Backlog
 
-- Cross-browser manual testing: desktop Chrome/Safari/Firefox, iOS Safari, Android Chrome.
 - Accessibility audit.
 - Performance profiling.
 - Replace the conic progress ring with an SVG circle if smoother interpolation is needed.
@@ -37,6 +34,7 @@
 
 ## Completed
 
+- [x] **Expanded component coverage**: Added VoiceSettingsPanel tests (mode selector, countdown radios, volume/rate sliders, disable states, unsupported warning) and MuscleSphere tests (rendering for all 6 stages, 9 SVG layers, size prop, progress ring, reduced motion mode).
 - [x] Removed hard-coded streak and completion-quality claims until real training history exists.
 - [x] Changed completion feedback to show only objective session duration and repetition counts.
 - [x] Added GitHub Actions quality gates for tests, lint, TypeScript checks, and production build before deployment.
