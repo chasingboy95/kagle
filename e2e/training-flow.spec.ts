@@ -3,7 +3,15 @@ import { expect, test } from '@playwright/test';
 test('completes one configured set and returns to the start screen', async ({ page }) => {
   await page.goto('.');
 
-  await page.getByText('训练计划').click();
+  // Dismiss onboarding modal if present (first visit)
+  const skipBtn = page.locator('button:has-text("跳过")');
+  if (await skipBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
+    await skipBtn.click();
+  }
+
+  // Expand config panel via the <details> toggle
+  await page.locator('details').first().click();
+
   for (let repetition = 10; repetition > 1; repetition -= 1) {
     await page.getByRole('button', { name: '减少每组次数' }).click();
   }
