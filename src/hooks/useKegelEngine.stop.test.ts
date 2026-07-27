@@ -30,6 +30,8 @@ describe('useKegelEngine stopped-session repetition count', () => {
         relaxTime: 1,
         rounds,
       });
+    });
+    act(() => {
       hook.result.current.start();
     });
 
