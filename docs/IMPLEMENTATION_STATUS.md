@@ -28,6 +28,7 @@
 | Storage Layer | Complete | `StorageAdapter` with schema validation, versioned keys, upgrade chain, and corruption recovery. Wired to engine config + training history. 16 tests. |
 | Training History | Complete | `TrainingRecord` persisted via storage layer, stats (weekly, streak, total), scrollable history UI with delete/clear. 7 tests. |
 | Progressive Training | Complete | Rule engine suggests parameter increases after 3 consecutive same-config completions, with 3-day cooldown after dismiss. 9 tests. |
+| Onboarding | Complete | Three-page first-time guided modal (什么是凯格尔训练/呼吸与安全/关于本应用) with skip, page indicators, ARIA dialog attributes, localStorage persistence, and re-entry button in idle section. |
 | Session Statistics | Complete | The completion view shows only objective current-session duration and repetition counts. Streaks and quality scores are hidden until real training history exists. |
 | CI/CD | Complete | All quality gates pass: tests, lint, TypeScript, build, and Playwright E2E. Deployment is automatic via GitHub Actions to GitHub Pages. |
 
@@ -79,6 +80,6 @@
 ## Verification Gap
 
 `bun run test`, `bun run lint`, `bun run typecheck`, and `bun run build` passed
-on 2026-07-27 with 19 test files and 125 tests. The Playwright smoke test
+on 2026-07-27 with 19 test files and 133 tests. The Playwright smoke test
 has passed in GitHub Actions CI (chromium). iOS and Android real-device
 QA remains outstanding.

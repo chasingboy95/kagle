@@ -6,6 +6,8 @@
 - Training history: records persisted via storage layer, stats (weekly, streak, total), scrollable history UI with delete/clear (#8).
 - Progressive training suggestions: rule engine suggests parameter increases after 3 same-config completions, 3-day cooldown after dismiss (#12).
 - CI split into ci.yml (PR + main push) and deploy.yml (auto-deploy after CI success) (#13).
+- Training presets: three built-in presets (轻松入门/日常训练/耐力提升) with one-click apply, preset selector in ConfigPanel (#9).
+- First-time onboarding: three-page guided modal (什么是凯格尔训练/呼吸与安全/关于本应用) with skip, page indicators, ARIA attributes, and re-entry button (#10).
 
 
 ### Changed
