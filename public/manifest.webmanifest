@@ -5,22 +5,22 @@
   "start_url": "/kagle/",
   "scope": "/kagle/",
   "display": "standalone",
-  "background_color": "#0f172a",
-  "theme_color": "#0f172a",
+  "background_color": "#202A59",
+  "theme_color": "#202A59",
   "orientation": "portrait",
   "categories": ["health", "fitness", "lifestyle"],
   "icons": [
     {
-      "src": "/kagle/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
+      "src": "/kagle/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
       "purpose": "any"
     },
     {
-      "src": "/kagle/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "src": "/kagle/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
     }
   ]
 }
