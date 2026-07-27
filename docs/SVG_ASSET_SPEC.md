@@ -22,8 +22,7 @@
  There are three locations containing copies of the nine SVG files:
 
  1. **`src/assets/muscle-sphere/`** — Imported by `MuscleSphere.tsx` (the source of truth for the build).
- 2. **`assets/muscle-sphere/`** — Root-level copy.
- 3. **`public/muscle-sphere/`** — Static public copy (unreferenced in imports; may be deploy artifact or legacy).
+
 
  **⚠️ The root and `src/` copies have differences.** Verified on 2026-07-23:
  - fascia.svg: differs between root and src copies
@@ -134,10 +133,8 @@
 
  ## SVG Issues Summary
 
- 1. **Duplicate copies**: Three sets of SVGs (`src/assets/muscle-sphere/`, `assets/muscle-sphere/`, `public/muscle-sphere/`). The `src/` copy is the authoritative one. The others should be removed or reconciled.
  2. **Inconsistent file contents**: fascia.svg, fibers.svg, fluid.svg, and highlight.svg differ between root and src directories. The src copies appear to be the newer versions (correct comment numbering, adjusted colors).
  3. **Missing group IDs**: None of the SVGs have `<g id="...">` attributes. This limits future inline manipulation and debugging.
  4. **Missing semantic structure**: Layers could benefit from consistent `id` attributes on major shapes for potential CSS or JS targeting.
  5. **Comment numbering inconsistency**: Some SVGs have `<!-- N. NAME -->` comments with inconsistent numbering between root and src copies.
  6. **`script_content.txt`**: Stray file at repository root (32 lines). Not related to SVGs but worth noting as repository cleanliness issue.
- 7. **`hero.png`**: Present in `src/assets/hero.png` but not referenced by any component. Could be a legacy asset or intended for future use.

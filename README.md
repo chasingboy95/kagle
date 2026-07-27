@@ -1,12 +1,12 @@
-# Kagle — Kegel Training Timer
+# Kagle — 盆底肌训练计时器
 
 A browser-based pelvic floor (Kegel) training timer with real-time visual animation and voice guidance. Built with React, TypeScript, Vite, Tailwind CSS, and Framer Motion.
 
 ## Current Status
 
-**MVP complete.** All core features implemented and tested. Voice assistance with 5 modes, 9-layer SVG muscle animation, configurable workout parameters, pause/resume/stop, and settings persistence.
+**MVP complete.** All core features implemented and tested. Voice assistance with 3 modes (静音/节奏提示/语音教练), 9-layer SVG muscle animation, ready → contract → hold → relax → feedback training lifecycle, configurable workout parameters, pause/resume/stop, and settings persistence.
 
-[Live Demo](https://huangyingting.github.io/kagle/) (GitHub Pages)
+[Live Demo](https://chasingboy95.github.io/kagle/) (GitHub Pages)
 
 ## Tech Stack
 

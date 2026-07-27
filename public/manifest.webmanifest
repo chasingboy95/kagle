@@ -1,18 +1,25 @@
 {
-  "name": "Kagle — Kegel Training Timer",
+  "name": "Kagle — 盆底肌训练计时器",
   "short_name": "Kagle",
-  "description": "A pelvic floor training timer with visual animation and voice guidance.",
+  "description": "盆底肌（Kegel）训练计时器，支持实时视觉动画与语音指导。",
   "start_url": "/kagle/",
   "scope": "/kagle/",
-  "display": "fullscreen",
-  "background_color": "#ffffff",
+  "display": "standalone",
+  "background_color": "#0f172a",
   "theme_color": "#0f172a",
   "orientation": "portrait",
+  "categories": ["health", "fitness", "lifestyle"],
   "icons": [
     {
-      "src": "/kagle/favicon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
+      "src": "/kagle/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/kagle/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
       "purpose": "any maskable"
     }
   ]

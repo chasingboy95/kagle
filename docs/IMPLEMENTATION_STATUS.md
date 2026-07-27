@@ -1,6 +1,6 @@
 # Implementation Status
 
-**Last verified against repository:** 2026-07-26
+**Last verified against repository:** 2026-07-27
 **Last verified against repository:** 2026-07-27
 
 ## Status Legend
@@ -25,9 +25,9 @@
 | Voice Settings Panel | Complete | UI now exposes common controls first: enable, final countdown, and preview. Mode, volume, fallback speech rate, progress announcement, and haptics live under "高级设置". No component test yet. |
 | Accessibility | Partial | `aria-live="polite"` regions added to TimerDisplay and TrainingStatus; auto-focus management in ControlButtons. Screen-reader and keyboard-navigation audit remains outstanding. |
 | Background-Tab Timing | Complete | Engineering evaluation done. Worker-based timer (`createTimer` + `timingWorker`) provides reliable ticks even when browser tab is backgrounded, with transparent fallback to setInterval. |
-| PWA / GitHub Pages | Partial | Manifest, service worker, subpath, and safe-area support exist; real-device QA remains incomplete. |
-| Session Statistics | Partial | The completion view shows only objective current-session duration and repetition counts. Streaks and quality scores are hidden until real training history exists. |
-| CI/CD | Complete | GitHub Pages deployment is blocked on passing tests, lint, TypeScript checks, production build, and a Chromium Playwright smoke test; the verified build artifact is then deployed. |
+| PWA / GitHub Pages | Partial | Manifest, service worker, subpath, safe-area, standard PNG icons, apple-touch-icon, and version update notification support exist; real-device QA remains incomplete. |
+| Session Statistics | Complete | The completion view shows only objective current-session duration and repetition counts. Streaks and quality scores are hidden until real training history exists. |
+| CI/CD | Complete | All quality gates pass: tests, lint, TypeScript, build, and Playwright E2E. Deployment is automatic via GitHub Actions to GitHub Pages. |
 
 ## Voice Behavior
 

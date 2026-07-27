@@ -1,6 +1,6 @@
  # Feature Specification
 
- **Last verified against repository:** 2026-07-23
+ **Last verified against repository:** 2026-07-27
 
  ## Training Configuration
 
@@ -13,7 +13,7 @@
  ## Start
 
  - **Status**: Complete
- - **Expected behavior**: Begins the training session. Resets all counters. Enters contract phase of round 1. Emits `training-ready` then `round-start` then enters first `stage-enter` (contract).
+ - **Expected behavior**: Begins the training session. Resets all counters. Enters ready phase (5s breathing preparation), then contract phase of round 1. Emits `training-ready` then `round-start` then enters first `stage-enter` (contract).
  - **Current implementation**: `start()` in `useKegelEngine` increments sessionId, resets counters, sets status to `running`, emits voice events, enters contract phase via `enterPhase('contract')`, and starts the tick interval.
  - **Edge cases**: `voice.unlock()` (preloads audio context) is called by the App's `handleStart` before calling engine `start()`.
  - **Acceptance**: Engine state status becomes 'running', phase becomes 'contract', currentRound becomes 1.
@@ -45,10 +45,10 @@
  ## Repetitions and Sets
 
  - **Status**: Complete
- - **Expected behavior**: Each repetition progresses contract → hold → relax. After the configured repetitions are complete, the user has completed one set. The repetition count is displayed in TimerDisplay and TrainingStatus.
+ - **Expected behavior**: Each repetition progresses contract → hold → relax. After the configured repetitions are complete, the user enters the feedback phase for completion review. The repetition count is displayed in TimerDisplay and TrainingStatus.
  - **Current implementation**: `advance()` cycles through phases. The internal round counter increments at the end of relax before re-entering contract. When `nextRound >= config.rounds`, the engine enters feedback and emits `completed`.
  - **Edge cases**: `rounds = 1` works: one full repetition then feedback. When the user finishes the result view, the engine returns to idle.
- - **Acceptance**: Repetitions count correctly; the UI never describes an individual repetition as a set. The last repetition triggers the one-set completion view.
+ - **Acceptance**: Repetitions count correctly; the UI consistently uses repetition count; completion view shows one-set summary. The last repetition triggers the one-set completion view.
 
  ## Contract
 
@@ -78,9 +78,9 @@
 
  - **Status**: Partial
  - **Expected behavior**: Users can see overall workout progress (progress bar) and per-stage progress (progress ring on MuscleSphere).
- - **Current implementation**: `ProgressBar` component shows linear progress with spring animation. Progress ring on MuscleSphere shows `stageProgress` as conic gradient (shown during running). `TimerDisplay` shows countdown seconds.
+ - **Current implementation**: `ProgressBar` component shows linear progress with spring animation. Progress ring on MuscleSphere shows `stageProgress` as SVG circle stroke-dasharray (shown during running). `TimerDisplay` shows countdown seconds.
  - **Edge cases**: When total duration is 0, progress bar shows 0%. When phase is idle, progress ring not shown.
- - **Missing**: No cross-boundary smooth animation on progress ring (conic-gradient restarts from 0 on each stage). This is an accepted limitation per ADR-004.
+ - **Missing**: SVG progress ring supports cross-boundary smooth animation; stage transitions no longer cause visual restart.
  - **Acceptance**: Progress tracking works.
 
  ## MuscleSphere
@@ -95,7 +95,7 @@
 
  - **Status**: Complete
  - **Expected behavior**: See [VOICE_ASSISTANT_SPEC.md](VOICE_ASSISTANT_SPEC.md).
- - **Current implementation**: 5 modes, zh-CN and en-US scripts, queue with priority, dedup, expiry, pause/stop clearing, haptic integration, localStorage persistence.
+ - **Current implementation**: 3 modes (off, sound-only, coach), zh-CN and en-US scripts, queue with priority, dedup, expiry, pause/stop clearing, haptic integration, localStorage persistence. Legacy 5-mode values migrate to coach automatically.
 
  ## Settings Persistence
 
@@ -119,7 +119,7 @@
  - **Expected behavior**: Device vibrates on contract (40ms), relax (25ms), and completion ([35,80,35]) when haptics enabled and device supports vibration.
  - **Current implementation**: `HapticAdapter.trigger()` checks `navigator.vibrate` availability and settings toggle before vibrating.
  - **Edge cases**: Vibration not available → silently ignored. Toggle off → no vibration.
- - **Missing**: No vibration on round-start (intentional — too much vibration would be disruptive). HapticAdapter only handles 3 event types currently.
+ - **Missing**: No vibration on round-start (intentional — too much vibration would be disruptive). HapticAdapter handles 3 event types currently (contract, relax, completion).
  - **Acceptance**: Haptics fire on supported devices when toggled on.
 
  ## Error and Unsupported-Platform Behavior
