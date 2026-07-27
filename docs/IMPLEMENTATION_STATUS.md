@@ -1,7 +1,6 @@
 # Implementation Status
 
 **Last verified against repository:** 2026-07-27
-**Last verified against repository:** 2026-07-27
 
 ## Status Legend
 
@@ -77,6 +76,6 @@
 ## Verification Gap
 
 `bun run test`, `bun run lint`, `bun run typecheck`, and `bun run build` passed
-on 2026-07-27 with 16 test files and 92 tests. The local sandbox could not
-download the Chromium archive, so the Playwright smoke test is pending its
-first GitHub Actions run. iOS and Android real-device QA remains outstanding.
+on 2026-07-27 with 16 test files and 92 tests. The Playwright smoke test
+has passed in GitHub Actions CI (chromium). iOS and Android real-device
+QA remains outstanding.

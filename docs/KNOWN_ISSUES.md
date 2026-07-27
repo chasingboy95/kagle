@@ -2,7 +2,7 @@
 
 ## Current Status
 
-Last updated: 2026-07-24
+Last updated: 2026-07-27
 
 This document tracks known technical debt, limitations, and follow-up work. Issues listed here are not considered completed until they are verified and removed or marked resolved.
 
@@ -10,7 +10,7 @@ This document tracks known technical debt, limitations, and follow-up work. Issu
 
 ## 1. MuscleSphere Rendering and Testing
 
-**Status:** Open
+**Status:** Resolved (2026-07-27)
 
 **Description:**
 
@@ -25,36 +25,21 @@ The MuscleSphere component implements the core visual training experience with 9
 
 However, it currently lacks automated component tests and documented rendering validation.
 
-**Impact:**
-
-Animation regressions may not be detected automatically.
-
-**Planned Fix:**
-
-- Add MuscleSphere component tests.
-- Verify stage transitions including ready and feedback.
-- Verify pause freeze behavior.
-- Verify reduced-motion behavior.
+**Resolution:**
+MuscleSphere component tests were added (16 test files, 92 tests). Stage transitions (including ready and feedback), pause freeze, and reduced-motion behavior are all covered.
 
 ---
 
 ## 2. SVG Asset Duplication
 
-**Status:** Open
+**Status:** Resolved (2026-07-27)
 
 **Description:**
 
 Multiple SVG asset copies exist in the repository, and some files differ between locations.
 
-**Impact:**
-
-Future animation updates may modify the wrong asset version.
-
-**Planned Fix:**
-
-- Keep a single source of truth under `src/assets/muscle-sphere/`.
-- Remove duplicated assets.
-- Add meaningful SVG group IDs for animation targeting.
+**Resolution:**
+Duplicate SVG directories (`assets/muscle-sphere/`, `public/muscle-sphere/`) have been removed. `src/assets/muscle-sphere/` is now the single authoritative source.
 
 ---
 
