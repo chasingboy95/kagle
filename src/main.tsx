@@ -3,6 +3,59 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App'
 
+function showUpdatePrompt(registration: ServiceWorkerRegistration) {
+  if (document.getElementById('pwa-update-prompt')) return
+
+  const prompt = document.createElement('div')
+  prompt.id = 'pwa-update-prompt'
+  prompt.setAttribute('role', 'status')
+  prompt.style.cssText = [
+    'position:fixed',
+    'left:16px',
+    'right:16px',
+    'bottom:calc(16px + env(safe-area-inset-bottom))',
+    'z-index:9999',
+    'display:flex',
+    'align-items:center',
+    'justify-content:space-between',
+    'gap:12px',
+    'max-width:520px',
+    'margin:0 auto',
+    'padding:12px 14px',
+    'border:1px solid rgba(148,163,184,.24)',
+    'border-radius:16px',
+    'background:rgba(15,23,42,.96)',
+    'color:#e2e8f0',
+    'box-shadow:0 16px 40px rgba(0,0,0,.35)',
+    'font:14px/1.4 system-ui,sans-serif',
+  ].join(';')
+
+  const text = document.createElement('span')
+  text.textContent = '新版本已准备好，可在训练结束后刷新。'
+
+  const button = document.createElement('button')
+  button.type = 'button'
+  button.textContent = '立即更新'
+  button.style.cssText = [
+    'flex:none',
+    'border:0',
+    'border-radius:999px',
+    'padding:8px 12px',
+    'background:#e2e8f0',
+    'color:#0f172a',
+    'font-weight:700',
+    'cursor:pointer',
+  ].join(';')
+  button.addEventListener('click', () => {
+    button.disabled = true
+    button.textContent = '更新中…'
+    registration.waiting?.postMessage({ type: 'SKIP_WAITING' })
+  })
+
+  prompt.append(text, button)
+  document.body.append(prompt)
+}
+
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     let reloading = false
@@ -15,7 +68,26 @@ if ('serviceWorker' in navigator) {
 
     navigator.serviceWorker
       .register(`${import.meta.env.BASE_URL}sw.js`)
-      .then((registration) => registration.update())
+      .then((registration) => {
+        if (registration.waiting && navigator.serviceWorker.controller) {
+          showUpdatePrompt(registration)
+        }
+
+        registration.addEventListener('updatefound', () => {
+          const worker = registration.installing
+          worker?.addEventListener('statechange', () => {
+            if (
+              worker.state === 'installed'
+              && navigator.serviceWorker.controller
+              && registration.waiting
+            ) {
+              showUpdatePrompt(registration)
+            }
+          })
+        })
+
+        return registration.update()
+      })
       .catch((error) => {
         console.warn('Service worker registration failed:', error)
       })
