@@ -151,7 +151,7 @@ docs: 更新 AGENTS.md 匹配实际架构
 
 ## Agent 注意事项
 - 单 Issue 单 Commit 单 Close，严禁批量合并提交。
-- 提交前在本地依次运行 `bun run typecheck`、`bun run test`、`bun run lint`、`bun run build`，全部通过后方可提交。
+- 提交前在本地依次运行 `bun run typecheck`、`bun run test:coverage`、`bun run lint`、`bun run build`，全部通过后方可提交。若环境支持还应运行 `bun run test:e2e`（本地沙箱受限时可依赖 CI 作为 E2E 门禁）。
 - 修复 GitHub Issue 前逐条确认所有验收条件（Acceptance Criteria）均已满足，不得跳过或部分实现。
 
 - 修改 `src/` 中的 `.tsx`/`.ts` 文件时注意保留模块导入顺序和已有组件结构。
