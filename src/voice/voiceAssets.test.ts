@@ -28,7 +28,7 @@ describe('resolveVoiceAsset', () => {
       .toBe('/kagle/audio/zh-CN/contraction-sustain.mp3');
     expect(resolve({ type: 'stage-enter', stage: 'relax' }))
       .toBe('/kagle/audio/zh-CN/release-start.mp3');
-    expect(resolve({ type: 'completed' })).toBe('/kagle/audio/zh-CN/complete.mp3');
+    expect(resolve({ type: 'completed' })).toBeNull();
   });
 
   it('does not route countdowns to legacy recordings', () => {

@@ -19,14 +19,12 @@ export interface UseVoiceAssistantReturn {
   supported: boolean;
   emit: (event: VoiceEvent, context: VoiceEventContext) => void;
   updateSettings: (updates: Partial<VoiceSettings>) => void;
-  preview: () => Promise<void>;
   unlock: () => Promise<void>;
 }
 
 export function useVoiceAssistant(): UseVoiceAssistantReturn {
   const [settings, setSettings] = useState(loadVoiceSettings);
   const controllerRef = useRef<VoiceController | null>(null);
-  const previewSequence = useRef(0);
 
   if (!controllerRef.current) {
     controllerRef.current = new VoiceController(
@@ -61,31 +59,11 @@ export function useVoiceAssistant(): UseVoiceAssistantReturn {
     await controllerRef.current?.preload();
   }, []);
 
-  const preview = useCallback(async () => {
-    const controller = controllerRef.current;
-    if (!controller) return;
-    await controller.preload();
-    previewSequence.current += 1;
-    const now = Date.now();
-    controller.enqueue(
-      { type: 'training-ready' },
-      {
-        sessionId: -1,
-        round: 0,
-        now,
-        stageEndsAt: now + 10_000,
-        sequence: previewSequence.current,
-      },
-    );
-    await controller.flush(now);
-  }, []);
-
   return {
     settings,
     supported: controllerRef.current.isSupported(),
     emit,
     updateSettings,
-    preview,
     unlock,
   };
 }

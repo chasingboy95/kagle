@@ -40,7 +40,7 @@ describe('calcDisplayPhaseTiming', () => {
     expect(feedback.key).toBe('feedback');
     expect(feedback.durationMs).toBe(FEEDBACK_DURATION_MS);
     expect(feedback.remainingMs).toBe(4_000);
-    expect(feedback.progress).toBe(0);
+    expect(feedback.progress).toBeCloseTo(1 / 3);
   });
 });
 

@@ -160,7 +160,6 @@ export default function App() {
               settings={voice.settings}
               supported={voice.supported}
               onChange={voice.updateSettings}
-              onPreview={() => { void voice.preview(); }}
             />
 
             <ControlButtons
