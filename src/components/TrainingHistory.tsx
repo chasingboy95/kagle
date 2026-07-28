@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { TrainingRecord } from '../types/training';
 import type { HistoryStats } from '../hooks/useTrainingHistory';
+import TrainingCalendar from './TrainingCalendar';
 import TrainingRecordDetail from './TrainingRecordDetail';
 
 interface TrainingHistoryProps {
@@ -31,6 +32,7 @@ export default function TrainingHistory({
   onClose,
 }: TrainingHistoryProps) {
   const [selectedRecordId, setSelectedRecordId] = useState<string | null>(null);
+  const [view, setView] = useState<'list' | 'calendar'>('list');
   const selectedRecord = records.find((record) => record.id === selectedRecordId);
 
   if (selectedRecord) {
@@ -45,6 +47,29 @@ export default function TrainingHistory({
 
   return (
     <div className="w-full max-w-sm mx-auto space-y-4">
+      <div className="grid grid-cols-2 rounded-xl bg-black/20 p-1">
+        <button
+          type="button"
+          onClick={() => setView('list')}
+          aria-pressed={view === 'list'}
+          className={`rounded-lg py-2 text-sm ${view === 'list' ? 'bg-white/10 text-white' : 'text-slate-500'}`}
+        >
+          列表
+        </button>
+        <button
+          type="button"
+          onClick={() => setView('calendar')}
+          aria-pressed={view === 'calendar'}
+          className={`rounded-lg py-2 text-sm ${view === 'calendar' ? 'bg-white/10 text-white' : 'text-slate-500'}`}
+        >
+          日历
+        </button>
+      </div>
+
+      {view === 'calendar' ? (
+        <TrainingCalendar records={records} onOpenRecord={setSelectedRecordId} />
+      ) : (
+        <>
       {/* Stats row */}
       <div className="grid grid-cols-4 gap-2 text-center">
         <div className="rounded-lg bg-white/5 px-2 py-3">
@@ -99,6 +124,8 @@ export default function TrainingHistory({
             </button>
           ))}
         </div>
+      )}
+        </>
       )}
 
       {/* Actions */}

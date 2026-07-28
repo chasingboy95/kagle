@@ -60,4 +60,24 @@ describe('TrainingHistory detail navigation', () => {
     expect(onRemoveRecord).toHaveBeenCalledWith('record-1');
     expect(screen.getByRole('button', { name: /训练记录详情/ })).toBeInTheDocument();
   });
+
+  it('opens a calendar date record in the same detail flow', () => {
+    render(
+      <TrainingHistory
+        records={[record]}
+        stats={stats}
+        onRemoveRecord={() => {}}
+        onClearAll={() => {}}
+        onClose={() => {}}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: '日历' }));
+    const dateButton = screen.getByRole('button', { name: /1次完成/ });
+    fireEvent.click(dateButton);
+    fireEvent.click(screen.getByRole('button', { name: /已完成记录详情/ }));
+    expect(screen.getByRole('heading', { name: '训练记录详情' })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: '返回记录' }));
+    expect(screen.getByRole('heading', { name: /年.*月/ })).toBeInTheDocument();
+  });
 });
