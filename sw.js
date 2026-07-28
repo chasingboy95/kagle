@@ -2,7 +2,7 @@
 // - CACHE_NAME 以预缓存资源内容生成版本摘要，资源哈希变化时随之变化，
 //   旧缓存在 activate 阶段被安全清理。
 // - PRECACHE_ASSETS 为本次构建生成的哈希 JS/CSS/SVG，无需手工维护文件名。
-const CACHE_NAME = 'kagle-pwa-v4-d400031f';
+const CACHE_NAME = 'kagle-pwa-v4-7a0b6738';
 
 const APP_SHELL = [
   '/kagle/',
@@ -15,7 +15,7 @@ const APP_SHELL = [
 ];
 
 // 构建期注入的哈希资源。
-const PRECACHE_ASSETS = ["/kagle/assets/ConfigDrawer-DKB4YW8f.js","/kagle/assets/MoreMenu-C0ZFkrWL.js","/kagle/assets/Onboarding-CRloGZha.js","/kagle/assets/ProgressiveSuggestion-CEYnm6Ad.js","/kagle/assets/SessionRecovery-D7LCwODY.js","/kagle/assets/TrainingFeedback-BB28egMk.js","/kagle/assets/TrainingHistory-BEJOnpru.js","/kagle/assets/VoiceDrawer-DJ63UOMA.js","/kagle/assets/fascia-DCFoetpq.svg","/kagle/assets/fibers-CuhFGZmi.svg","/kagle/assets/index-CVqF6o0M.css","/kagle/assets/index-CzQ_VIBk.js","/kagle/assets/jsx-runtime-CZcjcDnw.js","/kagle/assets/react-9A9D8-nk.js","/kagle/assets/timingWorker-DU-bSc-e.js","/kagle/assets/useModalFocus-CaFsfHZc.js"];
+const PRECACHE_ASSETS = ["/kagle/assets/ConfigDrawer-PjUJRYmJ.js","/kagle/assets/MoreMenu-DgCOUsb5.js","/kagle/assets/Onboarding-xBG5ovKt.js","/kagle/assets/ProgressiveSuggestion-CEYnm6Ad.js","/kagle/assets/SessionRecovery-IV3bcCVA.js","/kagle/assets/TrainingFeedback-n971GTel.js","/kagle/assets/TrainingHistory-CuOtG3qV.js","/kagle/assets/VoiceDrawer-DJ63UOMA.js","/kagle/assets/fascia-DCFoetpq.svg","/kagle/assets/fibers-CuhFGZmi.svg","/kagle/assets/index-CN3Z76s2.css","/kagle/assets/index-DYIIMeTf.js","/kagle/assets/jsx-runtime-CZcjcDnw.js","/kagle/assets/react-9A9D8-nk.js","/kagle/assets/timingWorker-DU-bSc-e.js","/kagle/assets/useModalFocus-CaFsfHZc.js"];
 
 const VOICE_FILES = [
   'ready.mp3',
