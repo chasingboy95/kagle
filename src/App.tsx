@@ -10,6 +10,7 @@ import VoiceSettingsPanel from './components/VoiceSettingsPanel';
 import { useKegelEngine } from './hooks/useKegelEngine';
 import { useVoiceAssistant } from './hooks/useVoiceAssistant';
 import { useTrainingHistory, buildTrainingRecord } from './hooks/useTrainingHistory';
+import { useWeeklyGoal } from './hooks/useWeeklyGoal';
 import TrainingHistory from './components/TrainingHistory';
 import ProgressiveSuggestion from './components/ProgressiveSuggestion';
 import Onboarding from './components/Onboarding';
@@ -25,6 +26,7 @@ export default function App() {
   const reducedMotion = useReducedMotion();
   const voice = useVoiceAssistant();
   const history = useTrainingHistory();
+  const weeklyGoal = useWeeklyGoal(history.records);
   const [showHistory, setShowHistory] = useState(false);
   const [suggestion, setSuggestion] = useState<SuggestionType | null>(null);
   const [progState, setProgState] = useState<ProgressiveSuggestionState>(() => defaultStorage.read(PROGRESSIVE_SCHEMA));
@@ -279,6 +281,10 @@ export default function App() {
             onRemoveRecord={history.removeRecord}
             onClearAll={history.clearAll}
             onClose={() => setShowHistory(false)}
+            weeklyGoal={weeklyGoal.settings}
+            weeklyProgress={weeklyGoal.progress}
+            onSetWeeklyTarget={weeklyGoal.setTargetDays}
+            onDisableWeeklyGoal={weeklyGoal.disable}
           />
         )}
       </div>

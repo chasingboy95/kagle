@@ -24,6 +24,18 @@ const stats: HistoryStats = {
   totalDurationMs: 90_000,
 };
 
+const weeklyProps = {
+  weeklyGoal: { enabled: false, targetDays: 3 },
+  weeklyProgress: {
+    completedDays: 1,
+    remainingDays: 2,
+    weekStartKey: '2026-07-27',
+    weekEndKey: '2026-08-02',
+  },
+  onSetWeeklyTarget: () => {},
+  onDisableWeeklyGoal: () => {},
+};
+
 describe('TrainingHistory detail navigation', () => {
   it('opens one record and returns to the history list', () => {
     render(
@@ -33,6 +45,7 @@ describe('TrainingHistory detail navigation', () => {
         onRemoveRecord={() => {}}
         onClearAll={() => {}}
         onClose={() => {}}
+        {...weeklyProps}
       />,
     );
 
@@ -51,6 +64,7 @@ describe('TrainingHistory detail navigation', () => {
         onRemoveRecord={onRemoveRecord}
         onClearAll={() => {}}
         onClose={() => {}}
+        {...weeklyProps}
       />,
     );
 
@@ -69,6 +83,7 @@ describe('TrainingHistory detail navigation', () => {
         onRemoveRecord={() => {}}
         onClearAll={() => {}}
         onClose={() => {}}
+        {...weeklyProps}
       />,
     );
 
