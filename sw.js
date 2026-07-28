@@ -2,7 +2,7 @@
 // - CACHE_NAME 以预缓存资源内容生成版本摘要，资源哈希变化时随之变化，
 //   旧缓存在 activate 阶段被安全清理。
 // - PRECACHE_ASSETS 为本次构建生成的哈希 JS/CSS/SVG，无需手工维护文件名。
-const CACHE_NAME = 'kagle-pwa-v4-da9d05f9';
+const CACHE_NAME = 'kagle-pwa-v4-72c572fa';
 
 const APP_SHELL = [
   '/kagle/',
@@ -15,7 +15,7 @@ const APP_SHELL = [
 ];
 
 // 构建期注入的哈希资源。
-const PRECACHE_ASSETS = ["/kagle/assets/fascia-DCFoetpq.svg","/kagle/assets/fibers-CuhFGZmi.svg","/kagle/assets/index-CT7buAld.js","/kagle/assets/index-CjQ2PYcS.css","/kagle/assets/timingWorker-DU-bSc-e.js"];
+const PRECACHE_ASSETS = ["/kagle/assets/fascia-DCFoetpq.svg","/kagle/assets/fibers-CuhFGZmi.svg","/kagle/assets/index-CjQ2PYcS.css","/kagle/assets/index-D1YsTyTO.js","/kagle/assets/timingWorker-DU-bSc-e.js"];
 
 const VOICE_FILES = [
   'ready.mp3',

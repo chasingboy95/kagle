@@ -1,11 +1,11 @@
 {
-  "cacheName": "kagle-pwa-v4-da9d05f9",
+  "cacheName": "kagle-pwa-v4-72c572fa",
   "generatedAt": "build-time",
   "assets": [
     "/kagle/assets/fascia-DCFoetpq.svg",
     "/kagle/assets/fibers-CuhFGZmi.svg",
-    "/kagle/assets/index-CT7buAld.js",
     "/kagle/assets/index-CjQ2PYcS.css",
+    "/kagle/assets/index-D1YsTyTO.js",
     "/kagle/assets/timingWorker-DU-bSc-e.js"
   ]
 }
