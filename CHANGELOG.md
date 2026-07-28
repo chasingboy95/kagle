@@ -2,6 +2,7 @@
 ## [Unreleased]
 
 ### Added
+- Optional pre-training audio self-check showing the active mode, countdown, and volume, with a short preview, audible confirmation, explicit silent choice, and non-technical fallback guidance (#39).
 
 ### Fixed
 - Progressive suggestions now evaluate the exact history returned by the same write that saves a completed session, so the third matching completion triggers immediately without React state timing lag (#24).
