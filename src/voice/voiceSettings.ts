@@ -91,11 +91,13 @@ export function loadVoiceSettings(
 export function saveVoiceSettings(
   settings: VoiceSettings,
   storage?: Pick<Storage, 'setItem'>,
-): void {
+): boolean {
   try {
     const target = storage ?? globalThis.localStorage;
     target?.setItem(VOICE_SETTINGS_KEY, JSON.stringify(validateVoiceSettings(settings)));
+    return true;
   } catch {
     // localStorage may be blocked or full.
+    return false;
   }
 }

@@ -17,6 +17,8 @@ import {
 export interface UseVoiceAssistantReturn {
   settings: VoiceSettings;
   supported: boolean;
+  storageError: string | null;
+  dismissStorageError: () => void;
   emit: (event: VoiceEvent, context: VoiceEventContext) => void;
   updateSettings: (updates: Partial<VoiceSettings>) => void;
   unlock: () => Promise<void>;
@@ -25,6 +27,7 @@ export interface UseVoiceAssistantReturn {
 
 export function useVoiceAssistant(): UseVoiceAssistantReturn {
   const [settings, setSettings] = useState(loadVoiceSettings);
+  const [storageError, setStorageError] = useState<string | null>(null);
   const controllerRef = useRef<VoiceController | null>(null);
 
   if (!controllerRef.current) {
@@ -40,7 +43,8 @@ export function useVoiceAssistant(): UseVoiceAssistantReturn {
   useEffect(() => {
     const controller = controllerRef.current;
     controller?.updateSettings(settings);
-    saveVoiceSettings(settings);
+    const ok = saveVoiceSettings(settings);
+    setStorageError(ok ? null : '语音设置保存失败，下次打开可能需要重新设置。');
   }, [settings]);
 
   useEffect(() => () => controllerRef.current?.stop(), []);
@@ -67,6 +71,8 @@ export function useVoiceAssistant(): UseVoiceAssistantReturn {
   return {
     settings,
     supported: controllerRef.current.isSupported(),
+    storageError,
+    dismissStorageError: () => setStorageError(null),
     emit,
     updateSettings,
     unlock,
