@@ -1,6 +1,11 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { createStorageAdapter } from './storage';
-import { ONBOARDING_SCHEMA, PROGRESSIVE_SCHEMA } from './appStorageSchemas';
+import {
+  DEFAULT_WEEKLY_GOAL,
+  ONBOARDING_SCHEMA,
+  PROGRESSIVE_SCHEMA,
+  WEEKLY_GOAL_SCHEMA,
+} from './appStorageSchemas';
 import { DEFAULT_PROGRESSIVE_STATE } from './progressiveTraining';
 
 describe('app storage schemas', () => {
@@ -52,5 +57,32 @@ describe('app storage schemas', () => {
     localStorage.setItem('kegel.onboarding.v1', JSON.stringify(false));
     expect(createStorageAdapter().read(ONBOARDING_SCHEMA)).toBe(false);
     expect(ONBOARDING_SCHEMA.validate('false')).toBe(true);
+  });
+
+  it('validates weekly targets and keeps the versioned default', () => {
+    expect(WEEKLY_GOAL_SCHEMA).toMatchObject({
+      category: 'weekly-goal',
+      version: 2,
+      defaultValue: DEFAULT_WEEKLY_GOAL,
+    });
+    expect(WEEKLY_GOAL_SCHEMA.validate({ enabled: true, targetDays: 9 })).toEqual({
+      enabled: true,
+      targetDays: 7,
+    });
+    expect(WEEKLY_GOAL_SCHEMA.validate({ enabled: 'yes', targetDays: 2.5 })).toEqual(
+      DEFAULT_WEEKLY_GOAL,
+    );
+  });
+
+  it('migrates a numeric v1 weekly target to the current settings object', () => {
+    localStorage.setItem('kegel.weekly-goal.v1', JSON.stringify(4));
+    expect(createStorageAdapter().read(WEEKLY_GOAL_SCHEMA)).toEqual({
+      enabled: true,
+      targetDays: 4,
+    });
+    expect(localStorage.getItem('kegel.weekly-goal.v1')).toBeNull();
+    expect(localStorage.getItem('kegel.weekly-goal.v2')).toBe(
+      JSON.stringify({ enabled: true, targetDays: 4 }),
+    );
   });
 });

@@ -2,6 +2,7 @@
 ## [Unreleased]
 
 ### Added
+- Optional 1–7 day weekly training goal with Monday–Sunday, timezone-aware distinct completed-day progress, adjustable/disable controls, calm remaining-day copy, and versioned storage migration (#36).
 - Timezone-aware monthly training calendar with completed/stopped day markers, per-day records, record-detail navigation, and objective monthly completion/day/duration/streak statistics (#33).
 - Single-record training detail view with start/end time, rhythm, repetitions, active duration, completion state, preset/custom identification, back navigation, and confirmed deletion (#35).
 - Optional pre-training audio self-check showing the active mode, countdown, and volume, with a short preview, audible confirmation, explicit silent choice, and non-technical fallback guidance (#39).
