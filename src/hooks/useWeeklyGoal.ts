@@ -6,12 +6,14 @@ import {
   type WeeklyGoalSettings,
 } from '../utils/appStorageSchemas';
 import { defaultStorage } from '../utils/storage';
+import { useStorageWrite } from './useStorageWrite';
 import { weeklyGoalProgress } from '../utils/weeklyGoal';
 
 export function useWeeklyGoal(
   records: TrainingRecord[],
   timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone,
 ) {
+  const { storageError, dismissStorageError, write } = useStorageWrite();
   const [settings, setSettings] = useState<WeeklyGoalSettings>(
     () => defaultStorage.read(WEEKLY_GOAL_SCHEMA),
   );
@@ -23,10 +25,12 @@ export function useWeeklyGoal(
   const save = (next: WeeklyGoalSettings) => {
     const validated = WEEKLY_GOAL_SCHEMA.validate(next);
     setSettings(validated);
-    defaultStorage.write(WEEKLY_GOAL_SCHEMA, validated);
+    write(WEEKLY_GOAL_SCHEMA, validated);
   };
 
   return {
+    storageError,
+    dismissStorageError,
     settings,
     progress,
     setTargetDays: (targetDays: number) => save({ enabled: true, targetDays }),
