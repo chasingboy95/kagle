@@ -5,12 +5,13 @@ import type { VoiceSettings } from '../voice/types';
 interface Props {
   settings: VoiceSettings;
   supported: boolean;
+  hapticsSupported: boolean;
   onChange: (settings: VoiceSettings) => void;
   onPreview: () => void;
   onClose: () => void;
 }
 
-export default function VoiceDrawer({ settings, supported, onChange, onPreview, onClose }: Props) {
+export default function VoiceDrawer({ settings, supported, hapticsSupported, onChange, onPreview, onClose }: Props) {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -46,6 +47,7 @@ export default function VoiceDrawer({ settings, supported, onChange, onPreview, 
         <VoiceSettingsPanel
           settings={settings}
           supported={supported}
+          hapticsSupported={hapticsSupported}
           onChange={(updates) => onChange({ ...settings, ...updates })}
           onPreview={() => { onPreview(); return Promise.resolve(true); }}
         />

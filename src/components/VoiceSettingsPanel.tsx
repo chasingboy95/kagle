@@ -4,6 +4,7 @@ import type { VoiceMode, VoiceSettings } from '../voice/types';
 interface VoiceSettingsPanelProps {
   settings: VoiceSettings;
   supported: boolean;
+  hapticsSupported: boolean;
   onChange: (updates: Partial<VoiceSettings>) => void;
   onPreview: () => Promise<boolean>;
 }
@@ -54,6 +55,7 @@ const countdownLabels: Record<VoiceSettings['countdownFrom'], string> = {
 export default function VoiceSettingsPanel({
   settings,
   supported,
+  hapticsSupported,
   onChange,
   onPreview,
 }: VoiceSettingsPanelProps) {
@@ -178,6 +180,11 @@ export default function VoiceSettingsPanel({
 
             <Toggle id="voice-rounds" label="播报训练进度" description="每次动作开始时播报当前次数" checked={settings.announceRound} disabled={disabled || !coachMode} onChange={announceRound => onChange({ announceRound })} />
             <Toggle id="voice-haptics" label="震动反馈" description="阶段切换时使用轻柔振动" checked={settings.hapticsEnabled} disabled={disabled} onChange={hapticsEnabled => onChange({ hapticsEnabled })} />
+            {!hapticsSupported && (
+              <p className="mt-1 text-[11px] leading-4 text-amber-300/70">
+                当前设备不支持震动反馈，切换时将使用短促提示音替代。
+              </p>
+            )}
           </div>
         </details>
       </div>

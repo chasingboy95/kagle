@@ -5,17 +5,82 @@ interface HapticNavigator {
 }
 
 export class HapticAdapter {
-  constructor(private readonly target: HapticNavigator = globalThis.navigator as HapticNavigator) {}
+  /** Very short "tap" tone frequencies for each event type (audio fallback). */
+  private static readonly tone: Record<string, readonly number[]> = {
+    contract: [880],
+    relax: [660],
+    completed: [660, 880, 1100],
+  };
+
+  private audioCtx: AudioContext | null = null;
+
+  constructor(
+    private readonly target: HapticNavigator = globalThis.navigator as HapticNavigator,
+    scope?: { AudioContext?: typeof AudioContext; webkitAudioContext?: typeof AudioContext },
+  ) {
+    const s: { AudioContext?: typeof AudioContext; webkitAudioContext?: typeof AudioContext }
+      = scope ?? (globalThis as typeof s);
+    const Ctor = s.AudioContext ?? s.webkitAudioContext;
+    if (Ctor) try { this.audioCtx = new Ctor(); } catch { /* audio not available */ }
+  }
+
+  /** Check whether real device vibration is available. */
+  isSupported(): boolean {
+    return typeof this.target?.vibrate === 'function';
+  }
 
   trigger(event: VoiceEvent, enabled: boolean): void {
-    if (!enabled || typeof this.target?.vibrate !== 'function') return;
+    if (!enabled) return;
 
-    let pattern: VibratePattern | null = null;
-    if (event.type === 'stage-enter' && event.stage === 'contract') pattern = 40;
-    if (event.type === 'stage-enter' && event.stage === 'relax') pattern = 25;
-    if (event.type === 'completed') pattern = [35, 80, 35];
-    if (pattern === null) return;
+    // Real vibration — works on Android, not on iOS
+    if (this.isSupported()) {
+      const pattern = this.vibratePattern(event);
+      if (pattern !== null) {
+        try { this.target.vibrate!(pattern); return; } catch { /* optional */ }
+      }
+    }
 
-    try { this.target.vibrate(pattern); } catch { /* optional capability */ }
+    // iOS fallback: very short audio "tap"
+    this.playAudioFallback(event);
+  }
+
+  private vibratePattern(event: VoiceEvent): VibratePattern | null {
+    if (event.type === 'stage-enter' && event.stage === 'contract') return 40;
+    if (event.type === 'stage-enter' && event.stage === 'relax') return 25;
+    if (event.type === 'completed') return [35, 80, 35];
+    return null;
+  }
+
+  private playAudioFallback(event: VoiceEvent): void {
+    const freqs = ((): readonly number[] | null => {
+      if (event.type === 'stage-enter') {
+        const f = HapticAdapter.tone[event.stage];
+        if (f !== undefined) return f;
+      }
+      if (event.type === 'completed') return HapticAdapter.tone.completed;
+      return null;
+    })();
+    if (!freqs || !this.audioCtx) return;
+
+    try {
+      if (this.audioCtx.state === 'suspended') void this.audioCtx.resume();
+      if (this.audioCtx.state !== 'running') return;
+
+      const now = this.audioCtx.currentTime;
+      for (let i = 0; i < freqs.length; i++) {
+        const start = now + i * 0.065;
+        const end = start + 0.045;
+        const osc = this.audioCtx.createOscillator();
+        const gain = this.audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freqs[i], start);
+        gain.gain.setValueAtTime(0.0001, start);
+        gain.gain.exponentialRampToValueAtTime(0.06, start + 0.008);
+        gain.gain.exponentialRampToValueAtTime(0.0001, end);
+        osc.connect(gain).connect(this.audioCtx.destination);
+        osc.start(start);
+        osc.stop(end);
+      }
+    } catch { /* audio fallback is optional */ }
   }
 }

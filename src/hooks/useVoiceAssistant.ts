@@ -17,6 +17,7 @@ import {
 export interface UseVoiceAssistantReturn {
   settings: VoiceSettings;
   supported: boolean;
+  hapticsSupported: boolean;
   storageError: string | null;
   dismissStorageError: () => void;
   emit: (event: VoiceEvent, context: VoiceEventContext) => void;
@@ -29,13 +30,16 @@ export function useVoiceAssistant(): UseVoiceAssistantReturn {
   const [settings, setSettings] = useState(loadVoiceSettings);
   const [storageError, setStorageError] = useState<string | null>(null);
   const controllerRef = useRef<VoiceController | null>(null);
+  const hapticRef = useRef<HapticAdapter | null>(null);
 
   if (!controllerRef.current) {
+    const haptics = new HapticAdapter();
+    hapticRef.current = haptics;
     controllerRef.current = new VoiceController(
       new SpeechSynthesisAdapter(),
       new AudioFileAdapter(),
       new PreRecordedAudioAdapter(),
-      new HapticAdapter(),
+      haptics,
       settings,
     );
   }
@@ -71,6 +75,7 @@ export function useVoiceAssistant(): UseVoiceAssistantReturn {
   return {
     settings,
     supported: controllerRef.current.isSupported(),
+    hapticsSupported: hapticRef.current?.isSupported() ?? false,
     storageError,
     dismissStorageError: () => setStorageError(null),
     emit,
