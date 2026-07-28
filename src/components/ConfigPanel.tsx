@@ -2,11 +2,17 @@ import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { CONFIG_RANGE, TRAINING_PRESETS, resolvePreset } from '../types/training';
 import type { TrainingConfig } from '../types/training';
+import type { SavedTrainingConfig } from '../utils/appStorageSchemas';
+import SavedConfigs from './SavedConfigs';
 
 interface Props {
   config: TrainingConfig;
   disabled: boolean;
   onChange: (updates: Partial<TrainingConfig>) => void;
+  savedConfigs?: SavedTrainingConfig[];
+  onSaveConfig?: (name: string, config: TrainingConfig) => boolean;
+  onRenameConfig?: (id: string, name: string) => boolean;
+  onDeleteConfig?: (id: string) => void;
 }
 
 interface StepperProps {
@@ -61,7 +67,15 @@ function Stepper({ label, value, min, max, step, unit, disabled, onChange }: Ste
   );
 }
 
-export default function ConfigPanel({ config, disabled, onChange }: Props) {
+export default function ConfigPanel({
+  config,
+  disabled,
+  onChange,
+  savedConfigs = [],
+  onSaveConfig = () => false,
+  onRenameConfig = () => false,
+  onDeleteConfig = () => undefined,
+}: Props) {
   const [presetId, setPresetId] = useState<string | null>(
     () => resolvePreset(config)?.id ?? null,
   );
@@ -84,6 +98,11 @@ export default function ConfigPanel({ config, disabled, onChange }: Props) {
   const handleParamChange = (field: keyof TrainingConfig) => (value: number) => {
     setPresetId(null);
     onChange({ [field]: value });
+  };
+
+  const handleSavedConfig = (savedConfig: TrainingConfig) => {
+    setPresetId(resolvePreset(savedConfig)?.id ?? null);
+    onChange({ ...savedConfig });
   };
 
   const activePreset = presetId ? TRAINING_PRESETS.find((p) => p.id === presetId) : null;
@@ -179,6 +198,16 @@ export default function ConfigPanel({ config, disabled, onChange }: Props) {
         <p className="pt-1 text-right text-[10px] leading-4 text-slate-600">
           完成以上次数计为 1 组
         </p>
+        <div className="h-px bg-white/[0.04]" />
+        <SavedConfigs
+          config={config}
+          disabled={disabled}
+          items={savedConfigs}
+          onApply={handleSavedConfig}
+          onSave={onSaveConfig}
+          onRename={onRenameConfig}
+          onDelete={onDeleteConfig}
+        />
       </div>
     </details>
   );

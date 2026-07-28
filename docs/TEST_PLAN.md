@@ -14,6 +14,7 @@
  - Training calendar: explicit timezone and cross-month boundaries, stopped/completed display rules, monthly counts/days/duration/streak, date selection, month navigation, and shared detail navigation.
  - Weekly goal: Monday–Sunday boundaries, timezone assignment, same-day deduplication, stopped exclusion, target validation, legacy migration, persistence, adjustment, disable, and factual copy.
  - Completion progress: latest-record inclusion, weekly count/duration and current increment, current streak, optional target remainder, disabled target, objective copy, and safe session-only fallback.
+ - Saved configurations: exact rhythm summary, save/apply/rename/delete controls, five-item limit, persistence, strict range/integer validation, duplicate/corrupt isolation, and v1 flat-shape migration.
  - Progressive suggestion: input-order preservation, second/third completion timing, stopped-session isolation, synchronous post-write evaluation, plus existing eligibility, priority, and cooldown rules.
  - Accessibility: modal priority, initial/restored focus, focus traps, Tab/Escape rules, ARIA names/descriptions, reduced motion, live regions, and Playwright axe serious/critical violations.
  - Voice preflight: current-setting summary, preview success/failure, audible confirmation, silent choice, and controller handling for silent or unsupported playback.

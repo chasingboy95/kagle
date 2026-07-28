@@ -2,6 +2,7 @@
 ## [Unreleased]
 
 ### Added
+- Up to five named training-configuration favorites with one-click apply, rename/delete controls, strict versioned persistence, and legacy migration (#37).
 - Completion-page weekly progress computed from the same post-write history as the just-finished session: weekly completions/duration, current-session increase, streak, and optional goal remainder, with safe fallback (#40).
 - Optional 1–7 day weekly training goal with Monday–Sunday, timezone-aware distinct completed-day progress, adjustable/disable controls, calm remaining-day copy, and versioned storage migration (#36).
 - Timezone-aware monthly training calendar with completed/stopped day markers, per-day records, record-detail navigation, and objective monthly completion/day/duration/streak statistics (#33).
