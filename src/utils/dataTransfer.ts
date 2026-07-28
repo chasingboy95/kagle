@@ -156,6 +156,7 @@ function hasExactHistory(value: unknown): value is TrainingRecord[] {
     ));
 }
 
+
 function validateExport(value: unknown): AppDataExport {
   if (!isPlainObject(value)) throw new Error('文件不是有效的数据备份。');
   if (value.schemaVersion !== DATA_EXPORT_SCHEMA_VERSION) {

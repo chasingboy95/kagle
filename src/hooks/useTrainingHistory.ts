@@ -27,6 +27,7 @@ export interface UseTrainingHistoryReturn {
   stats: HistoryStats;
   addRecord: (record: TrainingRecord) => TrainingRecord[];
   removeRecord: (id: string) => void;
+  updateRecord: (id: string, updates: Partial<Pick<TrainingRecord, 'comfortFeedback'>>) => void;
   clearAll: () => void;
   storageError: string | null;
   dismissStorageError: () => void;
@@ -144,6 +145,16 @@ export function useTrainingHistory(): UseTrainingHistoryReturn {
     [persist],
   );
 
+  const updateRecord = useCallback(
+    (id: string, updates: Partial<Pick<TrainingRecord, 'comfortFeedback'>>) => {
+      const next = recordsRef.current.map((record) =>
+        record.id === id ? { ...record, ...updates } : record,
+      );
+      persist(next);
+    },
+    [persist],
+  );
+
   const clearAll = useCallback(() => {
     try {
       const backup = createDataExport();
@@ -163,6 +174,7 @@ export function useTrainingHistory(): UseTrainingHistoryReturn {
     stats,
     addRecord,
     removeRecord,
+    updateRecord,
     clearAll,
     storageError,
     dismissStorageError,

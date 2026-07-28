@@ -149,6 +149,15 @@ export default function App() {
     restart();
   };
 
+  const handleComfortFeedback = (feedback: import('./types/training').ComfortFeedback) => {
+    // Update the most recent record with comfort feedback
+    const records = history.records;
+    if (records.length > 0) {
+      const latest = records[0];
+      history.updateRecord(latest.id, { comfortFeedback: feedback });
+    }
+  };
+
   return (
     <>
       {showOnboardingModal && <Onboarding onComplete={handleOnboardingComplete} />}
@@ -309,6 +318,7 @@ export default function App() {
                     onRestart={handleRestart}
                     onDone={finish}
                     onViewHistory={() => { finish(); setShowHistory(true); }}
+                    onComfortFeedback={handleComfortFeedback}
                   />
                 </motion.div>
               </div>

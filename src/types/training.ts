@@ -127,6 +127,8 @@ export const TRAINING_PRESETS: TrainingPreset[] = [
 export type CompletionStatus = 'completed' | 'stopped';
 
 /** A single training session record. */
+export type ComfortFeedback = 'comfortable' | 'slightly_hard' | 'painful';
+
 export interface TrainingRecord {
   /** Unique ID, e.g. timestamp-based. */
   id: string;
@@ -148,6 +150,8 @@ export interface TrainingRecord {
   status: CompletionStatus;
   /** Actual elapsed training time in ms (excludes pause duration). */
   actualDurationMs: number;
+  /** Optional post-training comfort feedback. */
+  comfortFeedback?: ComfortFeedback;
 }
 
 /** Keep the most recent sessions within a predictable localStorage budget. */

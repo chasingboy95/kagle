@@ -1,6 +1,8 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { completionSummary, formatDuration } from '../utils/trainingFeedback';
 import type { CompletionProgress } from '../utils/completionProgress';
+import type { ComfortFeedback } from '../types/training';
 
 interface TrainingFeedbackProps {
   completedRepetitions: number;
@@ -9,7 +11,51 @@ interface TrainingFeedbackProps {
   onRestart?: () => void;
   onDone?: () => void;
   onViewHistory?: () => void;
+  onComfortFeedback?: (feedback: ComfortFeedback) => void;
   progress?: CompletionProgress | null;
+}
+
+function FeedbackSelector({ onComfortFeedback }: { onComfortFeedback?: (feedback: ComfortFeedback) => void }) {
+  const [selected, setSelected] = useState<ComfortFeedback | null>(null);
+
+  if (!onComfortFeedback) return null;
+
+  const options: { value: ComfortFeedback; label: string; icon: string; color: string }[] = [
+    { value: 'comfortable', label: '舒适', icon: '😊', color: 'border-emerald-500/30 text-emerald-300' },
+    { value: 'slightly_hard', label: '有点吃力', icon: '😐', color: 'border-amber-500/30 text-amber-300' },
+    { value: 'painful', label: '疼痛或不适', icon: '😣', color: 'border-red-500/30 text-red-300' },
+  ];
+
+  return (
+    <div className="mt-4 rounded-2xl bg-white/[0.04] p-4">
+      <p className="text-xs font-medium text-slate-400 mb-3">本次训练感受如何？</p>
+      <div className="flex gap-2">
+        {options.map((opt) => (
+          <button
+            key={opt.value}
+            type="button"
+            onClick={() => {
+              setSelected(opt.value);
+              onComfortFeedback(opt.value);
+            }}
+            className={`flex-1 rounded-xl border py-2 text-xs font-medium transition-colors ${
+              selected === opt.value
+                ? opt.color + ' bg-white/[0.06]'
+                : 'border-white/[0.06] text-slate-500 hover:bg-white/[0.04]'
+            }`}
+          >
+            <span className="block text-base mb-0.5">{opt.icon}</span>
+            {opt.label}
+          </button>
+        ))}
+      </div>
+      {selected === 'painful' && (
+        <p className="mt-3 text-xs leading-5 text-red-300/80 bg-red-500/10 rounded-lg px-3 py-2">
+          如感觉疼痛或明显不适，请停止训练并咨询医生。本应用不提供诊断。
+        </p>
+      )}
+    </div>
+  );
 }
 
 export default function TrainingFeedback({
@@ -19,6 +65,7 @@ export default function TrainingFeedback({
   onRestart,
   onDone,
   onViewHistory,
+  onComfortFeedback,
   progress,
 }: TrainingFeedbackProps) {
   return (
@@ -80,6 +127,9 @@ export default function TrainingFeedback({
           )}
         </section>
       )}
+
+      {/* Comfort feedback */}
+      <FeedbackSelector onComfortFeedback={onComfortFeedback || undefined} />
 
       <div className="mt-6 flex flex-col gap-2">
         {onRestart && (
