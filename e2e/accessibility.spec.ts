@@ -8,7 +8,7 @@ const recoverySnapshot = {
   phaseElapsedMs: 1_000,
   sessionElapsedMs: 8_000,
   totalPausedMs: 0,
-  config: { contractTime: 3, holdTime: 3, relaxTime: 3, rounds: 10 },
+  config: { contractTime: 3, holdTime: 3, relaxTime: 3, rounds: 10, sets: 1, restBetweenSets: 30 },
   announcedCountdowns: [],
   sessionStartedAtIso: '2026-07-28T00:00:00.000Z',
 };

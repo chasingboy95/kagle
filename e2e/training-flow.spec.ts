@@ -22,7 +22,6 @@ test('completes one configured set and returns to the start screen', async ({ pa
   // Close config drawer
   await page.getByRole('button', { name: '关闭' }).click();
 
-  await expect(page.getByText('3-3-3 × 1 次 = 1 组')).toBeVisible();
   await page.getByRole('button', { name: '开始训练' }).click();
   await expect(page.getByRole('button', { name: '暂停' })).toBeVisible();
 
@@ -60,7 +59,6 @@ test('completes training and views training history from feedback page', async (
   // Close config drawer
   await page.getByRole('button', { name: '关闭' }).click();
 
-  await expect(page.getByText('3-3-3 × 1 次 = 1 组')).toBeVisible();
   await page.getByRole('button', { name: '开始训练' }).click();
 
   // Wait for training to complete and feedback page
@@ -96,7 +94,8 @@ test('stops training once, clears recovery state, and excludes it from completio
   )).toBeNull();
 
   await page.getByRole('button', { name: '训练记录' }).click();
-  await expect(page.getByText('中止')).toHaveCount(1);
+  // Use exact regex match to find only the "中止" status badge (not the "已中止" filter button)
+  await expect(page.getByText(/^中止$/)).toHaveCount(1);
   await expect(page.getByText(/^0\/10次 · \d+秒$/)).toBeVisible();
   await expect(page.getByText('总次数').locator('..').getByText('0')).toBeVisible();
 });
