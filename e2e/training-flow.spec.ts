@@ -6,13 +6,21 @@ test('completes one configured set and returns to the start screen', async ({ pa
     localStorage.setItem('kegel.onboarding.v1', JSON.stringify(false));
   });
   await page.goto('.');
+  await page.waitForLoadState('networkidle');
 
-  // Expand config panel via the <details> toggle
+  // Open config drawer to adjust settings
+  await page.getByRole('button', { name: '调整计划' }).click();
+  await expect(page.getByRole('dialog', { name: '调整训练计划' })).toBeVisible();
+
+  // Expand config details to access steppers
   await page.locator('details').first().click();
 
   for (let repetition = 10; repetition > 1; repetition -= 1) {
     await page.getByRole('button', { name: '减少每组次数' }).click();
   }
+
+  // Close config drawer
+  await page.getByRole('button', { name: '关闭' }).click();
 
   await expect(page.getByText('3-3-3 × 1 次 = 1 组')).toBeVisible();
   await page.getByRole('button', { name: '开始训练' }).click();
@@ -37,12 +45,20 @@ test('completes training and views training history from feedback page', async (
     localStorage.setItem('kegel.onboarding.v1', JSON.stringify(false));
   });
   await page.goto('.');
+  await page.waitForLoadState('networkidle');
 
-  // Configure 1 repetition
+  // Open config drawer to adjust settings
+  await page.getByRole('button', { name: '调整计划' }).click();
+  await expect(page.getByRole('dialog', { name: '调整训练计划' })).toBeVisible();
+
+  // Expand config details to access steppers
   await page.locator('details').first().click();
   for (let repetition = 10; repetition > 1; repetition -= 1) {
     await page.getByRole('button', { name: '减少每组次数' }).click();
   }
+
+  // Close config drawer
+  await page.getByRole('button', { name: '关闭' }).click();
 
   await expect(page.getByText('3-3-3 × 1 次 = 1 组')).toBeVisible();
   await page.getByRole('button', { name: '开始训练' }).click();
@@ -68,10 +84,11 @@ test('stops training once, clears recovery state, and excludes it from completio
     localStorage.setItem('kegel.onboarding.v1', JSON.stringify(false));
   });
   await page.goto('.');
+  await page.waitForLoadState('networkidle');
 
   await page.getByRole('button', { name: '开始训练' }).click();
-  await expect(page.getByRole('button', { name: '停止' })).toBeVisible();
-  await page.getByRole('button', { name: '停止' }).click();
+  await expect(page.getByRole('button', { name: '结束' })).toBeVisible();
+  await page.getByRole('button', { name: '结束' }).click();
   await expect(page.getByRole('button', { name: '开始训练' })).toBeVisible();
 
   await expect.poll(async () => page.evaluate(() =>
