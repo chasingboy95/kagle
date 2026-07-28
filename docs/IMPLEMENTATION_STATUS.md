@@ -26,7 +26,7 @@
 | Background-Tab Timing | Complete | Engineering evaluation done. Worker-based timer (`createTimer` + `timingWorker`) provides reliable ticks even when browser tab is backgrounded, with transparent fallback to setInterval. |
 | PWA / GitHub Pages | Complete | Manifest, service worker, subpath, safe-area, standard PNG icons, apple-touch-icon, version update notification, offline caching, and voice asset cache verified by Playwright E2E tests (e2e/pwa.spec.ts). Real-device QA remains outstanding. |
 | Storage Layer | Complete | `StorageAdapter` provides schema validation, versioned keys, upgrade chains, and corruption recovery. Training configuration, history, progressive suggestions, and onboarding use importable module-level schemas instead of render-time definitions. |
-| Training History | Complete | `TrainingRecord` persisted via storage layer, stats (weekly, streak, total), scrollable history UI with delete/clear. Stopped-session integration coverage verifies history writes exactly once and excludes interruptions from completion statistics. |
+| Training History | Complete | Keeps the newest 500 records with deterministic oldest-first eviction. Persistence failures retain current in-memory UI state and show a dismissible warning; statistics and lists are tested at the capacity boundary. |
 | Progressive Training | Complete | Rule engine suggests parameter increases after 3 consecutive same-config completions, with 3-day cooldown after dismiss. 9 tests. |
 | Onboarding | Complete | Three-page first-time guided modal (什么是凯格尔训练/呼吸与安全/关于本应用) with skip, page indicators, ARIA dialog attributes, localStorage persistence, and re-entry button in idle section. |
 | Session Recovery | Complete | Engine saves snapshot to localStorage on state changes; recovery UI offers continue/discard after page refresh with time compensation; 8 integration tests. |
@@ -82,6 +82,7 @@
 - Playwright stopped-session flow through history display and completion-stat exclusion.
 - Pure session-result calculations for phase-boundary repetition counts, paused/resumed active duration, and frozen feedback results.
 - Importable progressive-suggestion and onboarding schemas with compatibility tests for existing keys, defaults, and validation behavior.
+- Training-history capacity, deterministic retention, large-history statistics, and quota-failure UI-state preservation.
 
 ## Verification Gap
 

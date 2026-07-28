@@ -1,7 +1,7 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
-import { useTrainingHistory, buildTrainingRecord } from './useTrainingHistory';
-import { DEFAULT_CONFIG } from '../types/training';
+import { useTrainingHistory, buildTrainingRecord, HISTORY_STORAGE_ERROR_MESSAGE } from './useTrainingHistory';
+import { DEFAULT_CONFIG, TRAINING_HISTORY_MAX_RECORDS, type TrainingRecord } from '../types/training';
 
 beforeEach(() => {
   localStorage.clear();
@@ -15,6 +15,25 @@ beforeEach(() => {
     },
   ]));
 });
+
+afterEach(() => {
+  vi.restoreAllMocks();
+});
+
+function record(id: string, endedAt: string): TrainingRecord {
+  return {
+    id,
+    startedAt: endedAt,
+    endedAt,
+    contractSec: 3,
+    holdSec: 3,
+    relaxSec: 3,
+    targetReps: 10,
+    completedReps: 10,
+    status: 'completed',
+    actualDurationMs: 90_000,
+  };
+}
 
 describe('buildTrainingRecord', () => {
   it('creates a record with all expected fields', () => {
@@ -79,5 +98,41 @@ describe('useTrainingHistory', () => {
     ]));
     const { result } = renderHook(() => useTrainingHistory());
     expect(result.current.stats.totalCompletions).toBe(0);
+  });
+  it('keeps the newest 500 records and drops the oldest deterministically', () => {
+    const records = Array.from(
+      { length: TRAINING_HISTORY_MAX_RECORDS },
+      (_, index) => record(
+        `existing-${index}`,
+        new Date(Date.UTC(2026, 0, 1, 0, index)).toISOString(),
+      ),
+    );
+    localStorage.setItem('kegel.training-history.v1', JSON.stringify(records));
+    const { result } = renderHook(() => useTrainingHistory());
+    const newest = record('newest', '2026-07-28T00:00:00.000Z');
+
+    act(() => result.current.addRecord(newest));
+
+    expect(result.current.records).toHaveLength(TRAINING_HISTORY_MAX_RECORDS);
+    expect(result.current.records[0].id).toBe('newest');
+    expect(result.current.records.some((item) => item.id === 'existing-0')).toBe(false);
+    expect(result.current.stats.totalCompletions).toBe(TRAINING_HISTORY_MAX_RECORDS);
+    expect(JSON.parse(localStorage.getItem('kegel.training-history.v1') ?? '[]')).toHaveLength(
+      TRAINING_HISTORY_MAX_RECORDS,
+    );
+  });
+  it('retains the current UI record and exposes a warning when persistence fails', () => {
+    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new Error('quota exceeded');
+    });
+    const { result } = renderHook(() => useTrainingHistory());
+    const current = record('current-ui-record', '2026-07-28T00:00:00.000Z');
+
+    act(() => result.current.addRecord(current));
+
+    expect(result.current.records[0].id).toBe('current-ui-record');
+    expect(result.current.storageError).toBe(HISTORY_STORAGE_ERROR_MESSAGE);
+    act(() => result.current.dismissStorageError());
+    expect(result.current.storageError).toBeNull();
   });
 });

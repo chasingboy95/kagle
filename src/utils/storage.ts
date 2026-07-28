@@ -67,7 +67,7 @@ function copyDefault<T>(value: T): T {
 /** Public API returned by createStorageAdapter. */
 export interface StorageAdapter {
   read<T>(schema: StorageSchema<T>): T;
-  write<T>(schema: StorageSchema<T>, value: T): void;
+  write<T>(schema: StorageSchema<T>, value: T): boolean;
   remove(schema: StorageSchema<unknown>): void;
   /** Remove every localStorage key starting with `kegel.`. */
   clearAll(): void;
@@ -182,15 +182,17 @@ export function createStorageAdapter(
       }
     },
 
-    write<T>(schema: StorageSchema<T>, value: T): void {
-      if (!s) return;
+    write<T>(schema: StorageSchema<T>, value: T): boolean {
+      if (!s) return false;
       try {
         s.setItem(
           storageKey(schema.category, schema.version),
           JSON.stringify(value),
         );
+        return true;
       } catch {
         // Quota exceeded, private browsing, or storage unavailable
+        return false;
       }
     },
 
