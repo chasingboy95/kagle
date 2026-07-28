@@ -20,6 +20,7 @@ export interface UseVoiceAssistantReturn {
   emit: (event: VoiceEvent, context: VoiceEventContext) => void;
   updateSettings: (updates: Partial<VoiceSettings>) => void;
   unlock: () => Promise<void>;
+  preview: () => Promise<boolean>;
 }
 
 export function useVoiceAssistant(): UseVoiceAssistantReturn {
@@ -59,11 +60,16 @@ export function useVoiceAssistant(): UseVoiceAssistantReturn {
     await controllerRef.current?.preload();
   }, []);
 
+  const preview = useCallback(async () => (
+    await controllerRef.current?.preview() ?? false
+  ), []);
+
   return {
     settings,
     supported: controllerRef.current.isSupported(),
     emit,
     updateSettings,
     unlock,
+    preview,
   };
 }

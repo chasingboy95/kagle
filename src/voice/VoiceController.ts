@@ -50,6 +50,7 @@ export class VoiceController {
   private readonly seen = new Set<string>();
   private processing?: Promise<void>;
   private playbackGeneration = 0;
+  private previewSequence = 0;
 
   constructor(
     private readonly speech: VoicePlaybackAdapter,
@@ -169,6 +170,32 @@ export class VoiceController {
       this.audio.preload(),
       this.recorded.preload(allVoiceAssetUrls(this.baseUrl)),
     ]);
+  }
+
+  async preview(): Promise<boolean> {
+    if (!this.settings.enabled || this.settings.mode === 'off' || !this.isSupported()) {
+      return false;
+    }
+
+    try {
+      await this.preload();
+      const now = Date.now();
+      this.previewSequence += 1;
+      this.enqueue(
+        { type: 'training-ready' },
+        {
+          sessionId: -1,
+          round: 0,
+          now,
+          stageEndsAt: now + 30_000,
+          sequence: this.previewSequence,
+        },
+      );
+      await this.flush(now);
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   stop(): void {

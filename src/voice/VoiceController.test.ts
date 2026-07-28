@@ -79,6 +79,26 @@ function setup(overrides: Partial<VoiceSettings> = {}) {
 }
 
 describe('VoiceController', () => {
+  it('preloads and plays a short training-ready preview', async () => {
+    const { controller, recorded } = setup();
+
+    await expect(controller.preview()).resolves.toBe(true);
+
+    expect(recorded.preloaded.length).toBeGreaterThan(0);
+    expect(recorded.played[0]?.url).toContain('/zh-CN/ready.mp3');
+  });
+
+  it('reports preview failure for silent or unsupported settings', async () => {
+    const silent = setup({ mode: 'off' });
+    const unsupported = setup();
+    unsupported.recorded.isSupported = () => false;
+    unsupported.speech.supported = false;
+    unsupported.audio.supported = false;
+
+    await expect(silent.controller.preview()).resolves.toBe(false);
+    await expect(unsupported.controller.preview()).resolves.toBe(false);
+  });
+
   it('plays non-verbal stage cues in rhythm mode', async () => {
     const { controller, audio, recorded, speech } = setup({ mode: 'sound-only' });
     controller.enqueue({ type: 'stage-enter', stage: 'contract' }, context);

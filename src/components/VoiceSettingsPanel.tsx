@@ -1,9 +1,11 @@
+import { useState } from 'react';
 import type { VoiceMode, VoiceSettings } from '../voice/types';
 
 interface VoiceSettingsPanelProps {
   settings: VoiceSettings;
   supported: boolean;
   onChange: (updates: Partial<VoiceSettings>) => void;
+  onPreview: () => Promise<boolean>;
 }
 
 const modeLabels: Record<VoiceMode, string> = {
@@ -41,10 +43,34 @@ function Toggle({ id, label, description, checked, disabled = false, onChange }:
   );
 }
 
-export default function VoiceSettingsPanel({ settings, supported, onChange }: VoiceSettingsPanelProps) {
+type CheckState = 'idle' | 'playing' | 'ready' | 'heard' | 'muted' | 'failed';
+
+const countdownLabels: Record<VoiceSettings['countdownFrom'], string> = {
+  0: '倒计时关闭',
+  3: '最后 3 秒倒计时',
+  5: '最后 5 秒倒计时',
+};
+
+export default function VoiceSettingsPanel({
+  settings,
+  supported,
+  onChange,
+  onPreview,
+}: VoiceSettingsPanelProps) {
   const disabled = !settings.enabled;
   const audible = settings.mode !== 'off';
   const coachMode = settings.mode === 'coach';
+  const [checkState, setCheckState] = useState<CheckState>('idle');
+
+  const runPreview = async () => {
+    setCheckState('playing');
+    setCheckState(await onPreview() ? 'ready' : 'failed');
+  };
+
+  const keepMuted = () => {
+    onChange({ mode: 'off' });
+    setCheckState('muted');
+  };
 
   return (
     <details className="group w-full rounded-2xl border border-white/[0.06] bg-white/[0.03] backdrop-blur-xl">
@@ -59,6 +85,47 @@ export default function VoiceSettingsPanel({ settings, supported, onChange }: Vo
       <div className="border-t border-white/[0.05] px-4 pb-4 pt-2">
         <Toggle id="voice-enabled" label="启用辅助" checked={settings.enabled} onChange={enabled => onChange({ enabled })} />
         <div className="h-px bg-white/[0.04]" />
+
+        <section aria-labelledby="voice-check-title" className="my-3 rounded-xl border border-white/[0.06] bg-black/10 p-3">
+          <h3 id="voice-check-title" className="text-sm font-medium text-slate-200">训练前声音自检</h3>
+          <p className="mt-1 text-xs leading-5 text-slate-400">
+            当前：{settings.enabled ? modeLabels[settings.mode] : '已关闭'} · {countdownLabels[settings.countdownFrom]} · 音量 {Math.round(settings.volume * 100)}%
+          </p>
+          <p className="mt-1 text-[11px] leading-4 text-slate-500">
+            浏览器无法判断设备是否静音，请以实际听感确认。自检可跳过，不影响直接开始训练。
+          </p>
+          <div className="mt-3 grid grid-cols-3 gap-2">
+            <button
+              type="button"
+              disabled={disabled || !audible || checkState === 'playing'}
+              onClick={() => { void runPreview(); }}
+              className="rounded-lg bg-indigo-500/20 px-2 py-2 text-xs font-medium text-indigo-100 transition-colors hover:bg-indigo-500/30 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              {checkState === 'playing' ? '播放中…' : '播放测试'}
+            </button>
+            <button
+              type="button"
+              disabled={checkState !== 'ready'}
+              onClick={() => setCheckState('heard')}
+              className="rounded-lg bg-emerald-500/15 px-2 py-2 text-xs font-medium text-emerald-100 transition-colors hover:bg-emerald-500/25 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              我能听到
+            </button>
+            <button
+              type="button"
+              onClick={keepMuted}
+              className="rounded-lg bg-white/[0.06] px-2 py-2 text-xs font-medium text-slate-200 transition-colors hover:bg-white/10"
+            >
+              保持静音
+            </button>
+          </div>
+          <div aria-live="polite" className="mt-2 min-h-5 text-xs leading-5 text-slate-400">
+            {checkState === 'ready' && '测试样例已播放，请确认是否听到。'}
+            {checkState === 'heard' && '声音已确认，可以按当前设置开始训练。'}
+            {checkState === 'muted' && '已选择静音；你仍可直接开始训练。'}
+            {checkState === 'failed' && '没有成功播放。你仍可直接开始训练，也可改用“节奏提示”或保持静音。'}
+          </div>
+        </section>
 
         <fieldset className="py-2 disabled:opacity-40" disabled={disabled || !audible}>
           <legend className="mb-2 text-sm text-slate-300">结束前倒计时</legend>

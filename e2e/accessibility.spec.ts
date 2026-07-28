@@ -54,6 +54,13 @@ test('main page exposes live regions and passes axe under reduced motion', async
   await page.goto('.');
 
   await expect(page.locator('[data-reduced-motion="true"]')).toBeVisible();
-  await expect(page.locator('[aria-live="polite"]')).toHaveCount(2);
+  const politeRegions = page.locator('[aria-live="polite"]');
+  await expect(politeRegions.filter({ has: page.getByText('Kegel Training') })).toHaveCount(1);
+  await expect(politeRegions.filter({ has: page.getByText('--', { exact: true }) })).toHaveCount(1);
+  await expect(
+    page.locator('#voice-check-title')
+      .locator('..')
+      .locator('[aria-live="polite"]'),
+  ).toHaveCount(1);
   await expectNoSeriousAxeViolations(page);
 });
