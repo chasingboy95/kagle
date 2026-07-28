@@ -157,6 +157,11 @@ export default function App() {
     restart();
   };
 
+  const handleResume = () => {
+    void voice.unlock();
+    resume();
+  };
+
   const handleComfortFeedback = (feedback: import('./types/training').ComfortFeedback) => {
     // Update the most recent record with comfort feedback
     const records = history.records;
@@ -449,7 +454,7 @@ export default function App() {
             status={state.status}
             onStart={handleStart}
             onPause={pause}
-            onResume={resume}
+            onResume={handleResume}
             onStop={stop}
             onRestart={handleRestart}
             onDone={finish}

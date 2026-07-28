@@ -4,6 +4,14 @@
 
 ## P1 — Functional Issues
 
+### iOS PWA haptic audio fallback stayed suspended
+
+- **Status**: Resolved in code; real-device revalidation pending (2026-07-28)
+- **Severity**: High
+- **Affected area**: `src/voice/HapticAdapter.ts`, `src/voice/VoiceController.ts`
+- **Description**: The fallback `AudioContext` was not included in the start-button unlock path, so iOS could reject its later resume attempt from a timer-driven stage event. Silent voice mode also discarded events before haptic routing.
+- **Resolution**: Lazily create and resume the fallback context from `voice.unlock()` on start/resume/restart, route haptics independently of audible guidance, and deduplicate repeated events.
+
 ### PAUSED_CONTAINER_TARGET relax entry is incorrect
 
 - **Status**: Resolved (2026-07-23)

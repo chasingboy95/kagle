@@ -4,6 +4,11 @@ interface HapticNavigator {
   vibrate?: (pattern: VibratePattern) => boolean;
 }
 
+interface AudioScope {
+  AudioContext?: typeof AudioContext;
+  webkitAudioContext?: typeof AudioContext;
+}
+
 export class HapticAdapter {
   /** Very short "tap" tone frequencies for each event type (audio fallback). */
   private static readonly tone: Record<string, readonly number[]> = {
@@ -12,21 +17,34 @@ export class HapticAdapter {
     completed: [660, 880, 1100],
   };
 
-  private audioCtx: AudioContext | null = null;
+  private audioCtx?: AudioContext;
 
   constructor(
     private readonly target: HapticNavigator = globalThis.navigator as HapticNavigator,
-    scope?: { AudioContext?: typeof AudioContext; webkitAudioContext?: typeof AudioContext },
-  ) {
-    const s: { AudioContext?: typeof AudioContext; webkitAudioContext?: typeof AudioContext }
-      = scope ?? (globalThis as typeof s);
-    const Ctor = s.AudioContext ?? s.webkitAudioContext;
-    if (Ctor) try { this.audioCtx = new Ctor(); } catch { /* audio not available */ }
-  }
+    private readonly scope: AudioScope = globalThis as AudioScope,
+  ) {}
 
   /** Check whether real device vibration is available. */
   isSupported(): boolean {
     return typeof this.target?.vibrate === 'function';
+  }
+
+  /**
+   * Unlock the audio fallback while still inside the user's start/preview gesture.
+   * iOS will not resume a suspended AudioContext from a later timer callback.
+   */
+  async preload(): Promise<void> {
+    if (this.isSupported()) return;
+
+    const Context = this.scope.AudioContext ?? this.scope.webkitAudioContext;
+    if (!Context) return;
+
+    try {
+      this.audioCtx ??= new Context();
+      if (this.audioCtx.state === 'suspended') await this.audioCtx.resume();
+    } catch {
+      this.audioCtx = undefined;
+    }
   }
 
   trigger(event: VoiceEvent, enabled: boolean): void {
@@ -63,7 +81,6 @@ export class HapticAdapter {
     if (!freqs || !this.audioCtx) return;
 
     try {
-      if (this.audioCtx.state === 'suspended') void this.audioCtx.resume();
       if (this.audioCtx.state !== 'running') return;
 
       const now = this.audioCtx.currentTime;

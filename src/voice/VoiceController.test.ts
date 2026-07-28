@@ -78,6 +78,23 @@ function setup(overrides: Partial<VoiceSettings> = {}) {
   return { speech, audio, recorded, controller };
 }
 
+class FakeHapticAdapter extends HapticAdapter {
+  preloadCalls = 0;
+  triggered: Array<{ type: string; enabled: boolean }> = [];
+
+  constructor() {
+    super({});
+  }
+
+  override async preload() {
+    this.preloadCalls += 1;
+  }
+
+  override trigger(event: { type: string }, enabled: boolean) {
+    this.triggered.push({ type: event.type, enabled });
+  }
+}
+
 describe('VoiceController', () => {
   it('preloads and plays a short training-ready preview', async () => {
     const { controller, recorded } = setup();
@@ -86,6 +103,25 @@ describe('VoiceController', () => {
 
     expect(recorded.preloaded.length).toBeGreaterThan(0);
     expect(recorded.played[0]?.url).toContain('/zh-CN/ready.mp3');
+  });
+
+  it('preloads the haptic audio fallback from the user gesture path', async () => {
+    const speech = new FakeAdapter();
+    const audio = new FakeAdapter();
+    const recorded = new FakeRecordedAdapter();
+    const haptics = new FakeHapticAdapter();
+    const controller = new VoiceController(
+      speech,
+      audio,
+      recorded,
+      haptics,
+      baseSettings,
+      '/kagle/',
+    );
+
+    await controller.preload();
+
+    expect(haptics.preloadCalls).toBe(1);
   });
 
   it('reports preview failure for silent or unsupported settings', async () => {
@@ -225,5 +261,27 @@ describe('VoiceController', () => {
     const { controller } = setup({ mode: 'off' });
     controller.enqueue({ type: 'training-ready' }, context);
     expect(controller.inspectQueue()).toEqual([]);
+  });
+
+  it('keeps haptics active and deduplicated when audible guidance is off', () => {
+    const speech = new FakeAdapter();
+    const audio = new FakeAdapter();
+    const recorded = new FakeRecordedAdapter();
+    const haptics = new FakeHapticAdapter();
+    const controller = new VoiceController(
+      speech,
+      audio,
+      recorded,
+      haptics,
+      { ...baseSettings, mode: 'off', hapticsEnabled: true },
+      '/kagle/',
+    );
+    const event = { type: 'stage-enter', stage: 'contract' } as const;
+
+    controller.enqueue(event, context);
+    controller.enqueue(event, context);
+
+    expect(controller.inspectQueue()).toEqual([]);
+    expect(haptics.triggered).toEqual([{ type: 'stage-enter', enabled: true }]);
   });
 });
