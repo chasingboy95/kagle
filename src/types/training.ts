@@ -150,6 +150,9 @@ export interface TrainingRecord {
   actualDurationMs: number;
 }
 
+/** Keep the most recent sessions within a predictable localStorage budget. */
+export const TRAINING_HISTORY_MAX_RECORDS = 500;
+
 function isTrainingRecord(value: unknown): value is TrainingRecord {
   if (!value || typeof value !== 'object') return false;
   const v = value as Record<string, unknown>;
@@ -165,6 +168,19 @@ function isTrainingRecord(value: unknown): value is TrainingRecord {
     && typeof v.actualDurationMs === 'number';
 }
 
+export function normalizeTrainingHistory(value: unknown): TrainingRecord[] {
+  if (!Array.isArray(value)) return [];
+  return value
+    .filter(isTrainingRecord)
+    .sort((a, b) => {
+      const aTime = new Date(a.endedAt).getTime();
+      const bTime = new Date(b.endedAt).getTime();
+      return (Number.isFinite(bTime) ? bTime : 0)
+        - (Number.isFinite(aTime) ? aTime : 0);
+    })
+    .slice(0, TRAINING_HISTORY_MAX_RECORDS);
+}
+
 /** Storage schema for training history.
  *  Key: kegel.training-history.v1 */
 export const TRAINING_HISTORY_SCHEMA: StorageSchema<TrainingRecord[]> = defineSchema({
@@ -172,8 +188,7 @@ export const TRAINING_HISTORY_SCHEMA: StorageSchema<TrainingRecord[]> = defineSc
   version: 1,
   defaultValue: [] as TrainingRecord[],
   validate(value: unknown): TrainingRecord[] {
-    if (!Array.isArray(value)) return [];
-    return value.filter(isTrainingRecord);
+    return normalizeTrainingHistory(value);
   },
 });
 

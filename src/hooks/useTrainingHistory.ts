@@ -1,10 +1,13 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useRef } from 'react';
 import {
   type TrainingRecord,
   type TrainingConfig,
   TRAINING_HISTORY_SCHEMA,
+  normalizeTrainingHistory,
 } from '../types/training';
 import { defaultStorage } from '../utils/storage';
+
+export const HISTORY_STORAGE_ERROR_MESSAGE = '训练记录未能保存到设备。当前页面仍保留记录，请释放存储空间后重试。';
 
 export interface HistoryStats {
   /** Number of completions this calendar week (Mon–Sun). */
@@ -23,6 +26,8 @@ export interface UseTrainingHistoryReturn {
   addRecord: (record: TrainingRecord) => void;
   removeRecord: (id: string) => void;
   clearAll: () => void;
+  storageError: string | null;
+  dismissStorageError: () => void;
 }
 
 function startOfWeek(date: Date): Date {
@@ -110,39 +115,48 @@ export function useTrainingHistory(): UseTrainingHistoryReturn {
   const [records, setRecords] = useState<TrainingRecord[]>(() =>
     defaultStorage.read(TRAINING_HISTORY_SCHEMA),
   );
+  const recordsRef = useRef(records);
+  const [storageError, setStorageError] = useState<string | null>(null);
 
   const stats = useMemo(() => computeStats(records), [records]);
 
   const persist = useCallback((next: TrainingRecord[]) => {
-    setRecords(next);
-    defaultStorage.write(TRAINING_HISTORY_SCHEMA, next);
+    const normalized = normalizeTrainingHistory(next);
+    recordsRef.current = normalized;
+    setRecords(normalized);
+    const saved = defaultStorage.write(TRAINING_HISTORY_SCHEMA, normalized);
+    setStorageError(saved ? null : HISTORY_STORAGE_ERROR_MESSAGE);
   }, []);
 
   const addRecord = useCallback(
     (record: TrainingRecord) => {
-      setRecords((prev) => {
-        const next = [record, ...prev];
-        defaultStorage.write(TRAINING_HISTORY_SCHEMA, next);
-        return next;
-      });
+      persist([record, ...recordsRef.current]);
     },
-    [],
+    [persist],
   );
 
   const removeRecord = useCallback(
     (id: string) => {
-      setRecords((prev) => {
-        const next = prev.filter((r) => r.id !== id);
-        defaultStorage.write(TRAINING_HISTORY_SCHEMA, next);
-        return next;
-      });
+      persist(recordsRef.current.filter((record) => record.id !== id));
     },
-    [],
+    [persist],
   );
 
   const clearAll = useCallback(() => {
     persist([]);
   }, [persist]);
 
-  return { records, stats, addRecord, removeRecord, clearAll };
+  const dismissStorageError = useCallback(() => {
+    setStorageError(null);
+  }, []);
+
+  return {
+    records,
+    stats,
+    addRecord,
+    removeRecord,
+    clearAll,
+    storageError,
+    dismissStorageError,
+  };
 }
