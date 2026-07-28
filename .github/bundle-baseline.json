@@ -1,19 +1,19 @@
 {
-  "recordedAt": "2026-07-27T10:47:09Z",
-  "commit": "4bed0ec",
+  "recordedAt": "2026-07-28T05:49:35Z",
+  "commit": "b044da2",
   "bundles": {
     "mainJS": {
-      "bytes": 404808,
-      "human": "404808B",
+      "bytes": 446085,
+      "human": "446085B",
       "files": [
-        "assets/index-CmKqOq1a.js"
+        "assets/index-DvFm9ZOK.js"
       ]
     },
     "mainCSS": {
-      "bytes": 40652,
-      "human": "40652B",
+      "bytes": 47082,
+      "human": "47082B",
       "files": [
-        "assets/index-B2AGftC8.css"
+        "assets/index-ByKEL43i.css"
       ]
     },
     "workerJS": {
@@ -107,17 +107,17 @@
     }
   },
   "totalDist": {
-    "bytes": 838454,
-    "human": "838454B"
+    "bytes": 1502262,
+    "human": "1502262B"
   },
   "gzipEstimates": {
     "mainJS": {
-      "bytes": 122085,
-      "human": "122085B"
+      "bytes": 132974,
+      "human": "132974B"
     },
     "mainCSS": {
-      "bytes": 7091,
-      "human": "7091B"
+      "bytes": 7955,
+      "human": "7955B"
     }
   }
 }

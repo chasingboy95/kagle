@@ -211,8 +211,12 @@ export function normalizeTrainingHistory(value: unknown): TrainingRecord[] {
     .slice(0, TRAINING_HISTORY_MAX_RECORDS);
 }
 
-/** Storage schema for training history.
- *  Key: kegel.training-history.v1 */
+ 
+ /** localStorage key for pre-clear backup of training history. */
+ export const CLEAR_ALL_BACKUP_KEY = 'kegel.clear-all-backup.v1';
+ 
+ /** Storage schema for training history.
+  *  Key: kegel.training-history.v1 */
 export const TRAINING_HISTORY_SCHEMA: StorageSchema<TrainingRecord[]> = defineSchema({
   category: 'training-history',
   version: 1,
