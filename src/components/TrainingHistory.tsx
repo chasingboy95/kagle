@@ -1,6 +1,8 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
+import { CLEAR_ALL_BACKUP_KEY } from '../types/training';
 import type { TrainingRecord } from '../types/training';
 import type { HistoryStats } from '../hooks/useTrainingHistory';
+import ConfirmClearAllDialog from './ConfirmClearAllDialog';
 import TrainingCalendar from './TrainingCalendar';
 import TrainingRecordDetail from './TrainingRecordDetail';
 import WeeklyGoal from './WeeklyGoal';
@@ -44,7 +46,24 @@ export default function TrainingHistory({
 }: TrainingHistoryProps) {
   const [selectedRecordId, setSelectedRecordId] = useState<string | null>(null);
   const [view, setView] = useState<'list' | 'calendar'>('list');
+  const [confirmingClear, setConfirmingClear] = useState(false);
   const selectedRecord = records.find((record) => record.id === selectedRecordId);
+  const handleClearAll = useCallback(() => {
+    // Backup before clearing
+    try {
+      localStorage.setItem(CLEAR_ALL_BACKUP_KEY, JSON.stringify(records));
+    } catch {
+      // Backup best-effort; still show dialog
+    }
+    setConfirmingClear(true);
+  }, [records]);
+  const handleClearConfirm = useCallback(() => {
+    setConfirmingClear(false);
+    onClearAll();
+  }, [onClearAll]);
+  const handleClearCancel = useCallback(() => {
+    setConfirmingClear(false);
+  }, []);
 
   if (selectedRecord) {
     return (
@@ -146,10 +165,18 @@ export default function TrainingHistory({
       )}
 
       {/* Actions */}
+      {confirmingClear && (
+        <ConfirmClearAllDialog
+          recordCount={records.length}
+          onCancel={handleClearCancel}
+          onConfirm={handleClearConfirm}
+        />
+      )}
+      {/* Actions */}
       <div className="flex gap-2">
         {records.length > 0 && (
           <button
-            onClick={onClearAll}
+            onClick={handleClearAll}
             className="flex-1 rounded-lg bg-red-500/10 text-red-400 py-2 text-sm font-medium hover:bg-red-500/20 transition-colors"
           >
             清除全部
