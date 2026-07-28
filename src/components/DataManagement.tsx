@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import {
   applyDataImport,
   createDataExport,
+  CLEAR_ALL_BACKUP_KEY,
   IMPORT_BACKUP_KEY,
   parseDataImport,
   serializeDataExport,
@@ -54,6 +55,13 @@ export default function DataManagement({
       return null;
     }
   });
+  const [clearAllBackup] = useState(() => {
+    try {
+      return localStorage.getItem(CLEAR_ALL_BACKUP_KEY);
+    } catch {
+      return null;
+    }
+  });
   const preview = candidate ? summarizeDataImport(candidate) : null;
 
   const exportData = () => {
@@ -91,6 +99,22 @@ export default function DataManagement({
     } catch {
       setIsError(true);
       setMessage('自动备份已损坏，无法恢复。');
+    }
+  };
+
+  const chooseClearAllBackup = () => {
+    if (!clearAllBackup) return;
+    try {
+      const parsed = parseDataImport(clearAllBackup);
+      setCandidate(parsed);
+      const n = parsed.data.trainingHistory.length;
+      const time = new Date(parsed.exportedAt).toLocaleString();
+      setFileName(`清除前备份 (${n} 条记录, ${time})`);
+      setIsError(false);
+      setMessage('');
+    } catch {
+      setIsError(true);
+      setMessage('清除前备份已损坏，无法恢复。');
     }
   };
 
@@ -152,6 +176,16 @@ export default function DataManagement({
               className="ml-2 rounded-lg bg-white/[0.07] px-3 py-2 text-xs font-medium text-slate-200 disabled:opacity-30"
             >
               恢复上次导入前备份
+            </button>
+          )}
+          {clearAllBackup && (
+            <button
+              type="button"
+              onClick={chooseClearAllBackup}
+              disabled={disabled}
+              className="ml-2 rounded-lg bg-white/[0.07] px-3 py-2 text-xs font-medium text-slate-200 disabled:opacity-30"
+            >
+              恢复清除前备份
             </button>
           )}
           {fileName && <span className="ml-2 text-[10px] text-slate-500">{fileName}</span>}

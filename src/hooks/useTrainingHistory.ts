@@ -1,4 +1,5 @@
 import { useState, useCallback, useMemo, useRef } from 'react';
+import { createDataExport, serializeDataExport, CLEAR_ALL_BACKUP_KEY } from '../utils/dataTransfer';
 import { useDateRefresh } from './useDateRefresh';
 import {
   type TrainingRecord,
@@ -144,6 +145,12 @@ export function useTrainingHistory(): UseTrainingHistoryReturn {
   );
 
   const clearAll = useCallback(() => {
+    try {
+      const backup = createDataExport();
+      localStorage.setItem(CLEAR_ALL_BACKUP_KEY, serializeDataExport(backup));
+    } catch {
+      // Backup failed, proceed with clear anyway
+    }
     persist([]);
   }, [persist]);
 

@@ -27,6 +27,7 @@ import type { ProgressiveSuggestionState } from './progressiveTraining';
 
 export const DATA_EXPORT_SCHEMA_VERSION = 1;
 export const IMPORT_BACKUP_KEY = 'kegel.import-backup.v1';
+export const CLEAR_ALL_BACKUP_KEY = 'kegel.clear-all-backup.v1';
 
 export interface ExportedAppData {
   trainingConfig: TrainingConfig;
