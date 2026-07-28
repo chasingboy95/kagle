@@ -7,6 +7,10 @@ interface ErrorRecoveryUIProps {
   stack?: string | null;
   onReload: () => void;
   onReset: () => void;
+  /** Whether the user is in the second step of "清除数据并重置" confirmation. */
+  confirmingReset?: boolean;
+  onConfirmReset?: () => void;
+  onCancelReset?: () => void;
 }
 
 export default function ErrorRecoveryUI({
@@ -14,6 +18,9 @@ export default function ErrorRecoveryUI({
   stack,
   onReload,
   onReset,
+  confirmingReset,
+  onConfirmReset,
+  onCancelReset,
 }: ErrorRecoveryUIProps) {
   const isDev = import.meta.env.DEV;
 
@@ -56,18 +63,40 @@ export default function ErrorRecoveryUI({
         )}
 
         <div className="mt-6 flex flex-col gap-2">
-          <button
-            onClick={onReload}
-            className="w-full rounded-full bg-white py-3 text-sm font-medium text-slate-900 transition-colors active:bg-white/90"
-          >
-            重新加载
-          </button>
-          <button
-            onClick={onReset}
-            className="w-full rounded-full border border-white/10 bg-transparent py-3 text-sm font-medium text-slate-400 transition-colors active:bg-white/[0.06]"
-          >
-            清除数据并重置
-          </button>
+          {confirmingReset ? (
+            <>
+              <p className="text-sm text-amber-400 leading-relaxed">
+                此操作将清除训练历史、配置、收藏和设置，且不可恢复。确定继续？
+              </p>
+              <button
+                onClick={onConfirmReset}
+                className="w-full rounded-full bg-red-500 py-3 text-sm font-medium text-white transition-colors active:bg-red-600"
+              >
+                确认清除
+              </button>
+              <button
+                onClick={onCancelReset}
+                className="w-full rounded-full border border-white/10 bg-transparent py-3 text-sm font-medium text-slate-400 transition-colors active:bg-white/[0.06]"
+              >
+                取消
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                onClick={onReload}
+                className="w-full rounded-full bg-white py-3 text-sm font-medium text-slate-900 transition-colors active:bg-white/90"
+              >
+                重新加载
+              </button>
+              <button
+                onClick={onReset}
+                className="w-full rounded-full border border-white/10 bg-transparent py-3 text-sm font-medium text-slate-400 transition-colors active:bg-white/[0.06]"
+              >
+                清除数据并重置
+              </button>
+            </>
+          )}
         </div>
       </motion.div>
     </div>

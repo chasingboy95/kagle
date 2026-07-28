@@ -180,8 +180,8 @@ The application lacked a global error recovery mechanism. Uncaught exceptions in
 - React Error Boundary wraps the root `<App />` in `main.tsx`.
 - `ErrorRecoveryUI` renders a privacy-safe production recovery page with "重新加载" and "清除数据并重置" buttons.
 - In dev mode, full error message and component stack are exposed behind a `<details>` disclosure.
-- On error, the `onError` callback clears all `kegel.*` localStorage keys to prevent corrupted session recovery.
-- 6 component tests cover: child rendering, recovery UI display, dev-mode details, onError callback, re-render reset, and reload/reset button behavior.
+- On error, the `onError` callback clears only the session snapshot key to prevent corrupted session recovery without losing training history, config, or settings. Full data reset requires explicit user confirmation.
+- 10 component tests cover: child rendering, recovery UI display, dev-mode details, onError callback, re-render reset, reload button, reset confirmation flow, confirm clear, cancel, and data preservation during confirmation.
 - No third-party monitoring or data upload is introduced.
 
 

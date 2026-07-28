@@ -8,7 +8,7 @@
 - Verify the revised completion view and simplified voice settings on a real mobile device.
 
 - [x] **Issue #18: 移动端性能基线与回归检查**: 记录构建资源基线（.github/bundle-baseline.json），CI bundle size check（15% 阈值），性能基线文档（docs/PERFORMANCE_BASELINE.md），真实设备测试留存于 KNOWN_ISSUES.md。
-- [x] **Issue #16: 全局错误边界**: ErrorBoundary 包裹根组件，ErrorRecoveryUI 生产安全恢复页（重新加载/清除数据并重置），开发环境保留完整技术详情，onError 清除 kegel.* localStorage 防止损坏会话恢复，6 个组件测试。
+- [x] **Issue #16: 全局错误边界**: ErrorBoundary 包裹根组件，ErrorRecoveryUI 生产安全恢复页（重新加载/清除数据并重置），开发环境保留完整技术详情，onError 仅清除会话快照（不触及训练历史/配置/收藏/周目标），全量清除需用户二次确认，10 个组件测试。
 
 ## Next (Priority Order)
 
@@ -44,6 +44,7 @@
 
 ## Completed
 
+- [x] **Issue #59: 异常边界不得自动清空全部本地数据**: onError 仅清除会话快照 key（kegel.session-snapshot.v1），不再遍历删除全部 kegel.* 数据；全量清除需用户二次确认并说明影响范围；10 个组件测试覆盖确认/取消/数据保留路径。
 - [x] **Issue #37: 自定义训练配置收藏**: 当前训练节奏可命名收藏并一键应用，支持重命名和删除；最多保留 5 个，系统预设保持只读；收藏使用严格验证的版本化 schema，并迁移旧版扁平数据。
 - [x] **Issue #40: 完成页本周真实进度**: 使用刚完成记录写入后返回的同一份历史，展示本周完成次数、累计活动时长、本次增加量和当前连续天数；启用周目标时展示剩余天数，计算失败则安全回退到本次结果，不包含动作质量或医疗评价。
 - [x] **Issue #36: 可选每周训练目标**: 支持设置、调整或关闭 1–7 天目标；按本地时区周一至周日的不同完成日期计算，同日多次只计一天且中止不计；展示完成与剩余天数，使用低压力文案，并通过版本化 schema 迁移旧数字目标。

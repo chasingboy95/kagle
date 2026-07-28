@@ -97,14 +97,15 @@ if ('serviceWorker' in navigator) {
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <ErrorBoundary onError={() => {
-      // Clear session snapshot on error to prevent auto-resume with corrupted state
-      for (const key of Object.keys(localStorage)) {
-        if (key.startsWith('kegel.')) {
-          localStorage.removeItem(key);
+     <ErrorBoundary onError={() => {
+        // Only clear the session snapshot — never touch training history, config,
+        // saved favorites, weekly goals, or settings.
+        try {
+          localStorage.removeItem('kegel.session-snapshot.v1');
+        } catch {
+          // Storage unavailable — nothing to do
         }
-      }
-    }}>
+     }}>
       <App />
     </ErrorBoundary>
   </StrictMode>,
