@@ -145,28 +145,20 @@ export default function App() {
           onDiscard={discardSession}
         />
       )}
-      {history.storageError && !hasModal && (
+      {!hasModal && (
         <StorageErrorNotice
-          message={history.storageError}
-          onDismiss={history.dismissStorageError}
-        />
-      )}
-      {weeklyGoal.storageError && !hasModal && (
-        <StorageErrorNotice
-          message={weeklyGoal.storageError}
-          onDismiss={weeklyGoal.dismissStorageError}
-        />
-      )}
-      {savedConfigs.storageError && !hasModal && (
-        <StorageErrorNotice
-          message={savedConfigs.storageError}
-          onDismiss={savedConfigs.dismissStorageError}
-        />
-      )}
-      {voice.storageError && !hasModal && (
-        <StorageErrorNotice
-          message={voice.storageError}
-          onDismiss={voice.dismissStorageError}
+          errors={[
+            ...(history.storageError ? [{ source: '训练记录', message: history.storageError }] : []),
+            ...(weeklyGoal.storageError ? [{ source: '周目标', message: weeklyGoal.storageError }] : []),
+            ...(savedConfigs.storageError ? [{ source: '收藏配置', message: savedConfigs.storageError }] : []),
+            ...(voice.storageError ? [{ source: '语音设置', message: voice.storageError }] : []),
+          ]}
+          onDismiss={() => {
+            history.dismissStorageError();
+            weeklyGoal.dismissStorageError();
+            savedConfigs.dismissStorageError();
+            voice.dismissStorageError();
+          }}
         />
       )}
     <div
