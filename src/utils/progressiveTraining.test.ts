@@ -52,10 +52,11 @@ describe('evaluateSuggestion', () => {
     expect(evaluateSuggestion(records, freshState())).toBeNull();
   });
 
-  it('returns suggestion when 3 consecutive same-config completions', () => {
+  it('returns upgrade suggestion when 3 consecutive same-config completions', () => {
     const records = [makeRecord(), makeRecord(), makeRecord()];
     const suggestion = evaluateSuggestion(records, freshState());
     expect(suggestion).not.toBeNull();
+    expect(suggestion!.type).toBe('upgrade');
     expect(suggestion!.changedKey).toBe('holdTime');
     expect(suggestion!.after.holdTime).toBe(4);
   });
@@ -96,6 +97,7 @@ describe('evaluateSuggestion', () => {
     const records = [makeRecord({ holdSec: 3 }), makeRecord({ holdSec: 3 }), makeRecord({ holdSec: 3 })];
     const suggestion = evaluateSuggestion(records, freshState());
     expect(suggestion).not.toBeNull();
+    expect(suggestion!.type).toBe('upgrade');
     // Count how many fields differ
     let diffs = 0;
     for (const key of Object.keys(suggestion!.before) as (keyof TrainingConfig)[]) {
@@ -112,6 +114,7 @@ describe('evaluateSuggestion', () => {
     ];
     const suggestion = evaluateSuggestion(records, freshState());
     expect(suggestion).not.toBeNull();
+    expect(suggestion!.type).toBe('upgrade');
     expect(suggestion!.changedKey).toBe('rounds');
     expect(suggestion!.after.rounds).toBe(12);
   });
@@ -123,5 +126,88 @@ describe('evaluateSuggestion', () => {
     state.lastSuggestedAt = new Date().toISOString();
     state.lastAction = 'ignore';
     expect(evaluateSuggestion(records, state, new Date())).toBeNull();
+  });
+
+  // ── Comfort feedback tests ────────────────────────────────
+
+  it('returns downgrade suggestion when most recent record has painful feedback', () => {
+    const records = [
+      makeRecord({ comfortFeedback: 'painful' }),
+      makeRecord({ comfortFeedback: 'comfortable' }),
+      makeRecord({ comfortFeedback: 'comfortable' }),
+    ];
+    const suggestion = evaluateSuggestion(records, freshState());
+    expect(suggestion).not.toBeNull();
+    expect(suggestion!.type).toBe('downgrade');
+    // Should suggest decreasing a parameter
+    const key = suggestion!.changedKey;
+    expect(suggestion!.after[key]).toBeLessThan(suggestion!.before[key]);
+  });
+
+  it('returns maintain suggestion when painful but already at min', () => {
+    const records = [
+      makeRecord({
+        contractSec: CONFIG_RANGE.contractTime.min,
+        holdSec: CONFIG_RANGE.holdTime.min,
+        relaxSec: CONFIG_RANGE.relaxTime.min,
+        targetReps: CONFIG_RANGE.rounds.min,
+        comfortFeedback: 'painful',
+      }),
+      makeRecord({
+        contractSec: CONFIG_RANGE.contractTime.min,
+        holdSec: CONFIG_RANGE.holdTime.min,
+        relaxSec: CONFIG_RANGE.relaxTime.min,
+        targetReps: CONFIG_RANGE.rounds.min,
+        comfortFeedback: 'comfortable',
+      }),
+      makeRecord({
+        contractSec: CONFIG_RANGE.contractTime.min,
+        holdSec: CONFIG_RANGE.holdTime.min,
+        relaxSec: CONFIG_RANGE.relaxTime.min,
+        targetReps: CONFIG_RANGE.rounds.min,
+        comfortFeedback: 'comfortable',
+      }),
+    ];
+    const suggestion = evaluateSuggestion(records, freshState());
+    expect(suggestion).not.toBeNull();
+    expect(suggestion!.type).toBe('maintain');
+  });
+
+  it('returns null when most recent record has slightly_hard feedback', () => {
+    const records = [
+      makeRecord({ comfortFeedback: 'slightly_hard' }),
+      makeRecord({ comfortFeedback: 'comfortable' }),
+      makeRecord({ comfortFeedback: 'comfortable' }),
+    ];
+    expect(evaluateSuggestion(records, freshState())).toBeNull();
+  });
+
+  it('returns upgrade suggestion when most recent record has comfortable feedback', () => {
+    const records = [
+      makeRecord({ comfortFeedback: 'comfortable' }),
+      makeRecord({ comfortFeedback: 'comfortable' }),
+      makeRecord({ comfortFeedback: 'comfortable' }),
+    ];
+    const suggestion = evaluateSuggestion(records, freshState());
+    expect(suggestion).not.toBeNull();
+    expect(suggestion!.type).toBe('upgrade');
+  });
+
+  it('returns upgrade suggestion when most recent record has no comfort feedback', () => {
+    const records = [makeRecord(), makeRecord(), makeRecord()];
+    const suggestion = evaluateSuggestion(records, freshState());
+    expect(suggestion).not.toBeNull();
+    expect(suggestion!.type).toBe('upgrade');
+  });
+
+  it('respects permanent dismiss even with painful feedback', () => {
+    const records = [
+      makeRecord({ comfortFeedback: 'painful' }),
+      makeRecord({ comfortFeedback: 'comfortable' }),
+      makeRecord({ comfortFeedback: 'comfortable' }),
+    ];
+    const state = freshState();
+    state.dismissedPermanently = true;
+    expect(evaluateSuggestion(records, state)).toBeNull();
   });
 });

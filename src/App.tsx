@@ -155,6 +155,13 @@ export default function App() {
     if (records.length > 0) {
       const latest = records[0];
       history.updateRecord(latest.id, { comfortFeedback: feedback });
+      // Re-evaluate progressive suggestion with comfort data
+      const updatedRecords = records.map((r) =>
+        r.id === latest.id ? { ...r, comfortFeedback: feedback } : r,
+      );
+      const currentProgState = defaultStorage.read(PROGRESSIVE_SCHEMA);
+      const s = evaluateSuggestion(updatedRecords, currentProgState);
+      if (s) setSuggestion(s);
     }
   };
 

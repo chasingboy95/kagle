@@ -4,6 +4,8 @@ import { CONFIG_RANGE } from '../types/training';
 /* ── Suggestion types ────────────────────────────────────────── */
 
 export interface ProgressiveSuggestion {
+  /** Type of suggestion: upgrade to higher intensity, downgrade to lower, or maintain. */
+  type: 'upgrade' | 'downgrade' | 'maintain';
   /** Human-readable reason for the suggestion. */
   reason: string;
   /** Current config values. */
@@ -55,6 +57,14 @@ const SUGGESTION_STEPS: Record<keyof TrainingConfig, number> = {
   relaxTime: 2,
 };
 
+/** Step sizes for decreasing (used when comfort feedback is "painful"). */
+const DOWNGRADE_STEPS: Record<keyof TrainingConfig, number> = {
+  holdTime: 1,
+  rounds: 2,
+  contractTime: 1,
+  relaxTime: 2,
+};
+
 /** Priority order for suggesting parameter changes. */
 const SUGGESTION_ORDER: (keyof TrainingConfig)[] = ['holdTime', 'rounds', 'contractTime', 'relaxTime'];
 
@@ -96,6 +106,55 @@ export function evaluateSuggestion(
 
   if (completed.length < MIN_CONSECUTIVE) return null;
 
+  // ── Check most recent comfort feedback ─────────────────────
+  const latest = completed[0];
+  const comfort = latest.comfortFeedback;
+
+  if (comfort === 'painful') {
+    // Check permanent dismiss
+    if (state.dismissedPermanently) return null;
+
+    const before = configFromRecord(latest);
+
+    // Find a parameter to decrease that hasn't hit the minimum
+    for (const key of SUGGESTION_ORDER) {
+      const current = before[key];
+      const min = CONFIG_RANGE[key].min;
+      const step = DOWNGRADE_STEPS[key];
+
+      if (current > min) {
+        const after = { ...before, [key]: Math.max(current - step, min) };
+        const labelMap: Record<string, string> = {
+          holdTime: '保持时间',
+          rounds: '次数',
+          contractTime: '收缩时间',
+          relaxTime: '放松时间',
+        };
+        return {
+          type: 'downgrade',
+          reason: `上次训练反馈"疼痛或不适"，建议降低${labelMap[key] || key}，避免过度训练。`,
+          before,
+          after,
+          changedKey: key,
+        };
+      }
+    }
+
+    // All params at minimum — can't downgrade further
+    return {
+      type: 'maintain',
+      reason: '已使用最轻松的配置。如果持续感到不适，请咨询医生。',
+      before,
+      after: before,
+      changedKey: 'rounds',
+    };
+  }
+
+  if (comfort === 'slightly_hard') {
+    return null;
+  }
+
+  // ── "comfortable" or no feedback: existing progressive logic ──
   // Check if the most recent N consecutive completions have the same config
   const recent = completed.slice(0, MIN_CONSECUTIVE);
   const first = recent[0];
@@ -134,6 +193,7 @@ export function evaluateSuggestion(
         relaxTime: '放松时间',
       };
       return {
+        type: 'upgrade',
         reason: `已连续完成 ${MIN_CONSECUTIVE} 次相同训练，建议尝试增加${labelMap[key] || key}。`,
         before,
         after,
