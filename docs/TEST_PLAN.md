@@ -10,8 +10,10 @@
  - App storage schemas: direct-import coverage for versioned keys, defaults, existing records, and invalid-field fallback.
  - Training history: 500-record boundary, deterministic oldest-record eviction, statistics at capacity, and storage-write failure with in-memory retention.
  - Progressive suggestion: input-order preservation plus existing eligibility, priority, and cooldown rules.
+ - Accessibility: modal priority, initial/restored focus, focus traps, Tab/Escape rules, ARIA names/descriptions, reduced motion, live regions, and Playwright axe serious/critical violations.
  - Component tests: ConfigPanel and TrainingFeedback.
  - Playwright: Chromium flows cover completion, history, and stopped-session persistence.
+ - Playwright accessibility: recovery/onboarding flow and full-page axe audits.
 
  ### Unit: getCountdownEvent (`src/hooks/useKegelEngine.test.ts`)
 

@@ -80,6 +80,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- Playwright axe audits for serious/critical accessibility violations, plus component and browser coverage for modal focus, keyboard rules, reduced motion, and live regions (#31).
 - Regression coverage proving progressive-suggestion evaluation preserves input record order (#30).
 - A 500-record training-history limit, deterministic oldest-record eviction, and a dismissible warning when local persistence fails (#29).
 - Importable module-level storage schemas and compatibility tests for progressive suggestions and onboarding (#28).
@@ -116,6 +117,8 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- Session recovery now takes priority over onboarding; both dialogs expose complete ARIA relationships and focus traps, while recovery requires an explicit choice and onboarding supports Escape-to-skip (#31).
+- Ambient and onboarding transitions respect reduced-motion preferences (#31).
 - Progressive-suggestion evaluation now explicitly copies records before sorting and documents its side-effect-free contract (#30).
 - Storage writes now report success so training history can preserve current UI state and surface quota/private-mode failures without crashing (#29).
 - `App` now reuses stable progressive-suggestion and onboarding schemas instead of recreating them during every render (#28).
