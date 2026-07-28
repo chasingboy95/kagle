@@ -125,7 +125,8 @@ function hasExactProgressiveState(
     )
     && typeof value.ignoreCount === 'number'
     && Number.isInteger(value.ignoreCount)
-    && value.ignoreCount >= 0;
+    && value.ignoreCount >= 0
+    && typeof value.dismissedPermanently === 'boolean';
 }
 
 function hasExactWeeklyGoal(value: unknown): value is WeeklyGoalSettings {

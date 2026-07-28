@@ -25,12 +25,15 @@ export interface ProgressiveSuggestionState {
   lastAction: SuggestionAction | null;
   /** Count of consecutive ignores (reset on accept/dismiss). */
   ignoreCount: number;
+  /** Whether the user has permanently dismissed progressive suggestions. */
+  dismissedPermanently: boolean;
 }
 
 export const DEFAULT_PROGRESSIVE_STATE: ProgressiveSuggestionState = {
   lastSuggestedAt: '',
   lastAction: null,
   ignoreCount: 0,
+  dismissedPermanently: false,
 };
 
 /* ── Constants ────────────────────────────────────────────────── */
@@ -98,6 +101,9 @@ export function evaluateSuggestion(
   const first = recent[0];
   const allSame = recent.every((r) => sameConfig(r, first));
   if (!allSame) return null;
+
+  // Check permanent dismiss
+  if (state.dismissedPermanently) return null;
 
   // Check cooldown after dismissal
   if (state.lastAction === 'dismiss' && state.lastSuggestedAt) {

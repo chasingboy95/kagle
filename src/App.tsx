@@ -112,6 +112,7 @@ export default function App() {
       lastSuggestedAt: now,
       lastAction: action,
       ignoreCount: action === 'ignore' ? progState.ignoreCount + 1 : 0,
+      dismissedPermanently: action === 'dismiss' ? true : progState.dismissedPermanently,
     };
     setProgState(next);
     defaultStorage.write(PROGRESSIVE_SCHEMA, next);
@@ -119,6 +120,16 @@ export default function App() {
       updateConfig(suggestion.after);
     }
     setSuggestion(null);
+  };
+
+  const reenableProgressiveSuggestions = () => {
+    const next: ProgressiveSuggestionState = {
+      ...progState,
+      dismissedPermanently: false,
+      lastAction: null,
+    };
+    setProgState(next);
+    defaultStorage.write(PROGRESSIVE_SCHEMA, next);
   };
 
   const handleOnboardingComplete = () => { setShowOnboarding(false); defaultStorage.write(ONBOARDING_SCHEMA, false); };
@@ -296,6 +307,14 @@ export default function App() {
                 className="w-full rounded-lg bg-white/5 text-slate-400 py-2.5 text-sm font-medium hover:bg-white/10 transition-colors"
               >
                 重新查看引导
+              </button>
+            )}
+            {isIdle && progState.dismissedPermanently && !showHistory && (
+              <button
+                onClick={reenableProgressiveSuggestions}
+                className="w-full rounded-lg bg-white/5 text-slate-500 py-2 text-xs font-medium hover:bg-white/10 transition-colors"
+              >
+                重新开启渐进建议
               </button>
             )}
             {isIdle && (

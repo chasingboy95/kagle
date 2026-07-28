@@ -38,6 +38,7 @@ describe('app storage schemas', () => {
       lastSuggestedAt: '2026-07-28T00:00:00.000Z',
       lastAction: 'ignore',
       ignoreCount: 2,
+      dismissedPermanently: false,
     });
   });
 
@@ -51,6 +52,7 @@ describe('app storage schemas', () => {
       lastSuggestedAt: '',
       lastAction: null,
       ignoreCount: 0,
+      dismissedPermanently: false,
     });
   });
 

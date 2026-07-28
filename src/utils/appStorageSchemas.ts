@@ -172,6 +172,7 @@ export const PROGRESSIVE_SCHEMA = defineSchema<ProgressiveSuggestionState>({
         && Number.isFinite(candidate.ignoreCount)
         ? Math.max(0, Math.floor(candidate.ignoreCount))
         : 0,
+      dismissedPermanently: candidate.dismissedPermanently === true,
     };
   },
 });
