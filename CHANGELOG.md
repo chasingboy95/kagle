@@ -19,6 +19,7 @@
 - Error boundary no longer clears all `kegel.*` local data on rendering exceptions; only the session snapshot is cleaned up automatically. Full data reset now requires explicit user confirmation with a description of what will be lost (#59).
 - PWA update no longer force-reloads during training: the service worker stays in the "waiting" state after install, and activation (`SKIP_WAITING`) is only requested when the user clicks "立即更新" and no live session (running/paused snapshot) exists; the feedback view is treated as safe to update (#60).
 - Recovery now uses the session snapshot config as the single source of truth: on recovery the UI and engine config switch to the snapshot config, the session result carries the immutable actual config, and the history record is built from it, so target repetitions, phase durations, and the saved record stay consistent even when the snapshot config differs from the saved config (#61).
+- PWA now precaches the full hashed build (JS/CSS/SVG) plus app shell on first install: the build emits `precache-manifest.json` and injects a content-hashed, versioned cache name and asset list into `sw.js` after the public-dir copy, so a fresh browser context can open the app offline and old caches are cleared on upgrade (#62).
 
 - Unified storage layer (`StorageAdapter`) with schema validation, versioned keys, upgrade chain, and corruption recovery (#17).
 - Training history: records persisted via storage layer, stats (weekly, streak, total), scrollable history UI with delete/clear (#8).
