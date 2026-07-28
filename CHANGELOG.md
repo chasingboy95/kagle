@@ -80,6 +80,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- Boundary and corruption-isolation coverage for training-history timestamps, numeric fields, and repetition relationships (#32).
 - Playwright axe audits for serious/critical accessibility violations, plus component and browser coverage for modal focus, keyboard rules, reduced motion, and live regions (#31).
 - Regression coverage proving progressive-suggestion evaluation preserves input record order (#30).
 - A 500-record training-history limit, deterministic oldest-record eviction, and a dismissible warning when local persistence fails (#29).
@@ -117,6 +118,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- Training-history validation now rejects invalid ISO/calendar timestamps, reversed time ranges, non-finite or negative values, fractional repetition counts, and completions above target on a per-record basis (#32).
 - Session recovery now takes priority over onboarding; both dialogs expose complete ARIA relationships and focus traps, while recovery requires an explicit choice and onboarding supports Escape-to-skip (#31).
 - Ambient and onboarding transitions respect reduced-motion preferences (#31).
 - Progressive-suggestion evaluation now explicitly copies records before sorting and documents its side-effect-free contract (#30).

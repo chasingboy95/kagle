@@ -153,31 +153,61 @@ export interface TrainingRecord {
 /** Keep the most recent sessions within a predictable localStorage budget. */
 export const TRAINING_HISTORY_MAX_RECORDS = 500;
 
+const ISO_TIMESTAMP_PATTERN =
+  /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.(\d{1,3}))?(Z|[+-]\d{2}:\d{2})$/;
+
+function isValidIsoTimestamp(value: unknown): value is string {
+  if (typeof value !== 'string') return false;
+  const match = ISO_TIMESTAMP_PATTERN.exec(value);
+  if (!match) return false;
+
+  const [, year, month, day, hour, minute, second, fraction = '0'] = match;
+  const parts = [year, month, day, hour, minute, second].map(Number);
+  const [y, m, d, h, min, sec] = parts;
+  const ms = Number(fraction.padEnd(3, '0'));
+  const wallTime = new Date(Date.UTC(y, m - 1, d, h, min, sec, ms));
+  const fieldsAreValid =
+    wallTime.getUTCFullYear() === y
+    && wallTime.getUTCMonth() === m - 1
+    && wallTime.getUTCDate() === d
+    && wallTime.getUTCHours() === h
+    && wallTime.getUTCMinutes() === min
+    && wallTime.getUTCSeconds() === sec
+    && wallTime.getUTCMilliseconds() === ms;
+  return fieldsAreValid && Number.isFinite(Date.parse(value));
+}
+
+function isFiniteNonNegative(value: unknown): value is number {
+  return typeof value === 'number' && Number.isFinite(value) && value >= 0;
+}
+
+function isNonNegativeInteger(value: unknown): value is number {
+  return isFiniteNonNegative(value) && Number.isInteger(value);
+}
+
 function isTrainingRecord(value: unknown): value is TrainingRecord {
   if (!value || typeof value !== 'object') return false;
   const v = value as Record<string, unknown>;
+  if (!isValidIsoTimestamp(v.startedAt) || !isValidIsoTimestamp(v.endedAt)) {
+    return false;
+  }
   return typeof v.id === 'string'
-    && typeof v.startedAt === 'string'
-    && typeof v.endedAt === 'string'
-    && typeof v.contractSec === 'number'
-    && typeof v.holdSec === 'number'
-    && typeof v.relaxSec === 'number'
-    && typeof v.targetReps === 'number'
-    && typeof v.completedReps === 'number'
+    && Date.parse(v.endedAt) >= Date.parse(v.startedAt)
+    && isFiniteNonNegative(v.contractSec)
+    && isFiniteNonNegative(v.holdSec)
+    && isFiniteNonNegative(v.relaxSec)
+    && isNonNegativeInteger(v.targetReps)
+    && isNonNegativeInteger(v.completedReps)
+    && v.completedReps <= v.targetReps
     && (v.status === 'completed' || v.status === 'stopped')
-    && typeof v.actualDurationMs === 'number';
+    && isFiniteNonNegative(v.actualDurationMs);
 }
 
 export function normalizeTrainingHistory(value: unknown): TrainingRecord[] {
   if (!Array.isArray(value)) return [];
   return value
     .filter(isTrainingRecord)
-    .sort((a, b) => {
-      const aTime = new Date(a.endedAt).getTime();
-      const bTime = new Date(b.endedAt).getTime();
-      return (Number.isFinite(bTime) ? bTime : 0)
-        - (Number.isFinite(aTime) ? aTime : 0);
-    })
+    .sort((a, b) => Date.parse(b.endedAt) - Date.parse(a.endedAt))
     .slice(0, TRAINING_HISTORY_MAX_RECORDS);
 }
 

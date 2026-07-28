@@ -26,7 +26,7 @@
 | Background-Tab Timing | Complete | Engineering evaluation done. Worker-based timer (`createTimer` + `timingWorker`) provides reliable ticks even when browser tab is backgrounded, with transparent fallback to setInterval. |
 | PWA / GitHub Pages | Complete | Manifest, service worker, subpath, safe-area, standard PNG icons, apple-touch-icon, version update notification, offline caching, and voice asset cache verified by Playwright E2E tests (e2e/pwa.spec.ts). Real-device QA remains outstanding. |
 | Storage Layer | Complete | `StorageAdapter` provides schema validation, versioned keys, upgrade chains, and corruption recovery. Training configuration, history, progressive suggestions, and onboarding use importable module-level schemas instead of render-time definitions. |
-| Training History | Complete | Keeps the newest 500 records with deterministic oldest-first eviction. Persistence failures retain current in-memory UI state and show a dismissible warning; statistics and lists are tested at the capacity boundary. |
+| Training History | Complete | Keeps the newest 500 records with deterministic eviction. Per-record validation rejects invalid ISO/calendar times, reversed ranges, non-finite/negative numbers, fractional counts, and completed counts above target without discarding valid siblings. Persistence failures retain current UI state and show a warning. |
 | Progressive Training | Complete | Side-effect-free rule engine explicitly copies records before newest-first sorting, suggests parameter increases after 3 consecutive same-config completions, and applies a 3-day cooldown after dismiss. Input-order preservation is covered by regression tests. |
 | Onboarding | Complete | Three-page first-time guided modal with ARIA labeling, page status, keyboard focus trap, Escape-to-skip, reduced-motion transitions, localStorage persistence, and re-entry in idle. It never overlaps session recovery. |
 | Session Recovery | Complete | Engine saves snapshots locally; the higher-priority recovery dialog requires an explicit continue/discard choice, traps focus, and defers first-use onboarding until the app is idle. |
@@ -85,6 +85,7 @@
 - Training-history capacity, deterministic retention, large-history statistics, and quota-failure UI-state preservation.
 - Progressive-suggestion input-order preservation while retaining existing rule behavior.
 - Modal priority, focus trapping, Tab/Escape rules, ARIA labeling, reduced motion, live regions, and serious/critical axe violations.
+- Training-history ISO/calendar validity, time ordering, numeric bounds, integer repetition counts, count relationships, and mixed valid/corrupt input.
 
 ## Verification Gap
 
