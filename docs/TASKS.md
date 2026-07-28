@@ -1,6 +1,6 @@
 # Task List
 
-**Last verified against repository:** 2026-07-27
+**Last verified against repository:** 2026-07-28
 
 ## In Progress
 
@@ -44,6 +44,7 @@
 
 ## Completed
 
+- [x] **Issue #26: 停止训练与历史记录跨模块集成测试**: fake-clock 测试覆盖 ready、contract、hold、relax 阶段中止，暂停后停止、恢复后停止、快照清理、统计与渐进建议隔离以及重复停止幂等；Playwright 覆盖浏览器中的停止与历史写入流程。
 - [x] **Issue #23: 暂停后直接停止的训练时长修复**: 当前暂停区间不再计入活动时长；UI、会话快照、完成和停止记录统一使用权威时长函数；fake-clock 测试覆盖多次暂停及直接停止。
 - [x] **Issue #19: 完成提示语音不稳定修复**: `resolveVoiceAsset()` 为 `completed` 启用 `complete.mp3`；`VoiceController.enqueue()` 在 completed 入队时清空队列并停止播放；降级链（录音→TTS→提示音）覆盖 completed 事件；新增 5 个 VoiceController 测试覆盖完成事件流程。
 

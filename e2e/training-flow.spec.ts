@@ -62,3 +62,24 @@ test('completes training and views training history from feedback page', async (
   await page.getByRole('button', { name: '返回' }).click();
   await expect(page.getByRole('button', { name: '开始训练' })).toBeVisible();
 });
+
+test('stops training once, clears recovery state, and excludes it from completion stats', async ({ page }) => {
+  await page.context().addInitScript(() => {
+    localStorage.setItem('kegel.onboarding.v1', JSON.stringify(false));
+  });
+  await page.goto('.');
+
+  await page.getByRole('button', { name: '开始训练' }).click();
+  await expect(page.getByRole('button', { name: '停止' })).toBeVisible();
+  await page.getByRole('button', { name: '停止' }).click();
+  await expect(page.getByRole('button', { name: '开始训练' })).toBeVisible();
+
+  await expect.poll(async () => page.evaluate(() =>
+    localStorage.getItem('kegel.session-snapshot.v1'),
+  )).toBeNull();
+
+  await page.getByRole('button', { name: '训练记录' }).click();
+  await expect(page.getByText('中止')).toHaveCount(1);
+  await expect(page.getByText(/^0\/10次 · \d+秒$/)).toBeVisible();
+  await expect(page.getByText('总次数').locator('..').getByText('0')).toBeVisible();
+});
