@@ -21,6 +21,10 @@ import { ONBOARDING_SCHEMA, PROGRESSIVE_SCHEMA } from './utils/appStorageSchemas
 import { defaultStorage } from './utils/storage';
 import TrainingFeedback from './components/TrainingFeedback';
 import { actionHint, calcDisplayPhaseTiming, calcTotalDuration } from './utils/time';
+import {
+  computeCompletionProgress,
+  type CompletionProgress,
+} from './utils/completionProgress';
 
 export default function App() {
   const reducedMotion = useReducedMotion();
@@ -29,6 +33,7 @@ export default function App() {
   const weeklyGoal = useWeeklyGoal(history.records);
   const [showHistory, setShowHistory] = useState(false);
   const [suggestion, setSuggestion] = useState<SuggestionType | null>(null);
+  const [completionProgress, setCompletionProgress] = useState<CompletionProgress | null>(null);
   const [progState, setProgState] = useState<ProgressiveSuggestionState>(() => defaultStorage.read(PROGRESSIVE_SCHEMA));
   const [showOnboarding, setShowOnboarding] = useState(() => defaultStorage.read(ONBOARDING_SCHEMA));
   const { state, config, start, pause, resume, stop, finish, restart, updateConfig, recoverableSession, discardSession, recoverSession } =
@@ -48,6 +53,17 @@ export default function App() {
         const nextRecords = history.addRecord(record);
         // Evaluate progressive suggestion
         if (data.status === 'completed') {
+          try {
+            setCompletionProgress(computeCompletionProgress(
+              nextRecords,
+              record,
+              weeklyGoal.settings,
+              new Date(),
+              Intl.DateTimeFormat().resolvedOptions().timeZone,
+            ));
+          } catch {
+            setCompletionProgress(null);
+          }
           const currentProgState = defaultStorage.read(PROGRESSIVE_SCHEMA);
           const s = evaluateSuggestion(nextRecords, currentProgState);
           if (s) setSuggestion(s);
@@ -103,11 +119,13 @@ export default function App() {
   const handleOnboardingComplete = () => { setShowOnboarding(false); defaultStorage.write(ONBOARDING_SCHEMA, false); };
 
   const handleStart = () => {
+    setCompletionProgress(null);
     void voice.unlock();
     start();
   };
 
   const handleRestart = () => {
+    setCompletionProgress(null);
     void voice.unlock();
     restart();
   };
@@ -198,6 +216,7 @@ export default function App() {
                 completedRepetitions={state.currentRound}
                 totalRepetitions={config.rounds}
                 durationMs={state.totalElapsedMs}
+                progress={completionProgress}
                 onRestart={handleRestart}
                 onDone={finish}
                 onViewHistory={() => { finish(); setShowHistory(true); }}
