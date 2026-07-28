@@ -202,6 +202,25 @@ The "清除全部" button in Training History immediately deleted all records wi
 - 4 component tests cover: cancel, confirm, backup creation, and Escape key behavior.
 
 
+
+## 11. Unified Storage Write Failure Handling
+
+**Status:** Resolved (2026-07-28)
+
+**Description:**
+
+Training history had storage error handling, but saved configurations, weekly goals, and voice settings wrote to localStorage without checking for or reporting failures. Users could see "saved" state in the UI that would be lost after refresh.
+
+**Resolution:**
+
+- Created shared `useStorageWrite` hook to avoid duplicating error handling across hooks.
+- `useSavedConfigs`: storage write failures now expose `storageError` and `dismissStorageError`.
+- `useWeeklyGoal`: storage write failures now expose `storageError` and `dismissStorageError`.
+- `saveVoiceSettings`: now returns `boolean`; `useVoiceAssistant` exposes `storageError` for failures.
+- All errors rendered via the existing `StorageErrorNotice` component in App.tsx.
+- Existing `useTrainingHistory` error handling preserved with zero regression.
+
+
 ## Resolved Issues
 
 - Feedback phase UI no longer exposes pause/stop controls during the completion celebration.
