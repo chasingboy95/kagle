@@ -92,6 +92,7 @@
 - Weekly-goal Monday/Sunday and timezone boundaries, same-day deduplication, stopped-record exclusion, persistence/migration, controls, and pressure-free copy.
 - Completion progress including the current record, weekly count/duration and increment, streak, optional goal remainder, disabled-goal behavior, and safe component fallback.
 - Saved training configurations: name and save the current rhythm, apply, rename, delete, enforce the five-item limit, preserve built-in presets, migrate legacy flat entries, and discard invalid entries independently.
+- Versioned local-data export/import covering training, voice, history, progressive state, weekly goals, and saved configurations; strict validation, preview, import strategies, ID deduplication, backup, and rollback.
 - Modal priority, focus trapping, Tab/Escape rules, ARIA labeling, reduced motion, live regions, and serious/critical axe violations.
 - Training-history ISO/calendar validity, time ordering, numeric bounds, integer repetition counts, count relationships, and mixed valid/corrupt input.
 
