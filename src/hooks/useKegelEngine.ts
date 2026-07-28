@@ -2,6 +2,7 @@ import { useState, useRef, useCallback, useEffect } from 'react';
 import { createTimer, type TimerHandle } from '../utils/createTimer';
 import type { TrainingConfig, TrainingStatus, TrainingPhase, EngineState, SessionSnapshot } from '../types/training';
 import { DEFAULT_CONFIG, TRAINING_CONFIG_SCHEMA, SESSION_SNAPSHOT_SCHEMA } from '../types/training';
+import { buildSessionResult, getActiveElapsedMs, getCompletedRepetitions, type SessionResult } from '../utils/sessionResult';
 import { calcTotalDuration } from '../utils/time';
 import type { VoiceEvent } from '../voice/types';
 import type { VoiceEventContext } from '../voice/VoiceController';
@@ -10,7 +11,7 @@ import { defaultStorage } from '../utils/storage';
 export interface KegelEngineVoiceOptions {
   onVoiceEvent?: (event: VoiceEvent, context: VoiceEventContext) => void;
   countdownFrom?: 0 | 3 | 5;
-  onSessionEnd?: (data: { completedReps: number; actualDurationMs: number; status: 'completed' | 'stopped'; startedAt: string }) => void;
+  onSessionEnd?: (data: SessionResult) => void;
 }
 
 export interface UseKegelEngineReturn {
@@ -94,34 +95,6 @@ function finiteNonNegative(value: number): number {
   return Number.isFinite(value) ? Math.max(0, value) : 0;
 }
 
-export function calculateActiveDurationMs(
-  now: number,
-  sessionStartedAt: number,
-  totalPausedMs: number,
-  pauseStartedAt?: number,
-  frozenDurationMs?: number,
-): number {
-  if (frozenDurationMs !== undefined) {
-    return finiteNonNegative(frozenDurationMs);
-  }
-  const activeUntil = pauseStartedAt ?? now;
-  return finiteNonNegative(activeUntil - sessionStartedAt - totalPausedMs);
-}
-
-/** Calculate active session time, excluding completed and currently-open pauses. */
-function activeDurationMs(e: EngineInternals, now: number): number {
-  if (e.status === 'idle') return 0;
-  if (e.status === 'feedback' || e.status === 'finished') {
-    return calculateActiveDurationMs(now, e.sessionStartedAt, e.totalPausedMs, undefined, e.feedbackElapsedSnapshot);
-  }
-  return calculateActiveDurationMs(
-    now,
-    e.sessionStartedAt,
-    e.totalPausedMs,
-    e.status === 'paused' ? e.pauseStartedAt : undefined,
-  );
-}
-
 /** 从当前引擎快照构建渲染状态 */
 function buildState(e: EngineInternals, now: number): EngineState {
   const isPaused = e.status === 'paused';
@@ -142,9 +115,11 @@ function buildState(e: EngineInternals, now: number): EngineState {
   return {
     status: e.status,
     phase: e.phase,
-    currentRound: e.round + 1,
+    currentRound: e.phase === 'feedback'
+      ? getCompletedRepetitions(e)
+      : e.round + 1,
     phaseRemainingMs: Math.ceil(phaseRemaining),
-    totalElapsedMs: Math.ceil(activeDurationMs(e, now)),
+    totalElapsedMs: Math.ceil(getActiveElapsedMs(e, now)),
     totalDurationMs: calcTotalDuration(
       e.config.contractTime,
       e.config.holdTime,
@@ -214,7 +189,7 @@ export function useKegelEngine(options: KegelEngineVoiceOptions = {}): UseKegelE
         phase: e.phase,
         round: e.round,
         phaseElapsedMs: finiteNonNegative(Math.round(phaseElapsedAt - e.phaseStartedAt)),
-        sessionElapsedMs: Math.round(activeDurationMs(e, now)),
+        sessionElapsedMs: Math.round(getActiveElapsedMs(e, now)),
         totalPausedMs: e.totalPausedMs,
         config: e.config,
         announcedCountdowns: [...e.announcedCountdowns],
@@ -278,18 +253,16 @@ export function useKegelEngine(options: KegelEngineVoiceOptions = {}): UseKegelE
     if (e.phase === 'relax') {
       const nextRound = e.round + 1;
       if (nextRound >= cfg.rounds) {
-        e.feedbackElapsedSnapshot = activeDurationMs(e, performance.now());
+        const now = performance.now();
+        e.feedbackElapsedSnapshot = getActiveElapsedMs(e, now);
         emitVoice({ type: 'completed' });
         e.status = 'feedback';
         enterPhase('feedback', false);
         stopTick();
         try {
-          optionsRef.current.onSessionEnd?.({
-            completedReps: e.round + 1,
-            actualDurationMs: e.feedbackElapsedSnapshot,
-            status: 'completed',
-            startedAt: e.sessionStartedAtIso,
-          });
+          optionsRef.current.onSessionEnd?.(
+            buildSessionResult(e, 'completed', now),
+          );
         } catch {
           /* ignore */
         }
@@ -410,16 +383,9 @@ export function useKegelEngine(options: KegelEngineVoiceOptions = {}): UseKegelE
     storedSnapRef.current = null;
     stopTick();
     emitVoice({ type: 'stopped' });
-    const duration = activeDurationMs(e, performance.now());
-    // `round` is the zero-based index of the repetition currently in progress.
-    // A repetition only becomes completed after its relax phase advances to the next round.
+    const result = buildSessionResult(e, 'stopped', performance.now());
     try {
-      optionsRef.current.onSessionEnd?.({
-        completedReps: e.round,
-        actualDurationMs: duration,
-        status: 'stopped',
-        startedAt: e.sessionStartedAtIso,
-      });
+      optionsRef.current.onSessionEnd?.(result);
     } catch {
       /* ignore */
     }
