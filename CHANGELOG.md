@@ -158,6 +158,7 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- Added versioned local JSON backup and safe import with preview, replace/merge/settings-only strategies, history ID deduplication, automatic pre-import backup, and rollback on write failure (#34).
 - Repeated `stop()` calls after a session has already returned to idle no longer write duplicate interrupted-session records (#26).
 - Coach and guided selections no longer produce identical behavior under different labels.
 - Countdown no longer implicitly selects guided scripts.

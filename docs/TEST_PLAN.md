@@ -215,6 +215,8 @@ Automated Playwright E2E tests in `e2e/pwa.spec.ts`.
 
 ## Test Execution
 
+Local data-transfer coverage includes schema-version compatibility, corrupt JSON and nested data rejection, import summaries, replace/merge/settings-only behavior, history ID deduplication, automatic backup, transactional rollback, and component-level file selection/import flows.
+
  Run all automated tests:
  ```bash
  bun run test
