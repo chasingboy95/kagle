@@ -27,7 +27,7 @@
 | PWA / GitHub Pages | Complete | Manifest, service worker, subpath, safe-area, standard PNG icons, apple-touch-icon, version update notification, offline caching, and voice asset cache verified by Playwright E2E tests (e2e/pwa.spec.ts). Real-device QA remains outstanding. |
 | Storage Layer | Complete | `StorageAdapter` provides schema validation, versioned keys, upgrade chains, and corruption recovery. Training configuration, history, progressive suggestions, and onboarding use importable module-level schemas instead of render-time definitions. |
 | Training History | Complete | Keeps the newest 500 records with deterministic eviction. Per-record validation rejects invalid ISO/calendar times, reversed ranges, non-finite/negative numbers, fractional counts, and completed counts above target without discarding valid siblings. Persistence failures retain current UI state and show a warning. |
-| Progressive Training | Complete | Side-effect-free rule engine explicitly copies records before newest-first sorting, suggests parameter increases after 3 consecutive same-config completions, and applies a 3-day cooldown after dismiss. Input-order preservation is covered by regression tests. |
+| Progressive Training | Complete | History writes synchronously return the normalized record set used for suggestion evaluation, so the third same-config completion triggers immediately without React state timing dependencies. The side-effect-free rule engine preserves input order and applies a 3-day cooldown after dismiss. |
 | Onboarding | Complete | Three-page first-time guided modal with ARIA labeling, page status, keyboard focus trap, Escape-to-skip, reduced-motion transitions, localStorage persistence, and re-entry in idle. It never overlaps session recovery. |
 | Session Recovery | Complete | Engine saves snapshots locally; strict schema validation accepts only recoverable status/phase combinations, bounded config and repetition values, finite non-negative timing, legal countdown markers, and valid timestamps. Corrupt or unknown snapshots are removed before the app remains safely idle. The higher-priority recovery dialog requires an explicit continue/discard choice, traps focus, and defers first-use onboarding until the app is idle. |
 | Session Statistics | Complete | The completion view shows only objective current-session duration and repetition counts. Streaks and quality scores are hidden until real training history exists. |
@@ -84,6 +84,7 @@
 - Importable progressive-suggestion and onboarding schemas with compatibility tests for existing keys, defaults, and validation behavior.
 - Training-history capacity, deterministic retention, large-history statistics, and quota-failure UI-state preservation.
 - Progressive-suggestion input-order preservation while retaining existing rule behavior.
+- Progressive-suggestion integration at the second and third matching completion, including stopped-session isolation and synchronous post-write history evaluation.
 - Modal priority, focus trapping, Tab/Escape rules, ARIA labeling, reduced motion, live regions, and serious/critical axe violations.
 - Training-history ISO/calendar validity, time ordering, numeric bounds, integer repetition counts, count relationships, and mixed valid/corrupt input.
 

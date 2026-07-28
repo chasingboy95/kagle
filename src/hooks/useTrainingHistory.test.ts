@@ -65,7 +65,10 @@ describe('useTrainingHistory', () => {
   it('addRecord inserts at front', () => {
     const { result } = renderHook(() => useTrainingHistory());
     const record = buildTrainingRecord(DEFAULT_CONFIG, 10, 90000, 'completed', new Date().toISOString());
-    act(() => { result.current.addRecord(record); });
+    let nextRecords: TrainingRecord[] = [];
+    act(() => { nextRecords = result.current.addRecord(record); });
+    expect(nextRecords[0].id).toBe(record.id);
+    expect(nextRecords).toHaveLength(2);
     expect(result.current.records[0].id).toBe(record.id);
     expect(result.current.records).toHaveLength(2);
   });

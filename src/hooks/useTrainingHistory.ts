@@ -23,7 +23,7 @@ export interface HistoryStats {
 export interface UseTrainingHistoryReturn {
   records: TrainingRecord[];
   stats: HistoryStats;
-  addRecord: (record: TrainingRecord) => void;
+  addRecord: (record: TrainingRecord) => TrainingRecord[];
   removeRecord: (id: string) => void;
   clearAll: () => void;
   storageError: string | null;
@@ -120,18 +120,17 @@ export function useTrainingHistory(): UseTrainingHistoryReturn {
 
   const stats = useMemo(() => computeStats(records), [records]);
 
-  const persist = useCallback((next: TrainingRecord[]) => {
+  const persist = useCallback((next: TrainingRecord[]): TrainingRecord[] => {
     const normalized = normalizeTrainingHistory(next);
     recordsRef.current = normalized;
     setRecords(normalized);
     const saved = defaultStorage.write(TRAINING_HISTORY_SCHEMA, normalized);
     setStorageError(saved ? null : HISTORY_STORAGE_ERROR_MESSAGE);
+    return normalized;
   }, []);
 
   const addRecord = useCallback(
-    (record: TrainingRecord) => {
-      persist([record, ...recordsRef.current]);
-    },
+    (record: TrainingRecord) => persist([record, ...recordsRef.current]),
     [persist],
   );
 
