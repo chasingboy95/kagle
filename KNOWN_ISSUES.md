@@ -1,6 +1,6 @@
 # Known Issues
 
-**Last updated:** 2026-07-24
+**Last updated:** 2026-07-28
 
 ## P1 — Functional Issues
 
@@ -27,12 +27,12 @@
 
 ### Three copies of SVG assets with inconsistencies
 
-- **Status**: Open
+- **Status**: Resolved (2026-07-28)
 - **Severity**: Medium
 - **Affected area**: `src/assets/muscle-sphere/`, `assets/muscle-sphere/`, `public/muscle-sphere/`
 - **Description**: SVG files exist in three locations. Four files differ between `src/assets/muscle-sphere/` and `assets/muscle-sphere/`: fascia.svg, fibers.svg, fluid.svg, highlight.svg. The `src/` copy is the authoritative one (used by imports). The other two directories risk confusion and stale copies.
 - **Workaround**: Only edit SVGs in `src/assets/muscle-sphere/`.
-- **Planned resolution**: Remove duplicate directories after reconciling differences.
+- **Resolution**: Duplicate `assets/muscle-sphere/` and `public/muscle-sphere/` directories no longer exist; only `src/assets/muscle-sphere/` remains.
 
 ### AGENTS.md describes wrong project architecture
 
@@ -42,6 +42,8 @@
 - **Description**: AGENTS.md describes the project as a single-file vanilla HTML/CSS/JS application. The actual project is a React + TypeScript + Vite application with component tree, hooks, and a voice module.
 - **Workaround**: Follow `docs/ARCHITECTURE.md` for accurate understanding.
 - **Planned resolution**: Rewrite AGENTS.md to match current architecture.
+- **Status**: Resolved (2026-07-28)
+- **Resolution**: AGENTS.md has been rewritten to describe the actual React + TypeScript + Vite architecture.
 
 ### Ripple component not imported
 
@@ -68,7 +70,8 @@
 - **Affected area**: `script_content.txt` at repository root
 - **Description**: A 32-line text file with unknown origin and purpose. Not referenced by any code.
 - **Workaround**: None.
-- **Planned resolution**: Investigate and remove if not needed.
+- **Status**: Resolved (2026-07-28)
+- **Resolution**: `script_content.txt` has been removed.
 
 ### `hero.png` unreferenced
 
@@ -77,7 +80,8 @@
 - **Affected area**: `src/assets/hero.png`
 - **Description**: PNG image file at `src/assets/hero.png` is not imported or referenced by any component.
 - **Workaround**: None.
-- **Planned resolution**: Either use as a hero image or remove.
+- **Status**: Resolved (2026-07-28)
+- **Resolution**: `src/assets/hero.png` no longer exists in the repository.
 
 ## P3 — Design/UX Issues
 
