@@ -77,6 +77,7 @@ function configFromRecord(r: TrainingRecord): TrainingConfig {
 
 /**
  * Evaluate whether a progressive training suggestion should be shown.
+ * Side-effect-free: never mutates the input records or their ordering.
  * Returns null if conditions are not met.
  */
 export function evaluateSuggestion(
@@ -85,7 +86,7 @@ export function evaluateSuggestion(
   now: Date = new Date(),
 ): ProgressiveSuggestion | null {
   // Only look at completed records, most recent first
-  const completed = records
+  const completed = [...records]
     .filter((r) => r.status === 'completed')
     .sort((a, b) => new Date(b.endedAt).getTime() - new Date(a.endedAt).getTime())
     .slice(0, MAX_LOOKBACK);

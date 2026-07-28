@@ -80,6 +80,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- Regression coverage proving progressive-suggestion evaluation preserves input record order (#30).
 - A 500-record training-history limit, deterministic oldest-record eviction, and a dismissible warning when local persistence fails (#29).
 - Importable module-level storage schemas and compatibility tests for progressive suggestions and onboarding (#28).
 - Pure session-result calculations shared by UI state, snapshots, completion, and stopped-session persistence, with phase-boundary and pause-state coverage (#27).
@@ -115,6 +116,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- Progressive-suggestion evaluation now explicitly copies records before sorting and documents its side-effect-free contract (#30).
 - Storage writes now report success so training history can preserve current UI state and surface quota/private-mode failures without crashing (#29).
 - `App` now reuses stable progressive-suggestion and onboarding schemas instead of recreating them during every render (#28).
 - Completion and stop callbacks now build their payloads through the same authoritative session-result function instead of duplicating repetition and duration calculations (#27).
