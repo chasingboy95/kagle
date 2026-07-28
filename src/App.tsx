@@ -14,11 +14,13 @@ import Onboarding from './components/Onboarding';
 import SessionRecovery from './components/SessionRecovery';
 import StorageErrorNotice from './components/StorageErrorNotice';
 import TrainingFeedback from './components/TrainingFeedback';
+import ReminderNotification from './components/ReminderNotification';
 import { useKegelEngine } from './hooks/useKegelEngine';
 import { useVoiceAssistant } from './hooks/useVoiceAssistant';
 import { useTrainingHistory, buildTrainingRecord } from './hooks/useTrainingHistory';
 import { useWeeklyGoal } from './hooks/useWeeklyGoal';
 import { useSavedConfigs } from './hooks/useSavedConfigs';
+import { useTrainingSchedule } from './hooks/useTrainingSchedule';
 import { evaluateSuggestion, type ProgressiveSuggestion as SuggestionType, type ProgressiveSuggestionState } from './utils/progressiveTraining';
 import { ONBOARDING_SCHEMA, PROGRESSIVE_SCHEMA } from './utils/appStorageSchemas';
 import { defaultStorage } from './utils/storage';
@@ -34,6 +36,7 @@ export default function App() {
   const history = useTrainingHistory();
   const weeklyGoal = useWeeklyGoal(history.records);
   const savedConfigs = useSavedConfigs();
+  const schedule = useTrainingSchedule();
   const [showHistory, setShowHistory] = useState(false);
   const [showConfigDrawer, setShowConfigDrawer] = useState(false);
   const [showVoiceDrawer, setShowVoiceDrawer] = useState(false);
@@ -220,6 +223,10 @@ export default function App() {
 
       {showMoreMenu && !showHistory && (
         <MoreMenu
+          scheduleSettings={schedule.settings}
+          onScheduleToggleEnabled={schedule.toggleEnabled}
+          onScheduleSetDaysOfWeek={schedule.setDaysOfWeek}
+          onScheduleSetReminderTime={schedule.setReminderTime}
           onShowOnboarding={() => setShowOnboarding(true)}
           onClose={() => setShowMoreMenu(false)}
         />
@@ -387,6 +394,13 @@ export default function App() {
                       >
                         重新开启渐进建议
                       </button>
+                    )}
+                    {schedule.showReminder && (
+                      <ReminderNotification
+                        show={schedule.showReminder}
+                        onDismiss={schedule.dismissReminderNotification}
+                        onStartTraining={handleStart}
+                      />
                     )}
                   </div>
                 )}

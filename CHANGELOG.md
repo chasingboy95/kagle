@@ -192,3 +192,7 @@ All notable changes to this project will be documented in this file.
 - `npm test`
 - `npm run build`
 - `npm run lint`
+
+## 2026-07-28
+
+- **feat: 增加可选训练计划与提醒 (fix #78)** — 新增训练计划与提醒功能，支持选择训练日（周一至周日）和设定提醒时间，到达训练日时通过浏览器通知提醒用户。新增 `TrainingScheduleSettings` schema、`useTrainingSchedule` hook、`ScheduleSettings` 组件，集成至更多菜单与主界面提醒弹窗。

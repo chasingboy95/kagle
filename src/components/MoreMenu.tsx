@@ -1,12 +1,25 @@
 import { useEffect, useRef } from 'react';
 import DataManagement from './DataManagement';
+import ScheduleSettings from './ScheduleSettings';
+import type { TrainingScheduleSettings } from '../utils/appStorageSchemas';
 
 interface Props {
   onShowOnboarding: () => void;
   onClose: () => void;
+  scheduleSettings?: TrainingScheduleSettings;
+  onScheduleToggleEnabled?: () => void;
+  onScheduleSetDaysOfWeek?: (days: number[]) => void;
+  onScheduleSetReminderTime?: (hour: number, minute: number) => void;
 }
 
-export default function MoreMenu({ onShowOnboarding, onClose }: Props) {
+export default function MoreMenu({
+  onShowOnboarding,
+  onClose,
+  scheduleSettings,
+  onScheduleToggleEnabled,
+  onScheduleSetDaysOfWeek,
+  onScheduleSetReminderTime,
+}: Props) {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -40,6 +53,14 @@ export default function MoreMenu({ onShowOnboarding, onClose }: Props) {
           </button>
         </div>
         <div className="space-y-3">
+          {scheduleSettings && (
+            <ScheduleSettings
+              settings={scheduleSettings}
+              onToggleEnabled={onScheduleToggleEnabled ?? (() => {})}
+              onSetDaysOfWeek={onScheduleSetDaysOfWeek ?? (() => {})}
+              onSetReminderTime={onScheduleSetReminderTime ?? (() => {})}
+            />
+          )}
           <button
             type="button"
             onClick={() => { onShowOnboarding(); onClose(); }}

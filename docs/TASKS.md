@@ -6,11 +6,16 @@
 
 - Verify the simplified voice-assistance modes on real iOS and Android devices.
 - Verify the revised completion view and simplified voice settings on a real mobile device.
+- **Issue #78: 训练计划与提醒**: 基础 schema、Hook、组件、集成至 MoreMenu 与 App。
 
 - [x] **Issue #18: 移动端性能基线与回归检查**: 记录构建资源基线（.github/bundle-baseline.json），CI bundle size check（15% 阈值），性能基线文档（docs/PERFORMANCE_BASELINE.md），真实设备测试留存于 KNOWN_ISSUES.md。
 - [x] **Issue #16: 全局错误边界**: ErrorBoundary 包裹根组件，ErrorRecoveryUI 生产安全恢复页（重新加载/清除数据并重置），开发环境保留完整技术详情，onError 仅清除会话快照（不触及训练历史/配置/收藏/周目标），全量清除需用户二次确认，10 个组件测试。
 
 ## Next (Priority Order)
+
+3. **Training schedule UI polish**: Allow editing reminder time via stepper buttons, add week day selector with visual feedback.
+4. **4-week trend chart**: Build on existing calendar data, add weekly aggregate line chart.
+5. **Lazy loading**: React.lazy for History, Calendar, Settings.
 
 1. **Voice assistance real-device QA**
   - Verify "语音教练" uses the seven new Mandarin recordings.

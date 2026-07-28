@@ -185,3 +185,51 @@ export const ONBOARDING_SCHEMA = defineSchema<boolean>({
   defaultValue: true,
   validate: (value: unknown) => typeof value === 'boolean' ? value : true,
 });
+
+/* ── Training Schedule ──────────────────────────────────────────── */
+
+export interface TrainingScheduleSettings {
+  enabled: boolean;
+  /** 0=Monday … 6=Sunday */
+  daysOfWeek: number[];
+  reminderHour: number;   // 0-23
+  reminderMinute: number; // 0-59
+  /** ISO date key (YYYY-MM-DD) of last reminder to avoid duplicates. */
+  lastRemindedDateKey: string;
+}
+
+export const DEFAULT_TRAINING_SCHEDULE: TrainingScheduleSettings = {
+  enabled: false,
+  daysOfWeek: [0, 2, 4], // Mon, Wed, Fri
+  reminderHour: 20,
+  reminderMinute: 0,
+  lastRemindedDateKey: '',
+};
+
+function isValidDayOfWeek(value: unknown): value is number {
+  return typeof value === 'number' && Number.isInteger(value) && value >= 0 && value <= 6;
+}
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, Math.round(value)));
+}
+
+export const TRAINING_SCHEDULE_SCHEMA = defineSchema<TrainingScheduleSettings>({
+  category: 'training-schedule',
+  version: 1,
+  defaultValue: DEFAULT_TRAINING_SCHEDULE,
+  validate(value: unknown): TrainingScheduleSettings {
+    if (!value || typeof value !== 'object') return { ...DEFAULT_TRAINING_SCHEDULE };
+    const candidate = value as Record<string, unknown>;
+    const daysOfWeek = Array.isArray(candidate.daysOfWeek)
+      ? candidate.daysOfWeek.filter(isValidDayOfWeek).slice(0, 7)
+      : [...DEFAULT_TRAINING_SCHEDULE.daysOfWeek];
+    return {
+      enabled: typeof candidate.enabled === 'boolean' ? candidate.enabled : DEFAULT_TRAINING_SCHEDULE.enabled,
+      daysOfWeek: [...new Set(daysOfWeek)].sort(),
+      reminderHour: clamp(Number(candidate.reminderHour ?? DEFAULT_TRAINING_SCHEDULE.reminderHour), 0, 23),
+      reminderMinute: clamp(Number(candidate.reminderMinute ?? DEFAULT_TRAINING_SCHEDULE.reminderMinute), 0, 59),
+      lastRemindedDateKey: typeof candidate.lastRemindedDateKey === 'string' ? candidate.lastRemindedDateKey : '',
+    };
+  },
+});
