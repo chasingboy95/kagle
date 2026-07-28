@@ -8,6 +8,9 @@ import type { VoiceEvent } from '../voice/types';
 import type { VoiceEventContext } from '../voice/VoiceController';
 import { defaultStorage } from '../utils/storage';
 
+/** 会话快照写入节流间隔：稳态训练下约每 1.5s 落盘一次，关键状态变化仍立即写入。 */
+const SNAPSHOT_WRITE_INTERVAL_MS = 1500;
+
 export interface KegelEngineVoiceOptions {
   onVoiceEvent?: (event: VoiceEvent, context: VoiceEventContext) => void;
   countdownFrom?: 0 | 3 | 5;
@@ -161,6 +164,8 @@ export function useKegelEngine(options: KegelEngineVoiceOptions = {}): UseKegelE
 
   const eng = useRef<EngineInternals>(createInitialEngine(DEFAULT_CONFIG));
   const timerRef = useRef<TimerHandle | null>(null);
+  const lastSnapshotWriteRef = useRef(0);
+  const lastSnapshotSignatureRef = useRef('');
   const optionsRef = useRef(options);
   optionsRef.current = options;
 
@@ -180,8 +185,10 @@ export function useKegelEngine(options: KegelEngineVoiceOptions = {}): UseKegelE
     }
   }, []);
 
-  /** 推送到渲染层 (节流到 100ms) */
-  const pushState = useCallback(() => {
+  /** 推送到渲染层 (tick 约 100ms)，并把可恢复快照写入 localStorage。
+   * 稳态训练下写入被节流到 SNAPSHOT_WRITE_INTERVAL_MS；force=true 用于
+   * 关键状态变化（开始/暂停/继续/阶段切换/恢复/页面隐藏），立即落盘。 */
+  const pushState = useCallback((force = false) => {
     const now = performance.now();
     const e = eng.current;
     const s = buildState(e, now);
@@ -199,8 +206,16 @@ export function useKegelEngine(options: KegelEngineVoiceOptions = {}): UseKegelE
         announcedCountdowns: [...e.announcedCountdowns],
         sessionStartedAtIso: e.sessionStartedAtIso,
       };
-      defaultStorage.write(SESSION_SNAPSHOT_SCHEMA, snap);
-      storedSnapRef.current = snap;
+      const signature = `${e.status}:${e.phase}`;
+      const changed = signature !== lastSnapshotSignatureRef.current;
+      const shouldWrite =
+        force || changed || now - lastSnapshotWriteRef.current >= SNAPSHOT_WRITE_INTERVAL_MS;
+      if (shouldWrite) {
+        defaultStorage.write(SESSION_SNAPSHOT_SCHEMA, snap);
+        storedSnapRef.current = snap;
+        lastSnapshotWriteRef.current = now;
+        lastSnapshotSignatureRef.current = signature;
+      }
     }
     if (e.status !== 'running' && e.status !== 'feedback') return;
 
@@ -270,7 +285,7 @@ export function useKegelEngine(options: KegelEngineVoiceOptions = {}): UseKegelE
         } catch {
           /* ignore */
         }
-        pushState();
+        pushState(true);
         return;
       }
       e.round = nextRound;
@@ -311,17 +326,59 @@ export function useKegelEngine(options: KegelEngineVoiceOptions = {}): UseKegelE
     return () => stopTick();
   }, [stopTick]);
 
+  /* ── 页面隐藏即落盘快照 ──────────────────────────────────── */
+  // 页面切到后台或被系统回收前，立即写入当前可恢复快照，保证后台/被杀后
+  // 仍能恢复到训练进度（tick 节流不影响此边界写入）。
+  useEffect(() => {
+    function onVisibility() {
+      if (document.visibilityState === 'hidden') {
+        pushState(true);
+      }
+    }
+    document.addEventListener('visibilitychange', onVisibility);
+    return () => document.removeEventListener('visibilitychange', onVisibility);
+  }, [pushState]);
+
   /* ── Screen Wake Lock ──────────────────────────────────────── */
   // 训练时阻止手机自动熄屏
   useEffect(() => {
     let wakeLock: WakeLockSentinel | null = null;
+    let cancelled = false;
 
     async function acquire() {
+      if (wakeLock || document.visibilityState !== 'visible') return;
+      if (!('wakeLock' in navigator)) return;
       try {
-        wakeLock = await navigator.wakeLock.request('screen');
-        wakeLock.addEventListener('release', () => { wakeLock = null; });
+        const lock = await navigator.wakeLock.request('screen');
+        // 已卸载或状态已变化则立即释放，不持有过期锁。
+        if (cancelled) {
+          lock.release().catch(() => {});
+          return;
+        }
+        wakeLock = lock;
+        wakeLock.addEventListener('release', onRelease);
       } catch {
         /* API 不支持或权限不足 —— 静默忽略 */
+      }
+    }
+
+    function onRelease() {
+      wakeLock = null;
+      // 系统释放（如切后台/熄屏）后，活跃训练且页面可见时重新申请。
+      if (!cancelled && document.visibilityState === 'visible') {
+        acquire();
+      }
+    }
+
+    function onVisibility() {
+      if (document.visibilityState === 'visible' && state.status === 'running') {
+        // 系统可能在页面隐藏期间自动释放锁（如切后台/熄屏），
+        // 重新可见时释放可能已过期的锁并重新申请。
+        if (wakeLock) {
+          try { wakeLock.release().catch(() => {}); } catch { /* ignore */ }
+          wakeLock = null;
+        }
+        acquire();
       }
     }
 
@@ -334,11 +391,20 @@ export function useKegelEngine(options: KegelEngineVoiceOptions = {}): UseKegelE
 
     if (state.status === 'running') {
       acquire();
+      document.addEventListener('visibilitychange', onVisibility);
     } else {
       release();
     }
 
-    return () => { release(); };
+    return () => {
+      cancelled = true;
+      document.removeEventListener('visibilitychange', onVisibility);
+      if (wakeLock) {
+        wakeLock.removeEventListener('release', onRelease);
+        try { wakeLock.release(); } catch { /* ignore */ }
+        wakeLock = null;
+      }
+    };
   }, [state.status]);
 
   const start = useCallback(() => {
@@ -355,7 +421,7 @@ export function useKegelEngine(options: KegelEngineVoiceOptions = {}): UseKegelE
     emitVoice({ type: 'training-ready' });
     enterPhase('ready', false);
     startTick();
-    pushState();
+    pushState(true);
   }, [config, emitVoice, enterPhase, startTick, pushState]);
 
   const pause = useCallback(() => {
@@ -364,7 +430,7 @@ export function useKegelEngine(options: KegelEngineVoiceOptions = {}): UseKegelE
     e.status = 'paused';
     e.pauseStartedAt = performance.now();
     emitVoice({ type: 'paused' });
-    pushState();
+    pushState(true);
   }, [emitVoice, pushState]);
 
   const resume = useCallback(() => {
@@ -377,7 +443,7 @@ export function useKegelEngine(options: KegelEngineVoiceOptions = {}): UseKegelE
     e.status = 'running';
     e.pauseStartedAt = 0;
     emitVoice({ type: 'resumed' }, phaseMs(e.phase, e.config));
-    pushState();
+    pushState(true);
   }, [emitVoice, pushState]);
 
   const stop = useCallback(() => {
@@ -438,7 +504,7 @@ export function useKegelEngine(options: KegelEngineVoiceOptions = {}): UseKegelE
     emitVoice({ type: 'training-ready' });
     enterPhase('ready', false);
     startTick();
-    pushState();
+    pushState(true);
   }, [emitVoice, enterPhase, startTick, pushState, stopTick]);
 
   const updateConfig = useCallback((updates: Partial<TrainingConfig>) => {
@@ -478,14 +544,14 @@ export function useKegelEngine(options: KegelEngineVoiceOptions = {}): UseKegelE
     e.sessionStartedAt = now - snap.sessionElapsedMs - snap.totalPausedMs;
     if (snap.status === 'paused') {
       e.pauseStartedAt = now;
-      pushState();
+      pushState(true);
     } else if (snap.status === 'feedback') {
       e.feedbackElapsedSnapshot = snap.sessionElapsedMs;
-      pushState();
+      pushState(true);
     } else {
       e.pauseStartedAt = 0;
       startTick();
-      pushState();
+      pushState(true);
     }
   }, [startTick, pushState, setConfig]);
 

@@ -1,6 +1,8 @@
 import { act, renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { getCountdownEvent, useKegelEngine } from './useKegelEngine';
+import { defaultStorage } from '../utils/storage';
+import { SESSION_SNAPSHOT_SCHEMA } from '../types/training';
 
 describe('useKegelEngine lifecycle', () => {
   beforeEach(() => {
@@ -396,5 +398,145 @@ describe('useKegelEngine session recovery', () => {
 
     expect(() => renderHook(() => useKegelEngine())).not.toThrow();
     expect(localStorage.getItem('kegel.session-snapshot.v1')).toBeNull();
+  });
+});
+
+describe('useKegelEngine snapshot throttling and wake lock (#63)', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.restoreAllMocks();
+    try { delete (navigator as any).wakeLock; } catch { /* ignore */ }
+    localStorage.clear();
+  });
+
+  function advance(ms: number) {
+    act(() => {
+      vi.advanceTimersByTime(ms);
+    });
+  }
+
+  function setVisibility(state: 'visible' | 'hidden') {
+    vi.spyOn(document, 'visibilityState', 'get').mockReturnValue(state);
+  }
+
+  it('throttles snapshot writes to ~1.5s during steady running', () => {
+    const writeSpy = vi.spyOn(defaultStorage, 'write');
+    const { result } = renderHook(() => useKegelEngine());
+
+    act(() => {
+      result.current.updateConfig({ contractTime: 600, holdTime: 1, relaxTime: 1, rounds: 1 });
+    });
+    act(() => result.current.start());
+    // 关键状态变化（start）立即写入一次
+    expect(
+      writeSpy.mock.calls.filter(([s]) => s === SESSION_SNAPSHOT_SCHEMA).length,
+    ).toBeGreaterThan(0);
+    writeSpy.mockClear();
+
+    // 推进 3s（约 30 个 100ms tick），稳态下应被节流，远少于每 tick 一次
+    advance(3_000);
+    const writes = writeSpy.mock.calls.filter(([s]) => s === SESSION_SNAPSHOT_SCHEMA).length;
+    expect(writes).toBeGreaterThan(0);
+    expect(writes).toBeLessThanOrEqual(3);
+    writeSpy.mockRestore();
+  });
+
+  it('writes snapshot immediately on pause within the throttle window', () => {
+    const writeSpy = vi.spyOn(defaultStorage, 'write');
+    const { result } = renderHook(() => useKegelEngine());
+
+    act(() => {
+      result.current.updateConfig({ contractTime: 600, holdTime: 1, relaxTime: 1, rounds: 1 });
+    });
+    act(() => result.current.start());
+    advance(1_000); // 仍在 1.5s 节流窗口内，不会发生节流写入
+    writeSpy.mockClear();
+    act(() => result.current.pause());
+    const writes = writeSpy.mock.calls.filter(([s]) => s === SESSION_SNAPSHOT_SCHEMA).length;
+    expect(writes).toBeGreaterThanOrEqual(1);
+    writeSpy.mockRestore();
+  });
+
+  it('persists snapshot immediately when the page becomes hidden', () => {
+    const writeSpy = vi.spyOn(defaultStorage, 'write');
+    const { result } = renderHook(() => useKegelEngine());
+
+    act(() => {
+      result.current.updateConfig({ contractTime: 600, holdTime: 1, relaxTime: 1, rounds: 1 });
+    });
+    act(() => result.current.start());
+    advance(1_000);
+    writeSpy.mockClear();
+    setVisibility('hidden');
+    act(() => document.dispatchEvent(new Event('visibilitychange')));
+    const writes = writeSpy.mock.calls.filter(([s]) => s === SESSION_SNAPSHOT_SCHEMA).length;
+    expect(writes).toBeGreaterThanOrEqual(1);
+    writeSpy.mockRestore();
+  });
+
+  function createWakeLockMock() {
+    const request = vi.fn();
+    const sentinels: Array<{ simulateSystemRelease: () => void }> = [];
+    request.mockImplementation(async () => {
+      const releaseHandlers: Array<() => void> = [];
+      const sentinel = {
+        addEventListener(type: string, cb: () => void) {
+          if (type === 'release') releaseHandlers.push(cb);
+        },
+        removeEventListener(type: string, cb: () => void) {
+          if (type === 'release') {
+            const i = releaseHandlers.indexOf(cb);
+            if (i >= 0) releaseHandlers.splice(i, 1);
+          }
+        },
+        release: vi.fn(async () => {}),
+        simulateSystemRelease() {
+          releaseHandlers.forEach((h) => h());
+        },
+      };
+      sentinels.push(sentinel);
+      return sentinel;
+    });
+    Object.defineProperty(navigator, 'wakeLock', { configurable: true, value: { request } });
+    return { request, sentinels };
+  }
+
+  it('does not throw and requests no wake lock when the API is unsupported', () => {
+    try { delete (navigator as any).wakeLock; } catch { /* ignore */ }
+    const { result } = renderHook(() => useKegelEngine());
+    expect(() => act(() => result.current.start())).not.toThrow();
+  });
+
+  it('re-acquires wake lock after the system releases it during a running session', async () => {
+    const { request, sentinels } = createWakeLockMock();
+    const { result } = renderHook(() => useKegelEngine());
+
+    await act(async () => { result.current.start(); });
+    await act(async () => { await Promise.resolve(); });
+    expect(request).toHaveBeenCalledTimes(1);
+
+    act(() => { sentinels[0].simulateSystemRelease(); });
+    await act(async () => { await Promise.resolve(); });
+    expect(request).toHaveBeenCalledTimes(2);
+  });
+
+  it('re-acquires wake lock after returning to a visible tab during a running session', async () => {
+    const { request } = createWakeLockMock();
+    const { result } = renderHook(() => useKegelEngine());
+
+    await act(async () => { result.current.start(); });
+    await act(async () => { await Promise.resolve(); });
+    expect(request).toHaveBeenCalledTimes(1);
+
+    setVisibility('hidden');
+    act(() => document.dispatchEvent(new Event('visibilitychange')));
+    setVisibility('visible');
+    act(() => document.dispatchEvent(new Event('visibilitychange')));
+    await act(async () => { await Promise.resolve(); await Promise.resolve(); });
+    expect(request).toHaveBeenCalledTimes(2);
   });
 });
