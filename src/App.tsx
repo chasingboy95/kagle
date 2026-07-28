@@ -45,14 +45,16 @@ export default function App() {
       countdownFrom: voice.settings.enabled && voice.settings.mode !== 'off'
         ? voice.settings.countdownFrom
         : 0,
-      onSessionEnd: (data) => {
-        const record = buildTrainingRecord(
-          config,
-          data.completedReps,
-          data.actualDurationMs,
-          data.status,
-          data.startedAt,
-        );
+    onSessionEnd: (data) => {
+      // 使用会话实际执行的不可变配置（恢复会话时为快照配置），
+      // 保证目标次数、各阶段时长与完成结果来自同一来源。
+      const record = buildTrainingRecord(
+        data.config,
+        data.completedReps,
+        data.actualDurationMs,
+        data.status,
+        data.startedAt,
+      );
         const nextRecords = history.addRecord(record);
         // Evaluate progressive suggestion
         if (data.status === 'completed') {
