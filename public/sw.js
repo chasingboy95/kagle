@@ -23,6 +23,9 @@ const VOICE_ASSETS = ['zh-CN', 'en-US'].flatMap((language) =>
   VOICE_FILES.map((filename) => `/kagle/audio/${language}/${filename}`),
 );
 
+// Cache on install but do NOT auto-activate. The new worker stays in the
+// "waiting" state until the page explicitly requests activation (SKIP_WAITING)
+// so an in-progress training session is never interrupted by a reload.
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(async (cache) => {
@@ -30,7 +33,7 @@ self.addEventListener('install', (event) => {
       await Promise.allSettled(
         VOICE_ASSETS.map((asset) => cache.add(asset)),
       );
-    }).then(() => self.skipWaiting()),
+    }),
   );
 });
 

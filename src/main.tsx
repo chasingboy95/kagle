@@ -3,8 +3,11 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App'
 import ErrorBoundary from './components/ErrorBoundary'
+import { defaultStorage } from './utils/storage'
+import { SESSION_SNAPSHOT_SCHEMA } from './types/training'
+import { isTrainingInProgress, requestActivation } from './pwa/swProtocol'
 
-function showUpdatePrompt(registration: ServiceWorkerRegistration) {
+function showUpdatePrompt(activateUpdate: () => void) {
   if (document.getElementById('pwa-update-prompt')) return
 
   const prompt = document.createElement('div')
@@ -50,7 +53,7 @@ function showUpdatePrompt(registration: ServiceWorkerRegistration) {
   button.addEventListener('click', () => {
     button.disabled = true
     button.textContent = '更新中…'
-    registration.waiting?.postMessage({ type: 'SKIP_WAITING' })
+    activateUpdate()
   })
 
   prompt.append(text, button)
@@ -67,11 +70,19 @@ if ('serviceWorker' in navigator) {
       window.location.reload()
     })
 
+    // Activate a waiting SW only when the user confirms AND training is not in
+    // progress; otherwise defer so an active session is never interrupted.
+    const activateUpdate = (registration: ServiceWorkerRegistration) => {
+      const snapshot = defaultStorage.read(SESSION_SNAPSHOT_SCHEMA)
+      if (isTrainingInProgress(snapshot)) return
+      requestActivation(registration)
+    }
+
     navigator.serviceWorker
       .register(`${import.meta.env.BASE_URL}sw.js`)
       .then((registration) => {
         if (registration.waiting && navigator.serviceWorker.controller) {
-          showUpdatePrompt(registration)
+          showUpdatePrompt(() => activateUpdate(registration))
         }
 
         registration.addEventListener('updatefound', () => {
@@ -82,7 +93,7 @@ if ('serviceWorker' in navigator) {
               && navigator.serviceWorker.controller
               && registration.waiting
             ) {
-              showUpdatePrompt(registration)
+              showUpdatePrompt(() => activateUpdate(registration))
             }
           })
         })
@@ -97,15 +108,15 @@ if ('serviceWorker' in navigator) {
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-     <ErrorBoundary onError={() => {
+    <ErrorBoundary onError={() => {
         // Only clear the session snapshot — never touch training history, config,
         // saved favorites, weekly goals, or settings.
         try {
-          localStorage.removeItem('kegel.session-snapshot.v1');
+          localStorage.removeItem('kegel.session-snapshot.v1')
         } catch {
           // Storage unavailable — nothing to do
         }
-     }}>
+      }}>
       <App />
     </ErrorBoundary>
   </StrictMode>,
