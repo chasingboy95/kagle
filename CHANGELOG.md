@@ -4,6 +4,7 @@
 ### Added
 
 ### Fixed
+- Progressive suggestions now evaluate the exact history returned by the same write that saves a completed session, so the third matching completion triggers immediately without React state timing lag (#24).
 - Session recovery now rejects invalid status/phase combinations, repetition and configuration bounds, non-finite timing, illegal countdown markers, and malformed timestamps; corrupt snapshots are deleted before the app remains safely idle (#25).
 - Active training duration now excludes an open pause when the user stops without resuming; UI state, recovery snapshots, completion, and stopped-session history use the same duration calculation (#23).
 - Global error boundary: React ErrorBoundary wraps root <App />, ErrorRecoveryUI provides privacy-safe production recovery with reload/reset, dev-mode technical details behind <details>, and onError callback clears corrupted kegel.* localStorage keys to prevent bad session recovery (#16).
