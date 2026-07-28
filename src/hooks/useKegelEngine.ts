@@ -152,6 +152,10 @@ export function useKegelEngine(options: KegelEngineVoiceOptions = {}): UseKegelE
     if (snap) {
       storedSnapRef.current = snap;
       setRecoverableSession(snap);
+    } else {
+      // Malformed and unknown snapshots are not recoverable. Removing the
+      // stored value prevents the same corrupt payload from being retried.
+      defaultStorage.remove(SESSION_SNAPSHOT_SCHEMA);
     }
   }, []);
 
