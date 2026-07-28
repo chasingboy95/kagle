@@ -16,6 +16,7 @@
 - Global error boundary: React ErrorBoundary wraps root <App />, ErrorRecoveryUI provides privacy-safe production recovery with reload/reset, dev-mode technical details behind <details>, and onError callback clears corrupted kegel.* localStorage keys to prevent bad session recovery (#16).
 - Performance baseline: recorded build resource sizes, added CI bundle size regression check (15% threshold on JS/CSS), created performance baseline documentation with real-device test plan (#18).
 - Training completion page no longer auto-disappears after 6 seconds (#20). The feedback phase is now persistent — the tick stops on entering feedback, `onSessionEnd` fires once, and the completion page remains until the user explicitly clicks 完成, 再次训练, or 查看训练记录.
+- Error boundary no longer clears all `kegel.*` local data on rendering exceptions; only the session snapshot is cleaned up automatically. Full data reset now requires explicit user confirmation with a description of what will be lost (#59).
 
 - Unified storage layer (`StorageAdapter`) with schema validation, versioned keys, upgrade chain, and corruption recovery (#17).
 - Training history: records persisted via storage layer, stats (weekly, streak, total), scrollable history UI with delete/clear (#8).

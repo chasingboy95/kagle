@@ -11,12 +11,14 @@ interface ErrorBoundaryState {
   hasError: boolean;
   error?: Error;
   errorInfo?: ErrorInfo;
+  /** Whether the user has already clicked "清除数据并重置" and is now confirming. */
+  confirmingReset: boolean;
 }
 
 export default class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   constructor(props: ErrorBoundaryProps) {
     super(props);
-    this.state = { hasError: false };
+    this.state = { hasError: false, confirmingReset: false };
   }
 
   static getDerivedStateFromError(error: Error): Partial<ErrorBoundaryState> {
@@ -40,6 +42,11 @@ export default class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBo
   };
 
   handleReset = (): void => {
+    // First click: ask for confirmation before clearing all local data
+    this.setState({ confirmingReset: true });
+  };
+
+  handleConfirmReset = (): void => {
     // Clear all app-related localStorage keys to ensure a clean slate
     for (const key of Object.keys(localStorage)) {
       if (key.startsWith('kegel.')) {
@@ -47,6 +54,10 @@ export default class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBo
       }
     }
     window.location.reload();
+  };
+
+  handleCancelReset = (): void => {
+    this.setState({ confirmingReset: false });
   };
 
   render(): ReactNode {
@@ -58,6 +69,9 @@ export default class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBo
           stack={isDev ? this.state.errorInfo?.componentStack : undefined}
           onReload={this.handleReload}
           onReset={this.handleReset}
+          confirmingReset={this.state.confirmingReset}
+          onConfirmReset={this.handleConfirmReset}
+          onCancelReset={this.handleCancelReset}
         />
       );
     }

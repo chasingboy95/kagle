@@ -114,7 +114,7 @@ describe('ErrorRecoveryUI', () => {
     expect(window.location.reload).toHaveBeenCalledOnce();
   });
 
-  it('reset button clears kegel localStorage keys then reloads', () => {
+  it('reset button transitions to confirmation state without clearing data', () => {
     localStorage.setItem('kegel.test.v1', 'value');
     localStorage.setItem('other-app', 'keep');
 
@@ -126,10 +126,58 @@ describe('ErrorRecoveryUI', () => {
 
     fireEvent.click(screen.getByRole('button', { name: '清除数据并重置' }));
 
+    // Confirmation message should appear
+    expect(screen.getByText(/此操作将清除训练历史/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '确认清除' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '取消' })).toBeInTheDocument();
+
+    // Data should NOT be cleared yet
+    expect(localStorage.getItem('kegel.test.v1')).toBe('value');
+    expect(localStorage.getItem('other-app')).toBe('keep');
+    expect(window.location.reload).not.toHaveBeenCalled();
+  });
+
+  it('confirming reset clears kegel localStorage keys then reloads', () => {
+    localStorage.setItem('kegel.test.v1', 'value');
+    localStorage.setItem('other-app', 'keep');
+
+    render(
+      <ErrorBoundary>
+        <Broken />
+      </ErrorBoundary>,
+    );
+
+    // First click: show confirmation
+    fireEvent.click(screen.getByRole('button', { name: '清除数据并重置' }));
+
+    // Second click: confirm clear
+    fireEvent.click(screen.getByRole('button', { name: '确认清除' }));
+
     // kegel keys should be removed
     expect(localStorage.getItem('kegel.test.v1')).toBeNull();
     // non-kegel keys should be preserved
     expect(localStorage.getItem('other-app')).toBe('keep');
     expect(window.location.reload).toHaveBeenCalledOnce();
+  });
+
+  it('canceling reset returns to normal recovery UI', () => {
+    render(
+      <ErrorBoundary>
+        <Broken />
+      </ErrorBoundary>,
+    );
+
+    // First click: show confirmation
+    fireEvent.click(screen.getByRole('button', { name: '清除数据并重置' }));
+
+    expect(screen.getByRole('button', { name: '取消' })).toBeInTheDocument();
+
+    // Cancel
+    fireEvent.click(screen.getByRole('button', { name: '取消' }));
+
+    // Should be back to normal recovery UI
+    expect(screen.getByRole('button', { name: '重新加载' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '清除数据并重置' })).toBeInTheDocument();
+    expect(window.location.reload).not.toHaveBeenCalled();
   });
 });
