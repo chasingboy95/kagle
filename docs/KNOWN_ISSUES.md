@@ -2,7 +2,7 @@
 
 ## Current Status
 
-Last updated: 2026-07-27
+Last updated: 2026-07-28
 
 This document tracks known technical debt, limitations, and follow-up work. Issues listed here are not considered completed until they are verified and removed or marked resolved.
 
@@ -220,6 +220,24 @@ Training history had storage error handling, but saved configurations, weekly go
 - All errors rendered via the existing `StorageErrorNotice` component in App.tsx.
 - Existing `useTrainingHistory` error handling preserved with zero regression.
 
+
+
+## 12. Cross-day/Cross-week Auto-refresh Training Statistics
+
+**Status:** Resolved (2026-07-28)
+
+**Description:**
+
+Training history stats (weekly completions, streak, calendar aggregates) and weekly goal progress could become stale when the page was left open across midnight or a week boundary. The `useMemo` dependencies did not include the current date, so React did not re-compute date-relative stats until an unrelated state change triggered a re-render.
+
+**Resolution:**
+
+- Created `useDateRefresh` hook that returns a date key (`YYYY-MM-DD` for daily, `YYYY-Www` for weekly).
+- The hook checks every 60 seconds and on `visibilitychange` (tab returns from background) whether the date key changed.
+- `useTrainingHistory.computeStats` `useMemo` now includes the daily date key in its deps.
+- `useWeeklyGoal.progress` `useMemo` now includes the weekly date key in its deps.
+- No high-frequency timers; the 60-second polling interval is negligible for date-boundary detection.
+- 4 new tests cover daily/weekly key format, interval firing, and visibility change.
 
 ## Resolved Issues
 

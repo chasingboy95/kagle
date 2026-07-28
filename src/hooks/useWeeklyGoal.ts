@@ -7,6 +7,7 @@ import {
 } from '../utils/appStorageSchemas';
 import { defaultStorage } from '../utils/storage';
 import { useStorageWrite } from './useStorageWrite';
+import { useDateRefresh } from './useDateRefresh';
 import { weeklyGoalProgress } from '../utils/weeklyGoal';
 
 export function useWeeklyGoal(
@@ -14,12 +15,13 @@ export function useWeeklyGoal(
   timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone,
 ) {
   const { storageError, dismissStorageError, write } = useStorageWrite();
+  const dateKey = useDateRefresh('weekly');
   const [settings, setSettings] = useState<WeeklyGoalSettings>(
     () => defaultStorage.read(WEEKLY_GOAL_SCHEMA),
   );
   const progress = useMemo(
     () => weeklyGoalProgress(records, settings.targetDays, new Date(), timeZone),
-    [records, settings.targetDays, timeZone],
+    [records, settings.targetDays, timeZone, dateKey],
   );
 
   const save = (next: WeeklyGoalSettings) => {
