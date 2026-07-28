@@ -10,6 +10,7 @@
 - Optional pre-training audio self-check showing the active mode, countdown, and volume, with a short preview, audible confirmation, explicit silent choice, and non-technical fallback guidance (#39).
 
 ### Fixed
+- iOS installed-PWA layout now fixes the root document to the standalone viewport, removes duplicated body safe-area padding, and delegates page scrolling to the app shell so vertical dragging cannot reveal a status-bar-height blank strip (#82).
 - Progressive suggestions now evaluate the exact history returned by the same write that saves a completed session, so the third matching completion triggers immediately without React state timing lag (#24).
 - Session recovery now rejects invalid status/phase combinations, repetition and configuration bounds, non-finite timing, illegal countdown markers, and malformed timestamps; corrupt snapshots are deleted before the app remains safely idle (#25).
 - Active training duration now excludes an open pause when the user stops without resuming; UI state, recovery snapshots, completion, and stopped-session history use the same duration calculation (#23).

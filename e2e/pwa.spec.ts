@@ -26,6 +26,47 @@ test('manifest is accessible and has required fields', async ({ request }) => {
   }
 });
 
+// ── Standalone viewport and safe areas ───────────────────────
+
+test('root document stays fixed while the app shell owns mobile scrolling', async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 568 });
+  await page.context().addInitScript(() => {
+    localStorage.setItem('kegel.onboarding.v1', JSON.stringify(false));
+  });
+
+  await page.goto('.');
+  await page.waitForLoadState('networkidle');
+
+  const metrics = await page.evaluate(() => {
+    const rootScroller = document.scrollingElement;
+    const appShell = document.querySelector<HTMLElement>('.app-shell');
+    if (!rootScroller || !appShell) {
+      throw new Error('Expected the root scroller and app shell to exist');
+    }
+
+    window.scrollTo(0, 100);
+    appShell.scrollTop = 100;
+
+    return {
+      rootClientHeight: rootScroller.clientHeight,
+      rootScrollHeight: rootScroller.scrollHeight,
+      rootScrollTop: rootScroller.scrollTop,
+      bodyOverflow: getComputedStyle(document.body).overflow,
+      appOverflowY: getComputedStyle(appShell).overflowY,
+      appClientHeight: appShell.clientHeight,
+      appScrollHeight: appShell.scrollHeight,
+      appScrollTop: appShell.scrollTop,
+    };
+  });
+
+  expect(metrics.rootScrollHeight).toBe(metrics.rootClientHeight);
+  expect(metrics.rootScrollTop).toBe(0);
+  expect(metrics.bodyOverflow).toBe('hidden');
+  expect(metrics.appOverflowY).toBe('auto');
+  expect(metrics.appScrollHeight).toBeGreaterThan(metrics.appClientHeight);
+  expect(metrics.appScrollTop).toBeGreaterThan(0);
+});
+
 // ── Icons ─────────────────────────────────────────────────────
 
 const ICONS = [

@@ -4,6 +4,7 @@
 
 ## In Progress
 
+- Verify the #82 standalone safe-area fix on an iPhone installed PWA; automated coverage confirms the root document cannot scroll and the app shell remains the only page scroller.
 - Verify the simplified voice-assistance modes on real iOS and Android devices.
 - Verify the revised completion view and simplified voice settings on a real mobile device.
 - **Issue #78: 训练计划与提醒**: 基础 schema、Hook、组件、集成至 MoreMenu 与 App。
@@ -49,6 +50,7 @@
 
 ## Completed
 
+- [x] **Issue #82: iOS PWA 全屏安全区与页面整体拖动**: 根文档固定为系统视口并禁止滚动，移除 `body` 重复 safe-area padding；`.app-shell` 成为唯一页面滚动容器并只负责顶部与横向安全区，底部操作坞继续独立处理 Home Indicator；新增 320×568 Playwright 回归测试，真机复验保留为进行中。
 - [x] **Issue #59: 异常边界不得自动清空全部本地数据**: onError 仅清除会话快照 key（kegel.session-snapshot.v1），不再遍历删除全部 kegel.* 数据；全量清除需用户二次确认并说明影响范围；10 个组件测试覆盖确认/取消/数据保留路径。
 - [x] **Issue #60: PWA 更新不得在训练中强制刷新**: `public/sw.js` 安装阶段移除 `self.skipWaiting()`，新版本 service worker 进入 waiting 状态等待显式激活；`src/pwa/swProtocol.ts` 新增协议，读取会话快照并以 running/paused 判定为训练中、feedback/null 判定为可安全更新，`showUpdatePrompt` 仅在用户点击「立即更新」且无进行中训练时才请求激活，避免中断训练；7 个单元测试覆盖 `isTrainingInProgress` 与 `requestActivation`。
 - [x] **Issue #61: 恢复会话时统一训练配置与结果记录**: 恢复会话以快照配置为唯一权威来源，引擎与 UI 配置在恢复时同步切换为快照配置；会话结果携带不可变实际配置并据此生成历史记录，目标次数、各阶段时长与完成结果来自同一来源；快照配置与当前设置不同时 UI/引擎/历史一致；新增恢复配置分叉集成测试与损坏快照安全降级测试。
