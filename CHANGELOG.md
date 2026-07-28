@@ -80,6 +80,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- Pure session-result calculations shared by UI state, snapshots, completion, and stopped-session persistence, with phase-boundary and pause-state coverage (#27).
 - Cross-module fake-clock coverage for stopping during every active phase, stopping while paused or after resume, recovery-snapshot cleanup, history/statistics isolation, and progressive-suggestion isolation (#26).
 - Playwright coverage for stopping a browser session and verifying its single interrupted-history record without increasing completion statistics (#26).
 - Training-engine integration tests for lifecycle progression, pause/resume compensation, early stop, and completion.
@@ -112,6 +113,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- Completion and stop callbacks now build their payloads through the same authoritative session-result function instead of duplicating repetition and duration calculations (#27).
 - Corrected the user-facing training unit: one contract→hold→relax cycle is one repetition, while all configured repetitions together form one set.
 - Training plans now read `3-3-3 × 10 次 = 1 组`; live progress and voice guidance announce repetitions, and completion shows `1 组（10/10 次）`.
 - Training state machine: `start()` now enters `ready` phase instead of `contract`.
