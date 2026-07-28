@@ -27,7 +27,6 @@ describe('useDateRefresh', () => {
 
   it('updates the key after 60 seconds when the date changes', () => {
     const { result } = renderHook(() => useDateRefresh('daily'));
-    const initial = result.current;
 
     // Advance time by 60 seconds
     act(() => { vi.advanceTimersByTime(60_000); });
@@ -39,7 +38,6 @@ describe('useDateRefresh', () => {
 
   it('updates the key on visibility change', () => {
     const { result } = renderHook(() => useDateRefresh('daily'));
-    const initial = result.current;
 
     // Simulate tab going to background and coming back
     act(() => {
