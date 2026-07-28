@@ -1,5 +1,6 @@
-import { motion, AnimatePresence } from 'framer-motion';
-import { useState } from 'react';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
+import { useCallback, useRef, useState } from 'react';
+import { useModalFocus } from '../hooks/useModalFocus';
 
 interface Page {
   title: string;
@@ -27,7 +28,12 @@ interface Props {
 
 export default function Onboarding({ onComplete }: Props) {
   const [page, setPage] = useState(0);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const reducedMotion = useReducedMotion();
   const isLast = page === PAGES.length - 1;
+  const close = useCallback(() => onComplete(), [onComplete]);
+
+  useModalFocus(dialogRef, close);
 
   const next = () => {
     if (isLast) {
@@ -40,23 +46,29 @@ export default function Onboarding({ onComplete }: Props) {
   return (
     <AnimatePresence>
       <motion.div
-        initial={{ opacity: 0 }}
+        ref={dialogRef}
+        initial={reducedMotion ? false : { opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/80 backdrop-blur-sm px-4 pb-8 sm:pb-0"
         role="dialog"
         aria-modal="true"
-        aria-label="新手引导"
+        aria-labelledby="onboarding-title"
+        aria-describedby="onboarding-body"
       >
         <motion.div
           key={page}
-          initial={{ opacity: 0, y: 20 }}
+          initial={reducedMotion ? false : { opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.25 }}
+          transition={{ duration: reducedMotion ? 0 : 0.25 }}
           className="w-full max-w-sm bg-slate-900 border border-white/[0.08] rounded-2xl px-6 py-6 space-y-5"
         >
           {/* Page indicator */}
-          <div className="flex justify-center gap-1.5">
+          <div
+            className="flex justify-center gap-1.5"
+            role="status"
+            aria-label={`第 ${page + 1} 页，共 ${PAGES.length} 页`}
+          >
             {PAGES.map((_, i) => (
               <div
                 key={i}
@@ -67,18 +79,18 @@ export default function Onboarding({ onComplete }: Props) {
             ))}
           </div>
 
-          <h2 className="text-lg font-semibold text-slate-100 text-center">
+          <h2 id="onboarding-title" className="text-lg font-semibold text-slate-100 text-center">
             {PAGES[page].title}
           </h2>
 
-          <p className="text-sm text-slate-400 leading-relaxed whitespace-pre-line text-center">
+          <p id="onboarding-body" className="text-sm text-slate-400 leading-relaxed whitespace-pre-line text-center">
             {PAGES[page].body}
           </p>
 
           <div className="flex gap-3 pt-2">
             <button
               type="button"
-              onClick={onComplete}
+              onClick={close}
               className="flex-1 py-2.5 rounded-lg text-sm font-medium text-slate-500 hover:text-slate-300 transition-colors"
             >
               跳过
@@ -86,6 +98,7 @@ export default function Onboarding({ onComplete }: Props) {
             <button
               type="button"
               onClick={next}
+              data-autofocus
               className="flex-1 py-2.5 rounded-lg text-sm font-medium bg-indigo-500/30 text-indigo-200 hover:bg-indigo-500/40 transition-colors"
             >
               {isLast ? '开始训练' : '下一步'}

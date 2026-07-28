@@ -22,14 +22,14 @@
 | Voice Rhythm Mode | Partial | Uses non-verbal cues and independent countdown, but its audible differentiation still needs device QA. |
 | Voice Settings | Complete | Three modes are validated, final 3-second countdown is the default for new users, and legacy five-mode values migrate to `coach`. |
 | Voice Settings Panel | Complete | UI now exposes common controls first: enable, final countdown, and preview. Mode, volume, fallback speech rate, progress announcement, and haptics live under "高级设置". No component test yet. |
-| Accessibility | Partial | `aria-live="polite"` regions added to TimerDisplay and TrainingStatus; auto-focus management in ControlButtons. Screen-reader and keyboard-navigation audit remains outstanding. |
+| Accessibility | Partial | Recovery takes priority over onboarding; both dialogs have labels/descriptions, initial focus, focus traps, focus restoration, and explicit Escape behavior. Playwright axe blocks serious/critical violations and covers reduced motion plus key `aria-live` regions. Real-device screen-reader verification remains outstanding. |
 | Background-Tab Timing | Complete | Engineering evaluation done. Worker-based timer (`createTimer` + `timingWorker`) provides reliable ticks even when browser tab is backgrounded, with transparent fallback to setInterval. |
 | PWA / GitHub Pages | Complete | Manifest, service worker, subpath, safe-area, standard PNG icons, apple-touch-icon, version update notification, offline caching, and voice asset cache verified by Playwright E2E tests (e2e/pwa.spec.ts). Real-device QA remains outstanding. |
 | Storage Layer | Complete | `StorageAdapter` provides schema validation, versioned keys, upgrade chains, and corruption recovery. Training configuration, history, progressive suggestions, and onboarding use importable module-level schemas instead of render-time definitions. |
 | Training History | Complete | Keeps the newest 500 records with deterministic oldest-first eviction. Persistence failures retain current in-memory UI state and show a dismissible warning; statistics and lists are tested at the capacity boundary. |
 | Progressive Training | Complete | Side-effect-free rule engine explicitly copies records before newest-first sorting, suggests parameter increases after 3 consecutive same-config completions, and applies a 3-day cooldown after dismiss. Input-order preservation is covered by regression tests. |
-| Onboarding | Complete | Three-page first-time guided modal (什么是凯格尔训练/呼吸与安全/关于本应用) with skip, page indicators, ARIA dialog attributes, localStorage persistence, and re-entry button in idle section. |
-| Session Recovery | Complete | Engine saves snapshot to localStorage on state changes; recovery UI offers continue/discard after page refresh with time compensation; 8 integration tests. |
+| Onboarding | Complete | Three-page first-time guided modal with ARIA labeling, page status, keyboard focus trap, Escape-to-skip, reduced-motion transitions, localStorage persistence, and re-entry in idle. It never overlaps session recovery. |
+| Session Recovery | Complete | Engine saves snapshots locally; the higher-priority recovery dialog requires an explicit continue/discard choice, traps focus, and defers first-use onboarding until the app is idle. |
 | Session Statistics | Complete | The completion view shows only objective current-session duration and repetition counts. Streaks and quality scores are hidden until real training history exists. |
 | Error Boundary | Complete | Global React ErrorBoundary wraps root <App />, ErrorRecoveryUI renders privacy-safe recovery page with reload/reset, 6 component tests. |
 | CI/CD | Complete | All quality gates pass: tests, lint, TypeScript, build, and Playwright E2E. Deployment is automatic via GitHub Actions to GitHub Pages. |
@@ -84,10 +84,9 @@
 - Importable progressive-suggestion and onboarding schemas with compatibility tests for existing keys, defaults, and validation behavior.
 - Training-history capacity, deterministic retention, large-history statistics, and quota-failure UI-state preservation.
 - Progressive-suggestion input-order preservation while retaining existing rule behavior.
+- Modal priority, focus trapping, Tab/Escape rules, ARIA labeling, reduced motion, live regions, and serious/critical axe violations.
 
 ## Verification Gap
 
-`bun run test`, `bun run lint`, `bun run typecheck`, and `bun run build` passed
-on 2026-07-27 with 20 test files and 156 tests. Feedback phase persistence and onViewHistory are covered by unit and component tests. The Playwright smoke test
-has passed in GitHub Actions CI (chromium). iOS and Android real-device
-QA remains outstanding.
+Automated unit, lint, typecheck, build, Chromium E2E, and axe checks are required
+by CI. iOS and Android real-device screen-reader QA remains outstanding.
