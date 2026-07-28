@@ -36,11 +36,18 @@ export default function App() {
         ? voice.settings.countdownFrom
         : 0,
       onSessionEnd: (data) => {
-        history.addRecord(buildTrainingRecord(config, data.completedReps, data.actualDurationMs, data.status, data.startedAt));
+        const record = buildTrainingRecord(
+          config,
+          data.completedReps,
+          data.actualDurationMs,
+          data.status,
+          data.startedAt,
+        );
+        const nextRecords = history.addRecord(record);
         // Evaluate progressive suggestion
         if (data.status === 'completed') {
           const currentProgState = defaultStorage.read(PROGRESSIVE_SCHEMA);
-          const s = evaluateSuggestion(history.records, currentProgState);
+          const s = evaluateSuggestion(nextRecords, currentProgState);
           if (s) setSuggestion(s);
         }
       },
