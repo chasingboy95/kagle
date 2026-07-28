@@ -50,6 +50,7 @@
 
 ## Completed
 
+- [x] **Issue #81: iOS PWA 触觉替代音真机回归修复**: 触觉音频后备纳入开始/继续/再次训练的用户手势解锁流程；触觉事件不再被静音语音模式提前丢弃，并通过适配器与控制器测试覆盖解锁和去重。
 - [x] **Issue #82: iOS PWA 全屏安全区与页面整体拖动**: 根文档固定为系统视口并禁止滚动，移除 `body` 重复 safe-area padding；`.app-shell` 成为唯一页面滚动容器并只负责顶部与横向安全区，底部操作坞继续独立处理 Home Indicator；新增 320×568 Playwright 回归测试，真机复验保留为进行中。
 - [x] **Issue #59: 异常边界不得自动清空全部本地数据**: onError 仅清除会话快照 key（kegel.session-snapshot.v1），不再遍历删除全部 kegel.* 数据；全量清除需用户二次确认并说明影响范围；10 个组件测试覆盖确认/取消/数据保留路径。
 - [x] **Issue #60: PWA 更新不得在训练中强制刷新**: `public/sw.js` 安装阶段移除 `self.skipWaiting()`，新版本 service worker 进入 waiting 状态等待显式激活；`src/pwa/swProtocol.ts` 新增协议，读取会话快照并以 running/paused 判定为训练中、feedback/null 判定为可安全更新，`showUpdatePrompt` 仅在用户点击「立即更新」且无进行中训练时才请求激活，避免中断训练；7 个单元测试覆盖 `isTrainingInProgress` 与 `requestActivation`。

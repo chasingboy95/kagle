@@ -168,7 +168,8 @@
  |----------|--------|
  | SpeechSynthesis unavailable → sound-only fallback | Implemented |
  | AudioContext unavailable → tones silent | Implemented |
- | navigator.vibrate unavailable → no haptics | Implemented |
+ | navigator.vibrate unavailable → audio fallback unlocked by start gesture | Implemented and tested |
+ | Silent voice mode with haptics enabled → haptic event still fires once | Implemented and tested |
  | localStorage blocked → defaults used | Implemented and tested |
  | All audio APIs unavailable → timer works silently | Implemented |
 

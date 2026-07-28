@@ -48,6 +48,7 @@ function countdownCue(seconds: number): SoundCue | null {
 export class VoiceController {
   private queue: VoiceQueueItem[] = [];
   private readonly seen = new Set<string>();
+  private readonly hapticSeen = new Set<string>();
   private processing?: Promise<void>;
   private playbackGeneration = 0;
   private previewSequence = 0;
@@ -69,6 +70,8 @@ export class VoiceController {
       this.stopPlayback();
       this.queue = [];
     }
+
+    this.triggerHapticsOnce(event, context);
 
     if (!this.settings.enabled || this.settings.mode === 'off') return;
     if (event.type === 'countdown' && this.settings.countdownFrom === 0) return;
@@ -107,8 +110,6 @@ export class VoiceController {
     while (this.queue.length > 0) {
       const item = this.queue.shift();
       if (!item || item.expiresAt < (fixedNow ?? Date.now())) continue;
-
-      this.haptics.trigger(item.event, this.settings.hapticsEnabled);
 
       if (item.event.type === 'countdown') {
         const cue = countdownCue(item.event.seconds);
@@ -169,6 +170,7 @@ export class VoiceController {
       this.speech.preload(),
       this.audio.preload(),
       this.recorded.preload(allVoiceAssetUrls(this.baseUrl)),
+      this.haptics.preload(),
     ]);
   }
 
@@ -211,6 +213,16 @@ export class VoiceController {
     this.queue = this.queue.filter(item => (
       item.event.type !== 'countdown' && item.event.type !== 'stage-enter'
     ));
+  }
+
+  private triggerHapticsOnce(event: VoiceEvent, context: VoiceEventContext): void {
+    const id = eventId(event, context);
+    if (this.hapticSeen.has(id)) return;
+    this.hapticSeen.add(id);
+    this.haptics.trigger(
+      event,
+      this.settings.enabled && this.settings.hapticsEnabled,
+    );
   }
 
   private stopPlayback(): void {
