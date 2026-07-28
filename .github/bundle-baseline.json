@@ -1,19 +1,19 @@
 {
-  "recordedAt": "2026-07-28T06:03:06Z",
-  "commit": "5122f55",
+  "recordedAt": "2026-07-28T07:55:00Z",
+  "commit": "HEAD",
   "bundles": {
     "mainJS": {
-      "bytes": 447656,
-      "human": "447656B",
+      "bytes": 403950,
+      "human": "403950B",
       "files": [
-        "assets/index-CHELV-VB.js"
+        "assets/index-WGu8MI1b.js"
       ]
     },
     "mainCSS": {
-      "bytes": 47082,
-      "human": "47082B",
+      "bytes": 52470,
+      "human": "52470B",
       "files": [
-        "assets/index-ByKEL43i.css"
+        "assets/index-DnNQaFZB.css"
       ]
     },
     "workerJS": {
@@ -112,12 +112,12 @@
   },
   "gzipEstimates": {
     "mainJS": {
-      "bytes": 133406,
-      "human": "133406B"
+      "bytes": 125040,
+      "human": "125040B"
     },
     "mainCSS": {
-      "bytes": 7955,
-      "human": "7955B"
+      "bytes": 8710,
+      "human": "8710B"
     }
   }
 }

@@ -1,21 +1,22 @@
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import { useMemo, useState } from 'react';
+import { lazy, Suspense, useMemo, useState } from 'react';
 import MuscleSphere from './components/MuscleSphere';
 import TimerDisplay from './components/TimerDisplay';
 import ProgressBar from './components/ProgressBar';
 import PlanSummaryCard from './components/PlanSummaryCard';
 import BottomActionDock from './components/BottomActionDock';
-import ConfigDrawer from './components/ConfigDrawer';
-import VoiceDrawer from './components/VoiceDrawer';
-import MoreMenu from './components/MoreMenu';
-import TrainingHistory from './components/TrainingHistory';
-import ProgressiveSuggestion from './components/ProgressiveSuggestion';
-import Onboarding from './components/Onboarding';
-import SessionRecovery from './components/SessionRecovery';
 import StorageErrorNotice from './components/StorageErrorNotice';
-import TrainingFeedback from './components/TrainingFeedback';
 import ReminderNotification from './components/ReminderNotification';
 import { useKegelEngine } from './hooks/useKegelEngine';
+const ConfigDrawer = lazy(() => import('./components/ConfigDrawer'));
+const VoiceDrawer = lazy(() => import('./components/VoiceDrawer'));
+const MoreMenu = lazy(() => import('./components/MoreMenu'));
+const TrainingHistory = lazy(() => import('./components/TrainingHistory'));
+const ProgressiveSuggestion = lazy(() => import('./components/ProgressiveSuggestion'));
+const Onboarding = lazy(() => import('./components/Onboarding'));
+const SessionRecovery = lazy(() => import('./components/SessionRecovery'));
+const TrainingFeedback = lazy(() => import('./components/TrainingFeedback'));
+
 import { useVoiceAssistant } from './hooks/useVoiceAssistant';
 import { useTrainingHistory, buildTrainingRecord } from './hooks/useTrainingHistory';
 import { useWeeklyGoal } from './hooks/useWeeklyGoal';
@@ -174,13 +175,15 @@ export default function App() {
 
   return (
     <>
-      {showOnboardingModal && <Onboarding onComplete={handleOnboardingComplete} />}
+      {showOnboardingModal && <Suspense fallback={null}><Onboarding onComplete={handleOnboardingComplete} /></Suspense>}
       {recoverableSession && (
-        <SessionRecovery
-          snapshot={recoverableSession}
-          onContinue={recoverSession}
-          onDiscard={discardSession}
-        />
+        <Suspense fallback={null}>
+          <SessionRecovery
+            snapshot={recoverableSession}
+            onContinue={recoverSession}
+            onDiscard={discardSession}
+          />
+        </Suspense>
       )}
       {!hasModal && (
         <StorageErrorNotice
@@ -200,25 +203,29 @@ export default function App() {
       )}
 
       {showConfigDrawer && !showHistory && (
-        <ConfigDrawer
-          config={config}
-          savedConfigs={savedConfigs.items}
-          onChange={updateConfig}
-          onSaveConfig={savedConfigs.add}
-          onRenameConfig={savedConfigs.rename}
-          onDeleteConfig={savedConfigs.remove}
-          onClose={() => setShowConfigDrawer(false)}
-        />
+        <Suspense fallback={null}>
+          <ConfigDrawer
+            config={config}
+            savedConfigs={savedConfigs.items}
+            onChange={updateConfig}
+            onSaveConfig={savedConfigs.add}
+            onRenameConfig={savedConfigs.rename}
+            onDeleteConfig={savedConfigs.remove}
+            onClose={() => setShowConfigDrawer(false)}
+          />
+        </Suspense>
       )}
 
       {showVoiceDrawer && !showHistory && (
-        <VoiceDrawer
-          settings={voice.settings}
-          supported={voice.supported}
-          onChange={voice.updateSettings}
-          onPreview={voice.preview}
-          onClose={() => setShowVoiceDrawer(false)}
-        />
+        <Suspense fallback={null}>
+          <VoiceDrawer
+            settings={voice.settings}
+            supported={voice.supported}
+            onChange={voice.updateSettings}
+            onPreview={voice.preview}
+            onClose={() => setShowVoiceDrawer(false)}
+          />
+        </Suspense>
       )}
 
       {showMoreMenu && !showHistory && (
@@ -328,18 +335,24 @@ export default function App() {
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <TrainingFeedback
-                    completedRepetitions={state.currentRound}
-                    totalRepetitions={config.rounds}
-                    completedSets={state.currentSet}
-                    totalSets={config.sets ?? 1}
-                    durationMs={state.totalElapsedMs}
-                    progress={completionProgress}
-                    onRestart={handleRestart}
-                    onDone={finish}
-                    onViewHistory={() => { finish(); setShowHistory(true); }}
-                    onComfortFeedback={handleComfortFeedback}
-                  />
+                  <Suspense fallback={
+                    <div className="flex items-center justify-center py-20">
+                      <div className="h-6 w-6 animate-pulse rounded-full bg-slate-700" />
+                    </div>
+                  }>
+                    <TrainingFeedback
+                      completedRepetitions={state.currentRound}
+                      totalRepetitions={config.rounds}
+                      completedSets={state.currentSet}
+                      totalSets={config.sets ?? 1}
+                      durationMs={state.totalElapsedMs}
+                      progress={completionProgress}
+                      onRestart={handleRestart}
+                      onDone={finish}
+                      onViewHistory={() => { finish(); setShowHistory(true); }}
+                      onComfortFeedback={handleComfortFeedback}
+                    />
+                  </Suspense>
                 </motion.div>
               </div>
             ) : (
@@ -384,7 +397,7 @@ export default function App() {
                       voice={voice.settings}
                     />
                     {suggestion && (
-                      <ProgressiveSuggestion suggestion={suggestion} onAction={handleSuggestionAction} />
+                      <Suspense fallback={null}><ProgressiveSuggestion suggestion={suggestion} onAction={handleSuggestionAction} /></Suspense>
                     )}
                     {progState.dismissedPermanently && (
                       <button
@@ -412,17 +425,23 @@ export default function App() {
         {/* Bottom action dock */}
         {showHistory && isIdle ? (
           <div className="w-full max-w-sm px-5 pb-[env(safe-area-inset-bottom)]">
-            <TrainingHistory
-              records={history.records}
-              stats={history.stats}
-              onRemoveRecord={history.removeRecord}
-              onClearAll={history.clearAll}
-              onClose={() => setShowHistory(false)}
-              weeklyGoal={weeklyGoal.settings}
-              weeklyProgress={weeklyGoal.progress}
-              onSetWeeklyTarget={weeklyGoal.setTargetDays}
-              onDisableWeeklyGoal={weeklyGoal.disable}
-            />
+            <Suspense fallback={
+              <div className="flex items-center justify-center py-20">
+                <div className="h-6 w-6 animate-pulse rounded-full bg-slate-700" />
+              </div>
+            }>
+              <TrainingHistory
+                records={history.records}
+                stats={history.stats}
+                onRemoveRecord={history.removeRecord}
+                onClearAll={history.clearAll}
+                onClose={() => setShowHistory(false)}
+                weeklyGoal={weeklyGoal.settings}
+                weeklyProgress={weeklyGoal.progress}
+                onSetWeeklyTarget={weeklyGoal.setTargetDays}
+                onDisableWeeklyGoal={weeklyGoal.disable}
+              />
+            </Suspense>
           </div>
         ) : (
           <BottomActionDock
