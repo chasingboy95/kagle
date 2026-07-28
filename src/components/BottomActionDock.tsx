@@ -16,7 +16,7 @@ interface Props {
 
 export default function BottomActionDock({ status, onStart, onPause, onResume, onStop, onRestart, onDone, onAdjustPlan, onVoiceSettings, onMore, idle }: Props) {
   return (
-    <div className="sticky bottom-0 w-full bg-gradient-to-t from-slate-900 via-slate-900/95 to-transparent pb-[env(safe-area-inset-bottom)]">
+    <div className="bottom-action-dock sticky bottom-0 w-full bg-[#111827] bg-gradient-to-t from-[#111827] via-[#111827]/95 to-transparent pb-[env(safe-area-inset-bottom)]">
       <div className="w-full max-w-sm mx-auto px-5 pt-4 pb-3 space-y-2">
         {status === 'idle' && idle && (
           <>

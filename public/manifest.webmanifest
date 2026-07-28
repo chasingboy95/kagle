@@ -5,8 +5,8 @@
   "start_url": "/kagle/",
   "scope": "/kagle/",
   "display": "standalone",
-  "background_color": "#202A59",
-  "theme_color": "#202A59",
+  "background_color": "#111827",
+  "theme_color": "#111827",
   "orientation": "portrait",
   "categories": ["health", "fitness", "lifestyle"],
   "icons": [
