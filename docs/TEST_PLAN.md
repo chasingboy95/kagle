@@ -8,6 +8,7 @@
  - Engine integration: complete lifecycle, pause/resume compensation, phase-specific interruption, idempotent stop, and early stop.
  - Session result: pure-function coverage for completed repetitions, active elapsed time, and canonical completion/stop payloads.
  - App storage schemas: direct-import coverage for versioned keys, defaults, existing records, and invalid-field fallback.
+ - Training history: 500-record boundary, deterministic oldest-record eviction, statistics at capacity, and storage-write failure with in-memory retention.
  - Component tests: ConfigPanel and TrainingFeedback.
  - Playwright: Chromium flows cover completion, history, and stopped-session persistence.
 

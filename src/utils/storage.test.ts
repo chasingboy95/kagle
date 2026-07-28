@@ -69,8 +69,18 @@ describe('createStorageAdapter', () => {
     expect(adapter.read(schema)).toEqual({ name: 'default', count: 0 });
   });
   it('write and read round-trips', () => {
-    adapter.write(schema, { name: 'saved', count: 3 });
+    expect(adapter.write(schema, { name: 'saved', count: 3 })).toBe(true);
     expect(adapter.read(schema)).toEqual({ name: 'saved', count: 3 });
+  });
+  it('write reports storage failures without throwing', () => {
+    const broken: MinimalStorage = {
+      get length() { return 0; },
+      key() { return null; },
+      getItem() { return null; },
+      setItem() { throw new Error('quota'); },
+      removeItem() {},
+    };
+    expect(createStorageAdapter(broken).write(schema, { name: 'kept-in-ui', count: 1 })).toBe(false);
   });
   it('write overwrites previous value', () => {
     adapter.write(schema, { name: 'first', count: 1 });

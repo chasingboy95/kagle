@@ -14,6 +14,7 @@ import TrainingHistory from './components/TrainingHistory';
 import ProgressiveSuggestion from './components/ProgressiveSuggestion';
 import Onboarding from './components/Onboarding';
 import SessionRecovery from './components/SessionRecovery';
+import StorageErrorNotice from './components/StorageErrorNotice';
 import { evaluateSuggestion, type ProgressiveSuggestion as SuggestionType, type ProgressiveSuggestionState } from './utils/progressiveTraining';
 import { ONBOARDING_SCHEMA, PROGRESSIVE_SCHEMA } from './utils/appStorageSchemas';
 import { defaultStorage } from './utils/storage';
@@ -100,6 +101,12 @@ export default function App() {
     <>
       {showOnboarding && <Onboarding onComplete={handleOnboardingComplete} />}
       {recoverableSession && <SessionRecovery snapshot={recoverableSession} onContinue={recoverSession} onDiscard={discardSession} />}
+      {history.storageError && (
+        <StorageErrorNotice
+          message={history.storageError}
+          onDismiss={history.dismissStorageError}
+        />
+      )}
     <div className="relative min-h-dvh bg-gradient-to-b from-[#020617] via-slate-900 to-[#111827] flex flex-col items-center px-5 pt-6 pb-8 overflow-x-hidden selection:bg-white/10">
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <motion.div
