@@ -4,6 +4,7 @@ import {
   DEFAULT_WEEKLY_GOAL,
   ONBOARDING_SCHEMA,
   PROGRESSIVE_SCHEMA,
+  SAVED_CONFIGS_SCHEMA,
   WEEKLY_GOAL_SCHEMA,
 } from './appStorageSchemas';
 import { DEFAULT_PROGRESSIVE_STATE } from './progressiveTraining';
@@ -84,5 +85,51 @@ describe('app storage schemas', () => {
     expect(localStorage.getItem('kegel.weekly-goal.v2')).toBe(
       JSON.stringify({ enabled: true, targetDays: 4 }),
     );
+  });
+
+  it('keeps valid saved configurations and drops invalid or duplicate entries', () => {
+    const valid = {
+      id: 'morning',
+      name: '  早晨  ',
+      config: { contractTime: 3, holdTime: 4, relaxTime: 5, rounds: 8 },
+    };
+    expect(SAVED_CONFIGS_SCHEMA.validate([
+      valid,
+      { ...valid, name: '重复 ID' },
+      { id: 'fraction', name: '小数', config: { ...valid.config, rounds: 2.5 } },
+      { id: 'range', name: '越界', config: { ...valid.config, holdTime: 31 } },
+      { id: 'nan', name: '非有限', config: { ...valid.config, relaxTime: NaN } },
+    ])).toEqual([{
+      ...valid,
+      name: '早晨',
+    }]);
+  });
+
+  it('limits saved configurations to five', () => {
+    const values = Array.from({ length: 7 }, (_, index) => ({
+      id: `config-${index}`,
+      name: `配置 ${index}`,
+      config: { contractTime: 3, holdTime: 3, relaxTime: 3, rounds: 10 },
+    }));
+    expect(SAVED_CONFIGS_SCHEMA.validate(values)).toHaveLength(5);
+  });
+
+  it('migrates flat v1 saved configurations to the nested v2 shape', () => {
+    localStorage.setItem('kegel.saved-configs.v1', JSON.stringify([{
+      id: 'legacy',
+      name: '旧收藏',
+      contractTime: 5,
+      holdTime: 8,
+      relaxTime: 5,
+      rounds: 10,
+    }]));
+
+    expect(createStorageAdapter().read(SAVED_CONFIGS_SCHEMA)).toEqual([{
+      id: 'legacy',
+      name: '旧收藏',
+      config: { contractTime: 5, holdTime: 8, relaxTime: 5, rounds: 10 },
+    }]);
+    expect(localStorage.getItem('kegel.saved-configs.v1')).toBeNull();
+    expect(localStorage.getItem('kegel.saved-configs.v2')).not.toBeNull();
   });
 });
