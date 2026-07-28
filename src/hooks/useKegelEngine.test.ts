@@ -291,7 +291,7 @@ describe('useKegelEngine session recovery', () => {
       phaseElapsedMs: 500,
       sessionElapsedMs: 15_000,
       totalPausedMs: 0,
-      config: { contractTime: 1, holdTime: 1, relaxTime: 1, rounds: 5 },
+      config: { contractTime: 3, holdTime: 3, relaxTime: 3, rounds: 5 },
       announcedCountdowns: [3, 2, 1],
       sessionStartedAtIso: new Date().toISOString(),
     };
@@ -312,7 +312,7 @@ describe('useKegelEngine session recovery', () => {
       phaseElapsedMs: 500,
       sessionElapsedMs: 5_000,
       totalPausedMs: 0,
-      config: { contractTime: 1, holdTime: 1, relaxTime: 1, rounds: 3 },
+      config: { contractTime: 3, holdTime: 3, relaxTime: 3, rounds: 3 },
       announcedCountdowns: [],
       sessionStartedAtIso: new Date().toISOString(),
     };
@@ -332,10 +332,10 @@ describe('useKegelEngine session recovery', () => {
       status: 'running',
       phase: 'contract',
       round: 2,
-      phaseElapsedMs: 500,
+      phaseElapsedMs: 2_500,
       sessionElapsedMs: 15_000,
       totalPausedMs: 0,
-      config: { contractTime: 1, holdTime: 1, relaxTime: 1, rounds: 5 },
+      config: { contractTime: 3, holdTime: 3, relaxTime: 3, rounds: 5 },
       announcedCountdowns: [],
       sessionStartedAtIso: new Date().toISOString(),
     };
@@ -361,7 +361,7 @@ describe('useKegelEngine session recovery', () => {
       phaseElapsedMs: 300,
       sessionElapsedMs: 7_000,
       totalPausedMs: 0,
-      config: { contractTime: 1, holdTime: 1, relaxTime: 1, rounds: 3 },
+      config: { contractTime: 3, holdTime: 1, relaxTime: 3, rounds: 3 },
       announcedCountdowns: [],
       sessionStartedAtIso: new Date().toISOString(),
     };
@@ -374,5 +374,27 @@ describe('useKegelEngine session recovery', () => {
     // Should be paused right after recovery
     expect(result.current.state.status).toBe('paused');
     expect(result.current.state.phase).toBe('hold');
+  });
+
+  it('removes a corrupt snapshot and remains idle', () => {
+    localStorage.setItem('kegel.session-snapshot.v1', JSON.stringify({
+      status: 'running',
+      phase: 'unknown',
+      round: Number.NaN,
+      config: { contractTime: 3, holdTime: 3, relaxTime: 3, rounds: 10 },
+    }));
+
+    const { result } = renderHook(() => useKegelEngine());
+
+    expect(result.current.recoverableSession).toBeNull();
+    expect(result.current.state.status).toBe('idle');
+    expect(localStorage.getItem('kegel.session-snapshot.v1')).toBeNull();
+  });
+
+  it('removes malformed snapshot JSON without crashing', () => {
+    localStorage.setItem('kegel.session-snapshot.v1', '{not-json');
+
+    expect(() => renderHook(() => useKegelEngine())).not.toThrow();
+    expect(localStorage.getItem('kegel.session-snapshot.v1')).toBeNull();
   });
 });
