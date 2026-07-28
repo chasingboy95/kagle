@@ -80,6 +80,8 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- Cross-module fake-clock coverage for stopping during every active phase, stopping while paused or after resume, recovery-snapshot cleanup, history/statistics isolation, and progressive-suggestion isolation (#26).
+- Playwright coverage for stopping a browser session and verifying its single interrupted-history record without increasing completion statistics (#26).
 - Training-engine integration tests for lifecycle progression, pause/resume compensation, early stop, and completion.
 - React Testing Library component tests for training configuration and completion feedback.
 - A Playwright Chromium smoke test covering configuration, pause/resume, completion, and return to idle.
@@ -135,6 +137,7 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- Repeated `stop()` calls after a session has already returned to idle no longer write duplicate interrupted-session records (#26).
 - Coach and guided selections no longer produce identical behavior under different labels.
 - Countdown no longer implicitly selects guided scripts.
 - Rhythm mode no longer plays full coach sentences.

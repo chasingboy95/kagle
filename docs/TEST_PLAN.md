@@ -1,13 +1,13 @@
  # Test Plan
 
- **Last verified against repository:** 2026-07-26
+ **Last verified against repository:** 2026-07-28
 
  ## Automated Status
 
- - Vitest: 13 files, 71 tests passing.
- - Engine integration: complete lifecycle, pause/resume compensation, and early stop.
+ - Vitest: includes fake-clock stopped-session integration across engine, snapshot, history, statistics, and progressive suggestions.
+ - Engine integration: complete lifecycle, pause/resume compensation, phase-specific interruption, idempotent stop, and early stop.
  - Component tests: ConfigPanel and TrainingFeedback.
- - Playwright: one Chromium complete-training smoke test; first CI execution pending.
+ - Playwright: Chromium flows cover completion, history, and stopped-session persistence.
 
  ### Unit: getCountdownEvent (`src/hooks/useKegelEngine.test.ts`)
 
