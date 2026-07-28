@@ -185,6 +185,23 @@ The application lacked a global error recovery mechanism. Uncaught exceptions in
 - No third-party monitoring or data upload is introduced.
 
 
+
+## 10. Clear All Confirmation Protection
+
+**Status:** Resolved (2026-07-28)
+
+**Description:**
+
+The "清除全部" button in Training History immediately deleted all records without confirmation or backup protection, risking accidental data loss.
+
+**Resolution:**
+
+- Added a confirmation dialog showing the number of records to be deleted and warning about irreversibility.
+- Added automatic backup to localStorage before clearing, restorable via the Data Management UI.
+- Dialog supports ARIA roles, labels, focus trapping, Tab cycling, Escape-to-close, and focus restoration.
+- 4 component tests cover: cancel, confirm, backup creation, and Escape key behavior.
+
+
 ## Resolved Issues
 
 - Feedback phase UI no longer exposes pause/stop controls during the completion celebration.
