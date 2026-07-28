@@ -81,6 +81,7 @@
 - [x] Added fake-clock training-engine integration tests for lifecycle progression, pause/resume compensation, early stop, and completion.
 - [x] Added React Testing Library coverage for the plan and completion components.
 - [x] Added a Playwright complete-training smoke test and made it a deployment gate.
+- [x] Added versioned local data export plus validated, previewed, and recoverable import with replace, history-merge, and settings-only strategies.
 - [x] Corrected the training-unit terminology: one contract→hold→relax cycle is one repetition, and all configured repetitions together count as one set.
 - [x] Updated the plan summary, live progress, voice announcement, settings copy, and completion summary to use repetitions rather than sets.
 - [x] Added voice-script tests that prevent repetition announcements from regressing to set/round terminology.

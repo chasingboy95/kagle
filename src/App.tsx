@@ -17,6 +17,7 @@ import ProgressiveSuggestion from './components/ProgressiveSuggestion';
 import Onboarding from './components/Onboarding';
 import SessionRecovery from './components/SessionRecovery';
 import StorageErrorNotice from './components/StorageErrorNotice';
+import DataManagement from './components/DataManagement';
 import { evaluateSuggestion, type ProgressiveSuggestion as SuggestionType, type ProgressiveSuggestionState } from './utils/progressiveTraining';
 import { ONBOARDING_SCHEMA, PROGRESSIVE_SCHEMA } from './utils/appStorageSchemas';
 import { defaultStorage } from './utils/storage';
@@ -293,6 +294,7 @@ export default function App() {
                 训练记录
               </button>
             )}
+            {isIdle && <DataManagement />}
             <ControlButtons
               status={state.status}
               onStart={handleStart}
