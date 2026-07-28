@@ -1,4 +1,5 @@
 import { useState, useCallback, useMemo, useRef } from 'react';
+import { useDateRefresh } from './useDateRefresh';
 import {
   type TrainingRecord,
   type TrainingConfig,
@@ -115,10 +116,11 @@ export function useTrainingHistory(): UseTrainingHistoryReturn {
   const [records, setRecords] = useState<TrainingRecord[]>(() =>
     defaultStorage.read(TRAINING_HISTORY_SCHEMA),
   );
+  const dateKey = useDateRefresh('daily');
   const recordsRef = useRef(records);
   const [storageError, setStorageError] = useState<string | null>(null);
 
-  const stats = useMemo(() => computeStats(records), [records]);
+  const stats = useMemo(() => computeStats(records), [records, dateKey]);
 
   const persist = useCallback((next: TrainingRecord[]): TrainingRecord[] => {
     const normalized = normalizeTrainingHistory(next);

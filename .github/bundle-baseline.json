@@ -1,12 +1,12 @@
 {
-  "recordedAt": "2026-07-28T05:57:04Z",
-  "commit": "75b379e",
+  "recordedAt": "2026-07-28T06:03:06Z",
+  "commit": "5122f55",
   "bundles": {
     "mainJS": {
-      "bytes": 447027,
-      "human": "447027B",
+      "bytes": 447656,
+      "human": "447656B",
       "files": [
-        "assets/index-COgfN72g.js"
+        "assets/index-CHELV-VB.js"
       ]
     },
     "mainCSS": {
@@ -107,13 +107,13 @@
     }
   },
   "totalDist": {
-    "bytes": 1503204,
-    "human": "1503204B"
+    "bytes": 1503833,
+    "human": "1503833B"
   },
   "gzipEstimates": {
     "mainJS": {
-      "bytes": 133229,
-      "human": "133229B"
+      "bytes": 133406,
+      "human": "133406B"
     },
     "mainCSS": {
       "bytes": 7955,
