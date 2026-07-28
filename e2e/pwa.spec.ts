@@ -15,8 +15,8 @@ test('manifest is accessible and has required fields', async ({ request }) => {
   expect(manifest.start_url).toBe(BASE);
   expect(manifest.scope).toBe(BASE);
   expect(manifest.display).toBe('standalone');
-  expect(manifest.theme_color).toBeTruthy();
-  expect(manifest.background_color).toBeTruthy();
+  expect(manifest.theme_color).toBe('#111827');
+  expect(manifest.background_color).toBe('#111827');
   expect(manifest.icons).toBeInstanceOf(Array);
   expect(manifest.icons.length).toBeGreaterThanOrEqual(2);
   for (const icon of manifest.icons) {
@@ -40,8 +40,9 @@ test('root document stays fixed while the app shell owns mobile scrolling', asyn
   const metrics = await page.evaluate(() => {
     const rootScroller = document.scrollingElement;
     const appShell = document.querySelector<HTMLElement>('.app-shell');
-    if (!rootScroller || !appShell) {
-      throw new Error('Expected the root scroller and app shell to exist');
+    const actionDock = document.querySelector<HTMLElement>('.bottom-action-dock');
+    if (!rootScroller || !appShell || !actionDock) {
+      throw new Error('Expected the root scroller, app shell, and action dock to exist');
     }
 
     window.scrollTo(0, 100);
@@ -56,6 +57,11 @@ test('root document stays fixed while the app shell owns mobile scrolling', asyn
       rootScrollHeight: rootScroller.scrollHeight,
       rootScrollTop: rootScroller.scrollTop,
       bodyOverflow: getComputedStyle(document.body).overflow,
+      htmlBackground: getComputedStyle(document.documentElement).backgroundColor,
+      bodyBackground: getComputedStyle(document.body).backgroundColor,
+      rootBackground: getComputedStyle(document.querySelector<HTMLElement>('#root')!).backgroundColor,
+      dockBackground: getComputedStyle(actionDock).backgroundColor,
+      themeColor: document.querySelector<HTMLMetaElement>('meta[name="theme-color"]')?.content,
       appOverflowY: shellStyle.overflowY,
       appPosition: shellStyle.position,
       appTop: shellRect.top,
@@ -69,6 +75,11 @@ test('root document stays fixed while the app shell owns mobile scrolling', asyn
   expect(metrics.rootScrollHeight).toBe(metrics.rootClientHeight);
   expect(metrics.rootScrollTop).toBe(0);
   expect(metrics.bodyOverflow).toBe('hidden');
+  expect(metrics.htmlBackground).toBe('rgb(17, 24, 39)');
+  expect(metrics.bodyBackground).toBe('rgb(17, 24, 39)');
+  expect(metrics.rootBackground).toBe('rgb(17, 24, 39)');
+  expect(metrics.dockBackground).toBe('rgb(17, 24, 39)');
+  expect(metrics.themeColor).toBe('#111827');
   expect(metrics.appOverflowY).toBe('auto');
   expect(metrics.appPosition).toBe('fixed');
   expect(metrics.appTop).toBe(0);
