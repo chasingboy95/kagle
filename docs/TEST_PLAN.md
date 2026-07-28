@@ -11,6 +11,7 @@
  - App storage schemas: direct-import coverage for versioned keys, defaults, existing records, and invalid-field fallback.
  - Training history: 500-record boundary, deterministic oldest-record eviction, statistics at capacity, and storage-write failure with in-memory retention.
  - Training record detail: objective field rendering, preset/custom and completion states, list-detail-back navigation, cancelable confirmation, and confirmed deletion.
+ - Training calendar: explicit timezone and cross-month boundaries, stopped/completed display rules, monthly counts/days/duration/streak, date selection, month navigation, and shared detail navigation.
  - Progressive suggestion: input-order preservation, second/third completion timing, stopped-session isolation, synchronous post-write evaluation, plus existing eligibility, priority, and cooldown rules.
  - Accessibility: modal priority, initial/restored focus, focus traps, Tab/Escape rules, ARIA names/descriptions, reduced motion, live regions, and Playwright axe serious/critical violations.
  - Voice preflight: current-setting summary, preview success/failure, audible confirmation, silent choice, and controller handling for silent or unsupported playback.
