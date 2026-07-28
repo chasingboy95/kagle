@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { completionSummary, formatDuration } from '../utils/trainingFeedback';
+import type { CompletionProgress } from '../utils/completionProgress';
 
 interface TrainingFeedbackProps {
   completedRepetitions: number;
@@ -8,6 +9,7 @@ interface TrainingFeedbackProps {
   onRestart?: () => void;
   onDone?: () => void;
   onViewHistory?: () => void;
+  progress?: CompletionProgress | null;
 }
 
 export default function TrainingFeedback({
@@ -17,6 +19,7 @@ export default function TrainingFeedback({
   onRestart,
   onDone,
   onViewHistory,
+  progress,
 }: TrainingFeedbackProps) {
   return (
     <motion.div
@@ -45,6 +48,38 @@ export default function TrainingFeedback({
           <div className="mt-0.5">完成次数</div>
         </div>
       </div>
+
+      {progress && (
+        <section aria-labelledby="weekly-progress-title" className="mt-4 rounded-2xl bg-white/[0.04] p-4 text-left">
+          <h3 id="weekly-progress-title" className="text-sm font-medium text-slate-200">本周真实进度</h3>
+          <dl className="mt-3 grid grid-cols-2 gap-3 text-xs">
+            <div>
+              <dt className="text-slate-500">本周完成</dt>
+              <dd className="mt-1 text-sm font-medium text-slate-200">{progress.weeklyCompletions} 次</dd>
+            </div>
+            <div>
+              <dt className="text-slate-500">连续训练</dt>
+              <dd className="mt-1 text-sm font-medium text-slate-200">{progress.streakDays} 天</dd>
+            </div>
+            <div className="col-span-2">
+              <dt className="text-slate-500">本周累计时长</dt>
+              <dd className="mt-1 text-sm font-medium text-slate-200">
+                {formatDuration(progress.weeklyDurationMs)}
+                <span className="ml-2 text-xs font-normal text-emerald-300/80">
+                  本次 +{formatDuration(progress.addedDurationMs)}
+                </span>
+              </dd>
+            </div>
+          </dl>
+          {progress.goal && (
+            <p className="mt-3 border-t border-white/[0.05] pt-3 text-xs text-slate-400">
+              {progress.goal.remainingDays > 0
+                ? `每周目标 ${progress.goal.completedDays}/${progress.goal.targetDays} 天，还差 ${progress.goal.remainingDays} 天。`
+                : `每周目标 ${progress.goal.completedDays}/${progress.goal.targetDays} 天，本周已完成。`}
+            </p>
+          )}
+        </section>
+      )}
 
       <div className="mt-6 flex flex-col gap-2">
         {onRestart && (
