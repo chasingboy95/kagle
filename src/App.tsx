@@ -14,30 +14,13 @@ import TrainingHistory from './components/TrainingHistory';
 import ProgressiveSuggestion from './components/ProgressiveSuggestion';
 import Onboarding from './components/Onboarding';
 import SessionRecovery from './components/SessionRecovery';
-import { evaluateSuggestion, DEFAULT_PROGRESSIVE_STATE, type ProgressiveSuggestion as SuggestionType, type ProgressiveSuggestionState } from './utils/progressiveTraining';
-import { defineSchema } from './utils/storage';
+import { evaluateSuggestion, type ProgressiveSuggestion as SuggestionType, type ProgressiveSuggestionState } from './utils/progressiveTraining';
+import { ONBOARDING_SCHEMA, PROGRESSIVE_SCHEMA } from './utils/appStorageSchemas';
 import { defaultStorage } from './utils/storage';
 import TrainingFeedback from './components/TrainingFeedback';
 import { actionHint, calcDisplayPhaseTiming, calcTotalDuration } from './utils/time';
 
 export default function App() {
-const PROGRESSIVE_SCHEMA = defineSchema({
-  category: 'progressive-suggestion',
-  version: 1,
-  defaultValue: DEFAULT_PROGRESSIVE_STATE,
-  validate(value: unknown): ProgressiveSuggestionState {
-    if (!value || typeof value !== 'object') return { ...DEFAULT_PROGRESSIVE_STATE };
-    const v = value as Record<string, unknown>;
-    return {
-      lastSuggestedAt: typeof v.lastSuggestedAt === 'string' ? v.lastSuggestedAt : '',
-      lastAction: v.lastAction === 'accept' || v.lastAction === 'ignore' || v.lastAction === 'dismiss' ? v.lastAction : null,
-      ignoreCount: typeof v.ignoreCount === 'number' && Number.isFinite(v.ignoreCount) ? Math.max(0, Math.floor(v.ignoreCount)) : 0,
-    };
-  },
-});
-
-
-  const ONBOARDING_SCHEMA = defineSchema({ category: 'onboarding', version: 1, defaultValue: true, validate: (v: unknown) => typeof v === 'boolean' ? v : true, });
   const voice = useVoiceAssistant();
   const history = useTrainingHistory();
   const [showHistory, setShowHistory] = useState(false);
