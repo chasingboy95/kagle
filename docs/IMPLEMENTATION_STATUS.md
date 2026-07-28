@@ -27,7 +27,7 @@
 | PWA / GitHub Pages | Complete | Manifest, service worker, subpath, safe-area, standard PNG icons, apple-touch-icon, version update notification, offline caching, and voice asset cache verified by Playwright E2E tests (e2e/pwa.spec.ts). Real-device QA remains outstanding. |
 | Storage Layer | Complete | `StorageAdapter` provides schema validation, versioned keys, upgrade chains, and corruption recovery. Training configuration, history, progressive suggestions, and onboarding use importable module-level schemas instead of render-time definitions. |
 | Training History | Complete | Keeps the newest 500 records with deterministic oldest-first eviction. Persistence failures retain current in-memory UI state and show a dismissible warning; statistics and lists are tested at the capacity boundary. |
-| Progressive Training | Complete | Rule engine suggests parameter increases after 3 consecutive same-config completions, with 3-day cooldown after dismiss. 9 tests. |
+| Progressive Training | Complete | Side-effect-free rule engine explicitly copies records before newest-first sorting, suggests parameter increases after 3 consecutive same-config completions, and applies a 3-day cooldown after dismiss. Input-order preservation is covered by regression tests. |
 | Onboarding | Complete | Three-page first-time guided modal (什么是凯格尔训练/呼吸与安全/关于本应用) with skip, page indicators, ARIA dialog attributes, localStorage persistence, and re-entry button in idle section. |
 | Session Recovery | Complete | Engine saves snapshot to localStorage on state changes; recovery UI offers continue/discard after page refresh with time compensation; 8 integration tests. |
 | Session Statistics | Complete | The completion view shows only objective current-session duration and repetition counts. Streaks and quality scores are hidden until real training history exists. |
@@ -83,6 +83,7 @@
 - Pure session-result calculations for phase-boundary repetition counts, paused/resumed active duration, and frozen feedback results.
 - Importable progressive-suggestion and onboarding schemas with compatibility tests for existing keys, defaults, and validation behavior.
 - Training-history capacity, deterministic retention, large-history statistics, and quota-failure UI-state preservation.
+- Progressive-suggestion input-order preservation while retaining existing rule behavior.
 
 ## Verification Gap
 
