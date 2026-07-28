@@ -241,7 +241,7 @@ export default function App() {
       )}
 
       <div
-        className="relative min-h-dvh bg-gradient-to-b from-[#020617] via-slate-900 to-[#111827] flex flex-col items-center overflow-x-hidden selection:bg-white/10"
+        className="app-shell relative bg-gradient-to-b from-[#020617] via-slate-900 to-[#111827] flex flex-col items-center selection:bg-white/10"
         aria-hidden={hasModal || undefined}
         inert={hasModal || undefined}
         data-reduced-motion={reducedMotion ? 'true' : 'false'}
