@@ -6,6 +6,7 @@ import ConfirmClearAllDialog from './ConfirmClearAllDialog';
 import TrainingCalendar from './TrainingCalendar';
 import TrainingRecordDetail from './TrainingRecordDetail';
 import WeeklyGoal from './WeeklyGoal';
+import TrainingTrend from './TrainingTrend';
 import type { WeeklyGoalSettings } from '../utils/appStorageSchemas';
 import type { WeeklyGoalProgress } from '../utils/weeklyGoal';
 
@@ -45,7 +46,8 @@ export default function TrainingHistory({
   onDisableWeeklyGoal,
 }: TrainingHistoryProps) {
   const [selectedRecordId, setSelectedRecordId] = useState<string | null>(null);
-  const [view, setView] = useState<'list' | 'calendar'>('list');
+  const [view, setView] = useState<'list' | 'calendar' | 'trend'>('list');
+  const [statusFilter, setStatusFilter] = useState<"all" | "completed" | "stopped">("all");
   const [confirmingClear, setConfirmingClear] = useState(false);
   const selectedRecord = records.find((record) => record.id === selectedRecordId);
   const handleClearAll = useCallback(() => {
@@ -83,7 +85,7 @@ export default function TrainingHistory({
         onSetTargetDays={onSetWeeklyTarget}
         onDisable={onDisableWeeklyGoal}
       />
-      <div className="grid grid-cols-2 rounded-xl bg-black/20 p-1">
+      <div className="grid grid-cols-3 rounded-xl bg-black/20 p-1">
         <button
           type="button"
           onClick={() => setView('list')}
@@ -100,10 +102,20 @@ export default function TrainingHistory({
         >
           日历
         </button>
+        <button
+          type="button"
+          onClick={() => setView('trend')}
+          aria-pressed={view === 'trend'}
+          className={`rounded-lg py-2 text-sm ${view === 'trend' ? 'bg-white/10 text-white' : 'text-slate-500'}`}
+        >
+          趋势
+        </button>
       </div>
 
       {view === 'calendar' ? (
         <TrainingCalendar records={records} onOpenRecord={setSelectedRecordId} />
+      ) : view === 'trend' ? (
+        <TrainingTrend records={records} />
       ) : (
         <>
       {/* Stats row */}
@@ -126,6 +138,26 @@ export default function TrainingHistory({
         </div>
       </div>
 
+      {/* Status filter */}
+          {view === 'list' && records.length > 0 && (
+            <div className="flex gap-1 rounded-lg bg-black/20 p-0.5">
+              {([{ value: 'all', label: '全部' }, { value: 'completed', label: '已完成' }, { value: 'stopped', label: '已中止' }] as const).map(({ value, label }) => (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => setStatusFilter(value)}
+                  aria-pressed={statusFilter === value}
+                  className={`flex-1 rounded-md py-1.5 text-xs transition-colors ${
+                    statusFilter === value
+                      ? 'bg-white/10 text-white'
+                      : 'text-slate-500 hover:text-slate-300'
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          )}
       {/* Records list */}
       {records.length === 0 ? (
         <p className="text-sm text-slate-500 text-center py-8">

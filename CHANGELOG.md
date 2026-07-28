@@ -196,3 +196,5 @@ All notable changes to this project will be documented in this file.
 ## 2026-07-28
 
 - **feat: 增加可选训练计划与提醒 (fix #78)** — 新增训练计划与提醒功能，支持选择训练日（周一至周日）和设定提醒时间，到达训练日时通过浏览器通知提醒用户。新增 `TrainingScheduleSettings` schema、`useTrainingSchedule` hook、`ScheduleSettings` 组件，集成至更多菜单与主界面提醒弹窗。
+
+- **feat: 四周训练趋势与历史筛选 (fix #79)** — 新增近四周训练趋势图（完成次数/累计时长/训练天数），历史列表支持按完成/中止状态筛选。新增 `computeTrainingTrend` 工具函数、`TrainingTrend` 柱状图组件。
