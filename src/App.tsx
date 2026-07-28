@@ -1,4 +1,4 @@
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { useMemo, useState } from 'react';
 import MuscleSphere from './components/MuscleSphere';
 import TrainingStatus from './components/TrainingStatus';
@@ -22,6 +22,7 @@ import TrainingFeedback from './components/TrainingFeedback';
 import { actionHint, calcDisplayPhaseTiming, calcTotalDuration } from './utils/time';
 
 export default function App() {
+  const reducedMotion = useReducedMotion();
   const voice = useVoiceAssistant();
   const history = useTrainingHistory();
   const [showHistory, setShowHistory] = useState(false);
@@ -49,6 +50,11 @@ export default function App() {
   const isActive = state.status === 'running' || state.status === 'paused' || state.status === 'feedback';
   const showHint = state.status === 'running' && state.phase !== 'idle';
   const showFeedback = state.phase === 'feedback';
+  // Recovery always wins. First-use onboarding resumes only after recovery is
+  // discarded, or after a recovered session returns to idle.
+  const showRecovery = Boolean(recoverableSession);
+  const showOnboardingModal = showOnboarding && !showRecovery && isIdle;
+  const hasModal = showRecovery || showOnboardingModal;
 
   const displayTiming = calcDisplayPhaseTiming(
     state.phase,
@@ -99,19 +105,34 @@ export default function App() {
 
   return (
     <>
-      {showOnboarding && <Onboarding onComplete={handleOnboardingComplete} />}
-      {recoverableSession && <SessionRecovery snapshot={recoverableSession} onContinue={recoverSession} onDiscard={discardSession} />}
-      {history.storageError && (
+      {showOnboardingModal && <Onboarding onComplete={handleOnboardingComplete} />}
+      {recoverableSession && (
+        <SessionRecovery
+          snapshot={recoverableSession}
+          onContinue={recoverSession}
+          onDiscard={discardSession}
+        />
+      )}
+      {history.storageError && !hasModal && (
         <StorageErrorNotice
           message={history.storageError}
           onDismiss={history.dismissStorageError}
         />
       )}
-    <div className="relative min-h-dvh bg-gradient-to-b from-[#020617] via-slate-900 to-[#111827] flex flex-col items-center px-5 pt-6 pb-8 overflow-x-hidden selection:bg-white/10">
+    <div
+      className="relative min-h-dvh bg-gradient-to-b from-[#020617] via-slate-900 to-[#111827] flex flex-col items-center px-5 pt-6 pb-8 overflow-x-hidden selection:bg-white/10"
+      aria-hidden={hasModal || undefined}
+      inert={hasModal || undefined}
+      data-reduced-motion={reducedMotion ? 'true' : 'false'}
+    >
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <motion.div
-          animate={{ x: [0, 40, -30, 0], y: [0, -30, 40, 0] }}
-          transition={{ duration: 25, repeat: Infinity, ease: 'easeInOut' }}
+          animate={reducedMotion
+            ? { x: 0, y: 0 }
+            : { x: [0, 40, -30, 0], y: [0, -30, 40, 0] }}
+          transition={reducedMotion
+            ? { duration: 0 }
+            : { duration: 25, repeat: Infinity, ease: 'easeInOut' }}
           className="absolute -top-1/4 -left-1/4 w-[150%] h-[150%]"
           style={{
             background: 'radial-gradient(ellipse 60% 50% at 50% 30%, rgba(99,102,241,0.06), transparent 70%)',
