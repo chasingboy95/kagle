@@ -241,6 +241,36 @@ export interface SessionSnapshot {
   sessionStartedAtIso: string;
 }
 
+const RECOVERABLE_PHASES: TrainingPhase[] = [
+  'ready',
+  'contract',
+  'hold',
+  'relax',
+];
+
+function isStrictTrainingConfig(value: unknown): value is TrainingConfig {
+  if (!value || typeof value !== 'object') return false;
+  const candidate = value as Record<keyof TrainingConfig, unknown>;
+  const normalized = TRAINING_CONFIG_SCHEMA.validate(value);
+  return (Object.keys(CONFIG_RANGE) as Array<keyof TrainingConfig>).every(
+    (key) =>
+      typeof candidate[key] === 'number'
+      && Number.isFinite(candidate[key])
+      && Number.isInteger(candidate[key])
+      && candidate[key] === normalized[key],
+  );
+}
+
+function isRecoverableStatusPhase(
+  status: unknown,
+  phase: unknown,
+): status is SessionSnapshot['status'] {
+  if (status === 'feedback') return phase === 'feedback';
+  return (status === 'running' || status === 'paused')
+    && typeof phase === 'string'
+    && RECOVERABLE_PHASES.includes(phase as TrainingPhase);
+}
+
 /** Storage schema for the session snapshot. Key: kegel.session-snapshot.v1 */
 export const SESSION_SNAPSHOT_SCHEMA = defineSchema<SessionSnapshot | null>({
   category: 'session-snapshot',
@@ -249,15 +279,25 @@ export const SESSION_SNAPSHOT_SCHEMA = defineSchema<SessionSnapshot | null>({
   validate(value: unknown): SessionSnapshot | null {
     if (!value || typeof value !== 'object') return null;
     const v = value as Record<string, unknown>;
-    if (typeof v.status !== 'string' || !['running', 'paused', 'feedback'].includes(v.status)) return null;
-    if (typeof v.phase !== 'string') return null;
-    if (typeof v.round !== 'number') return null;
-    if (typeof v.phaseElapsedMs !== 'number') return null;
-    if (typeof v.sessionElapsedMs !== 'number') return null;
-    if (typeof v.totalPausedMs !== 'number') return null;
-    if (!v.config || typeof v.config !== 'object') return null;
-    if (!Array.isArray(v.announcedCountdowns)) return null;
-    if (typeof v.sessionStartedAtIso !== 'string') return null;
+    if (!isRecoverableStatusPhase(v.status, v.phase)) return null;
+    if (!isStrictTrainingConfig(v.config)) return null;
+    if (
+      !isNonNegativeInteger(v.round)
+      || v.round >= v.config.rounds
+    ) return null;
+    if (!isFiniteNonNegative(v.phaseElapsedMs)) return null;
+    if (!isFiniteNonNegative(v.sessionElapsedMs)) return null;
+    if (!isFiniteNonNegative(v.totalPausedMs)) return null;
+    if (
+      !Array.isArray(v.announcedCountdowns)
+      || !v.announcedCountdowns.every(
+        (seconds) =>
+          Number.isInteger(seconds)
+          && seconds >= 1
+          && seconds <= 5,
+      )
+    ) return null;
+    if (!isValidIsoTimestamp(v.sessionStartedAtIso)) return null;
     return value as SessionSnapshot;
   },
 });

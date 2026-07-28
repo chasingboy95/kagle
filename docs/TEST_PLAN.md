@@ -5,6 +5,7 @@
  ## Automated Status
 
  - Vitest: includes fake-clock stopped-session integration across engine, snapshot, history, statistics, and progressive suggestions.
+ - Session recovery validation: corrupt enums and combinations, repetition/config bounds, non-finite or negative timing, countdown markers, timestamps, safe deletion, and valid boundary recovery.
  - Engine integration: complete lifecycle, pause/resume compensation, phase-specific interruption, idempotent stop, and early stop.
  - Session result: pure-function coverage for completed repetitions, active elapsed time, and canonical completion/stop payloads.
  - App storage schemas: direct-import coverage for versioned keys, defaults, existing records, and invalid-field fallback.
