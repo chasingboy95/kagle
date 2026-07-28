@@ -25,6 +25,19 @@ function freshState(): ProgressiveSuggestionState {
 }
 
 describe('evaluateSuggestion', () => {
+  it('does not mutate the input record order', () => {
+    const records = [
+      makeRecord({ id: 'middle', endedAt: '2026-07-27T12:00:00.000Z' }),
+      makeRecord({ id: 'newest', endedAt: '2026-07-28T12:00:00.000Z' }),
+      makeRecord({ id: 'oldest', endedAt: '2026-07-26T12:00:00.000Z' }),
+    ];
+    const originalOrder = records.map((record) => record.id);
+
+    evaluateSuggestion(records, freshState());
+
+    expect(records.map((record) => record.id)).toEqual(originalOrder);
+  });
+
   it('returns null when not enough completed records', () => {
     const records = [makeRecord(), makeRecord()];
     expect(evaluateSuggestion(records, freshState())).toBeNull();
