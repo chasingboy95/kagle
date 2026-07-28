@@ -1,27 +1,27 @@
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { useMemo, useState } from 'react';
 import MuscleSphere from './components/MuscleSphere';
-import TrainingStatus from './components/TrainingStatus';
 import TimerDisplay from './components/TimerDisplay';
 import ProgressBar from './components/ProgressBar';
-import ControlButtons from './components/ControlButtons';
-import ConfigPanel from './components/ConfigPanel';
-import VoiceSettingsPanel from './components/VoiceSettingsPanel';
-import { useKegelEngine } from './hooks/useKegelEngine';
-import { useVoiceAssistant } from './hooks/useVoiceAssistant';
-import { useTrainingHistory, buildTrainingRecord } from './hooks/useTrainingHistory';
-import { useWeeklyGoal } from './hooks/useWeeklyGoal';
-import { useSavedConfigs } from './hooks/useSavedConfigs';
+import PlanSummaryCard from './components/PlanSummaryCard';
+import BottomActionDock from './components/BottomActionDock';
+import ConfigDrawer from './components/ConfigDrawer';
+import VoiceDrawer from './components/VoiceDrawer';
+import MoreMenu from './components/MoreMenu';
 import TrainingHistory from './components/TrainingHistory';
 import ProgressiveSuggestion from './components/ProgressiveSuggestion';
 import Onboarding from './components/Onboarding';
 import SessionRecovery from './components/SessionRecovery';
 import StorageErrorNotice from './components/StorageErrorNotice';
-import DataManagement from './components/DataManagement';
+import TrainingFeedback from './components/TrainingFeedback';
+import { useKegelEngine } from './hooks/useKegelEngine';
+import { useVoiceAssistant } from './hooks/useVoiceAssistant';
+import { useTrainingHistory, buildTrainingRecord } from './hooks/useTrainingHistory';
+import { useWeeklyGoal } from './hooks/useWeeklyGoal';
+import { useSavedConfigs } from './hooks/useSavedConfigs';
 import { evaluateSuggestion, type ProgressiveSuggestion as SuggestionType, type ProgressiveSuggestionState } from './utils/progressiveTraining';
 import { ONBOARDING_SCHEMA, PROGRESSIVE_SCHEMA } from './utils/appStorageSchemas';
 import { defaultStorage } from './utils/storage';
-import TrainingFeedback from './components/TrainingFeedback';
 import { actionHint, calcDisplayPhaseTiming, calcTotalDuration } from './utils/time';
 import {
   computeCompletionProgress,
@@ -35,6 +35,9 @@ export default function App() {
   const weeklyGoal = useWeeklyGoal(history.records);
   const savedConfigs = useSavedConfigs();
   const [showHistory, setShowHistory] = useState(false);
+  const [showConfigDrawer, setShowConfigDrawer] = useState(false);
+  const [showVoiceDrawer, setShowVoiceDrawer] = useState(false);
+  const [showMoreMenu, setShowMoreMenu] = useState(false);
   const [suggestion, setSuggestion] = useState<SuggestionType | null>(null);
   const [completionProgress, setCompletionProgress] = useState<CompletionProgress | null>(null);
   const [progState, setProgState] = useState<ProgressiveSuggestionState>(() => defaultStorage.read(PROGRESSIVE_SCHEMA));
@@ -132,7 +135,7 @@ export default function App() {
     defaultStorage.write(PROGRESSIVE_SCHEMA, next);
   };
 
-  const handleOnboardingComplete = () => { setShowOnboarding(false); defaultStorage.write(ONBOARDING_SCHEMA, false); };
+  const handleOnboardingComplete = () => { setShowOnboarding(false); defaultStorage.write(ONBOARDING_SCHEMA, false); setShowMoreMenu(false); };
 
   const handleStart = () => {
     setCompletionProgress(null);
@@ -172,185 +175,230 @@ export default function App() {
           }}
         />
       )}
-    <div
-      className="relative min-h-dvh bg-gradient-to-b from-[#020617] via-slate-900 to-[#111827] flex flex-col items-center px-5 pt-6 pb-8 overflow-x-hidden selection:bg-white/10"
-      aria-hidden={hasModal || undefined}
-      inert={hasModal || undefined}
-      data-reduced-motion={reducedMotion ? 'true' : 'false'}
-    >
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <motion.div
-          animate={reducedMotion
-            ? { x: 0, y: 0 }
-            : { x: [0, 40, -30, 0], y: [0, -30, 40, 0] }}
-          transition={reducedMotion
-            ? { duration: 0 }
-            : { duration: 25, repeat: Infinity, ease: 'easeInOut' }}
-          className="absolute -top-1/4 -left-1/4 w-[150%] h-[150%]"
-          style={{
-            background: 'radial-gradient(ellipse 60% 50% at 50% 30%, rgba(99,102,241,0.06), transparent 70%)',
-          }}
+
+      {showConfigDrawer && !showHistory && (
+        <ConfigDrawer
+          config={config}
+          savedConfigs={savedConfigs.items}
+          onChange={updateConfig}
+          onSaveConfig={savedConfigs.add}
+          onRenameConfig={savedConfigs.rename}
+          onDeleteConfig={savedConfigs.remove}
+          onClose={() => setShowConfigDrawer(false)}
         />
-      </div>
+      )}
 
-      <div className="pt-4 pb-1">
-        <TrainingStatus
-          isRunning={state.status === 'running'}
-          isPaused={state.status === 'paused'}
-          currentRepetition={state.currentRound}
-          totalRepetitions={config.rounds}
+      {showVoiceDrawer && !showHistory && (
+        <VoiceDrawer
+          settings={voice.settings}
+          supported={voice.supported}
+          onChange={voice.updateSettings}
+          onPreview={voice.preview}
+          onClose={() => setShowVoiceDrawer(false)}
         />
-      </div>
+      )}
 
-      <div className="h-10 flex items-center justify-center mb-1">
-        <AnimatePresence mode="wait">
-          {showHint ? (
-            <motion.div
-              key={displayTiming.key}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.25 }}
-              className="text-base font-semibold tracking-wide text-slate-200/90"
-            >
-              {actionHint(state.phase)}
-            </motion.div>
-          ) : (
-            <motion.div
-              key="idle"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="text-base font-semibold text-slate-400/60"
-            >
-              {actionHint(state.phase) || '准备开始'}
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
+      {showMoreMenu && !showHistory && (
+        <MoreMenu
+          onShowOnboarding={() => setShowOnboarding(true)}
+          onClose={() => setShowMoreMenu(false)}
+        />
+      )}
 
-      <div className="flex-1 flex flex-col items-center justify-center w-full max-w-sm gap-1">
-        {showFeedback ? (
-          <div className="w-full py-8">
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              <TrainingFeedback
-                completedRepetitions={state.currentRound}
-                totalRepetitions={config.rounds}
-                durationMs={state.totalElapsedMs}
-                progress={completionProgress}
-                onRestart={handleRestart}
-                onDone={finish}
-                onViewHistory={() => { finish(); setShowHistory(true); }}
-              />
-            </motion.div>
-          </div>
-        ) : (
-          <>
-            <div className="relative w-full flex flex-col items-center gap-1">
-              <MuscleSphere
-                stage={state.phase}
-                paused={state.status === 'paused'}
-                stageProgress={displayTiming.progress}
-                showProgressRing={state.status === 'running'}
-                stageDurationMs={displayTiming.durationMs || undefined}
-              />
-            </div>
+      <div
+        className="relative min-h-dvh bg-gradient-to-b from-[#020617] via-slate-900 to-[#111827] flex flex-col items-center overflow-x-hidden selection:bg-white/10"
+        aria-hidden={hasModal || undefined}
+        inert={hasModal || undefined}
+        data-reduced-motion={reducedMotion ? 'true' : 'false'}
+      >
+        <div className="fixed inset-0 pointer-events-none overflow-hidden">
+          <motion.div
+            animate={reducedMotion
+              ? { x: 0, y: 0 }
+              : { x: [0, 40, -30, 0], y: [0, -30, 40, 0] }}
+            transition={reducedMotion
+              ? { duration: 0 }
+              : { duration: 25, repeat: Infinity, ease: 'easeInOut' }}
+            className="absolute -top-1/4 -left-1/4 w-[150%] h-[150%]"
+            style={{
+              background: 'radial-gradient(ellipse 60% 50% at 50% 30%, rgba(99,102,241,0.06), transparent 70%)',
+            }}
+          />
+        </div>
 
-            <TimerDisplay
-              phase={state.phase}
-              displayPhaseKey={displayTiming.key}
-              phaseRemainingMs={displayTiming.remainingMs}
-              currentRepetition={state.currentRound}
-              totalRepetitions={config.rounds}
-              isRunning={isActive || state.status === 'finished'}
-            />
-
-            <div className="w-full max-w-[200px] mt-2">
-              <ProgressBar current={isIdle ? 0 : state.totalElapsedMs} total={totalDurationMs} />
-            </div>
-          </>
-        )}
-      </div>
-
-      <div className="w-full max-w-sm space-y-4 pt-2 pb-safe">
-        {suggestion && isIdle && !showHistory && (
-          <ProgressiveSuggestion suggestion={suggestion} onAction={handleSuggestionAction} />
-        )}
-        {!showFeedback && !showHistory && (
-          <>
-            <ConfigPanel
-              config={config}
-              disabled={isActive}
-              onChange={updateConfig}
-              savedConfigs={savedConfigs.items}
-              onSaveConfig={savedConfigs.add}
-              onRenameConfig={savedConfigs.rename}
-              onDeleteConfig={savedConfigs.remove}
-            />
-
-            <VoiceSettingsPanel
-              settings={voice.settings}
-              supported={voice.supported}
-              onChange={voice.updateSettings}
-              onPreview={voice.preview}
-            />
-
-
-            {isIdle && (
+        <div className="flex flex-col items-center w-full max-w-sm px-5 flex-1">
+          {/* Top bar - only in idle */}
+          {isIdle && showHistory && (
+            <div className="w-full pt-4 pb-2">
               <button
-                onClick={() => setShowOnboarding(true)}
-                className="w-full rounded-lg bg-white/5 text-slate-400 py-2.5 text-sm font-medium hover:bg-white/10 transition-colors"
-              >
-                重新查看引导
-              </button>
-            )}
-            {isIdle && progState.dismissedPermanently && !showHistory && (
-              <button
-                onClick={reenableProgressiveSuggestions}
-                className="w-full rounded-lg bg-white/5 text-slate-500 py-2 text-xs font-medium hover:bg-white/10 transition-colors"
-              >
-                重新开启渐进建议
-              </button>
-            )}
-            {isIdle && (
-              <button
+                type="button"
                 onClick={() => setShowHistory(true)}
-                className="w-full rounded-lg bg-white/5 text-slate-400 py-2.5 text-sm font-medium hover:bg-white/10 transition-colors"
+                className="text-xs text-slate-500 hover:text-slate-400"
               >
                 训练记录
               </button>
+            </div>
+          )}
+
+          {isIdle && !showHistory && (
+            <div className="w-full pt-6 pb-2 flex items-center justify-between">
+              <h1 className="text-sm font-semibold text-slate-300">盆底肌训练</h1>
+              <button
+                type="button"
+                onClick={() => setShowHistory(true)}
+                className="rounded-lg bg-white/5 px-3 py-1.5 text-xs font-medium text-slate-400 hover:bg-white/10 transition-colors"
+              >
+                训练记录
+              </button>
+            </div>
+          )}
+
+          {/* Phase hint */}
+          <div className="h-10 flex items-center justify-center w-full mb-1">
+            <AnimatePresence mode="wait">
+              {!isIdle && showHint ? (
+                <motion.div
+                  key={displayTiming.key}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.25 }}
+                  className="text-base font-semibold tracking-wide text-slate-200/90"
+                >
+                  {actionHint(state.phase)}
+                </motion.div>
+              ) : isIdle ? (
+                <motion.div
+                  key="idle"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="text-base font-semibold text-slate-400/60"
+                >
+                  准备开始
+                </motion.div>
+              ) : (
+                <motion.div
+                  key={displayTiming.key}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="text-base font-semibold text-slate-400/60"
+                >
+                  {actionHint(state.phase) || ''}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          {/* Main content area */}
+          <div className="flex-1 flex flex-col items-center justify-center w-full gap-1">
+            {showFeedback ? (
+              <div className="w-full py-8">
+                <motion.div
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <TrainingFeedback
+                    completedRepetitions={state.currentRound}
+                    totalRepetitions={config.rounds}
+                    durationMs={state.totalElapsedMs}
+                    progress={completionProgress}
+                    onRestart={handleRestart}
+                    onDone={finish}
+                    onViewHistory={() => { finish(); setShowHistory(true); }}
+                  />
+                </motion.div>
+              </div>
+            ) : (
+              <>
+                <div className="relative w-full flex flex-col items-center gap-1">
+                  <MuscleSphere
+                    stage={state.phase}
+                    paused={state.status === 'paused'}
+                    stageProgress={displayTiming.progress}
+                    showProgressRing={state.status === 'running'}
+                    stageDurationMs={displayTiming.durationMs || undefined}
+                  />
+                </div>
+
+                {!isIdle && (
+                  <>
+                    <TimerDisplay
+                      phase={state.phase}
+                      displayPhaseKey={displayTiming.key}
+                      phaseRemainingMs={displayTiming.remainingMs}
+                      currentRepetition={state.currentRound}
+                      totalRepetitions={config.rounds}
+                      isRunning={isActive || state.status === 'finished'}
+                    />
+                    <div className="w-full max-w-[200px] mt-2">
+                      <ProgressBar current={state.totalElapsedMs} total={totalDurationMs} />
+                    </div>
+                  </>
+                )}
+
+                {isIdle && !showHistory && (
+                  <div className="w-full space-y-3 mt-2">
+                    <PlanSummaryCard
+                      contractTime={config.contractTime}
+                      holdTime={config.holdTime}
+                      relaxTime={config.relaxTime}
+                      rounds={config.rounds}
+                      voice={voice.settings}
+                    />
+                    {suggestion && (
+                      <ProgressiveSuggestion suggestion={suggestion} onAction={handleSuggestionAction} />
+                    )}
+                    {progState.dismissedPermanently && (
+                      <button
+                        type="button"
+                        onClick={reenableProgressiveSuggestions}
+                        className="w-full rounded-lg bg-white/5 text-slate-500 py-2 text-xs font-medium hover:bg-white/10 transition-colors"
+                      >
+                        重新开启渐进建议
+                      </button>
+                    )}
+                  </div>
+                )}
+              </>
             )}
-            {isIdle && <DataManagement />}
-            <ControlButtons
-              status={state.status}
-              onStart={handleStart}
-              onPause={pause}
-              onResume={resume}
-              onStop={stop}
-              onRestart={handleRestart}
+          </div>
+        </div>
+
+        {/* Bottom action dock */}
+        {showHistory && isIdle ? (
+          <div className="w-full max-w-sm px-5 pb-[env(safe-area-inset-bottom)]">
+            <TrainingHistory
+              records={history.records}
+              stats={history.stats}
+              onRemoveRecord={history.removeRecord}
+              onClearAll={history.clearAll}
+              onClose={() => setShowHistory(false)}
+              weeklyGoal={weeklyGoal.settings}
+              weeklyProgress={weeklyGoal.progress}
+              onSetWeeklyTarget={weeklyGoal.setTargetDays}
+              onDisableWeeklyGoal={weeklyGoal.disable}
             />
-          </>
-        )}
-        {showHistory && isIdle && (
-          <TrainingHistory
-            records={history.records}
-            stats={history.stats}
-            onRemoveRecord={history.removeRecord}
-            onClearAll={history.clearAll}
-            onClose={() => setShowHistory(false)}
-            weeklyGoal={weeklyGoal.settings}
-            weeklyProgress={weeklyGoal.progress}
-            onSetWeeklyTarget={weeklyGoal.setTargetDays}
-            onDisableWeeklyGoal={weeklyGoal.disable}
+          </div>
+        ) : (
+          <BottomActionDock
+            status={state.status}
+            onStart={handleStart}
+            onPause={pause}
+            onResume={resume}
+            onStop={stop}
+            onRestart={handleRestart}
+            onDone={finish}
+            onAdjustPlan={() => setShowConfigDrawer(true)}
+            onVoiceSettings={() => setShowVoiceDrawer(true)}
+            onMore={() => setShowMoreMenu(true)}
+            idle={isIdle}
           />
         )}
       </div>
-    </div>
     </>
   );
 }
