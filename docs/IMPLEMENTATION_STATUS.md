@@ -31,7 +31,7 @@
 | Progressive Training | Complete | History writes synchronously return the normalized record set used for suggestion evaluation, so the third same-config completion triggers immediately without React state timing dependencies. The side-effect-free rule engine preserves input order and applies a 3-day cooldown after dismiss. |
 | Onboarding | Complete | Three-page first-time guided modal with ARIA labeling, page status, keyboard focus trap, Escape-to-skip, reduced-motion transitions, localStorage persistence, and re-entry in idle. It never overlaps session recovery. |
 | Session Recovery | Complete | Engine saves snapshots locally; strict schema validation accepts only recoverable status/phase combinations, bounded config and repetition values, finite non-negative timing, legal countdown markers, and valid timestamps. Corrupt or unknown snapshots are removed before the app remains safely idle. The higher-priority recovery dialog requires an explicit continue/discard choice, traps focus, and defers first-use onboarding until the app is idle. |
-| Session Statistics | Complete | The completion view shows only objective current-session duration and repetition counts. Streaks and quality scores are hidden until real training history exists. |
+| Session Statistics | Complete | The completion view shows objective current-session duration/repetitions plus post-write weekly completions, weekly active duration, current-session increase, and current streak. Enabled weekly goals add real remaining-day progress; calculation failure safely falls back to session-only results. |
 | Error Boundary | Complete | Global React ErrorBoundary wraps root <App />, ErrorRecoveryUI renders privacy-safe recovery page with reload/reset, 6 component tests. |
 | CI/CD | Complete | All quality gates pass: tests, lint, TypeScript, build, and Playwright E2E. Deployment is automatic via GitHub Actions to GitHub Pages. |
 
@@ -90,6 +90,7 @@
 - Training-record detail rendering, preset/custom and completed/stopped states, confirmed deletion, and list-detail-back navigation.
 - Calendar timezone/cross-month boundaries, completed/stopped aggregation, monthly statistics, date selection, month navigation, and calendar-to-detail flow.
 - Weekly-goal Monday/Sunday and timezone boundaries, same-day deduplication, stopped-record exclusion, persistence/migration, controls, and pressure-free copy.
+- Completion progress including the current record, weekly count/duration and increment, streak, optional goal remainder, disabled-goal behavior, and safe component fallback.
 - Modal priority, focus trapping, Tab/Escape rules, ARIA labeling, reduced motion, live regions, and serious/critical axe violations.
 - Training-history ISO/calendar validity, time ordering, numeric bounds, integer repetition counts, count relationships, and mixed valid/corrupt input.
 
