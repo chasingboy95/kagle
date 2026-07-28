@@ -462,6 +462,9 @@ export function useKegelEngine(options: KegelEngineVoiceOptions = {}): UseKegelE
     setRecoverableSession(null);
     const e = eng.current;
     const now = performance.now();
+    // 恢复会话配置为唯一权威来源：引擎配置与 UI 配置同步为快照配置，
+    // 避免恢复后引擎按快照配置计时、而界面/历史仍按当前持久化配置。
+    setConfig(snap.config);
     e.status = snap.status;
     e.phase = snap.phase;
     e.round = snap.round;
@@ -484,7 +487,7 @@ export function useKegelEngine(options: KegelEngineVoiceOptions = {}): UseKegelE
       startTick();
       pushState();
     }
-  }, [startTick, pushState]);
+  }, [startTick, pushState, setConfig]);
 
   return {
     state,

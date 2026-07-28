@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { TrainingPhase, TrainingStatus } from '../types/training';
+import { DEFAULT_CONFIG, type TrainingConfig, type TrainingPhase, type TrainingStatus } from '../types/training';
 import {
   buildSessionResult,
   getActiveElapsedMs,
@@ -17,6 +17,7 @@ function state(overrides: Partial<SessionCalculationState> = {}): SessionCalcula
     totalPausedMs: 0,
     pauseStartedAt: 0,
     feedbackElapsedSnapshot: 0,
+    config: DEFAULT_CONFIG as TrainingConfig,
     ...overrides,
   };
 }
@@ -92,6 +93,7 @@ describe('buildSessionResult', () => {
       actualDurationMs: 7_500,
       status,
       startedAt: '2026-07-28T00:00:00.000Z',
+      config: DEFAULT_CONFIG,
     });
   });
 });

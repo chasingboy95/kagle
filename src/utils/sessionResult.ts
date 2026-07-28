@@ -1,4 +1,4 @@
-import type { TrainingPhase, TrainingStatus } from '../types/training';
+import type { TrainingConfig, TrainingPhase, TrainingStatus } from '../types/training';
 
 export type SessionEndStatus = 'completed' | 'stopped';
 
@@ -11,6 +11,8 @@ export interface SessionCalculationState {
   totalPausedMs: number;
   pauseStartedAt: number;
   feedbackElapsedSnapshot: number;
+  /** Config the session actually executed with (authoritative for history). */
+  config: TrainingConfig;
 }
 
 export interface SessionResult {
@@ -18,6 +20,8 @@ export interface SessionResult {
   actualDurationMs: number;
   status: SessionEndStatus;
   startedAt: string;
+  /** Immutable config of the executed session, used to build the record. */
+  config: TrainingConfig;
 }
 
 function finiteNonNegative(value: number): number {
@@ -61,5 +65,6 @@ export function buildSessionResult(
     actualDurationMs: getActiveElapsedMs(state, now),
     status,
     startedAt: state.sessionStartedAtIso,
+    config: state.config,
   };
 }
