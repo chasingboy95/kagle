@@ -47,12 +47,19 @@ test('root document stays fixed while the app shell owns mobile scrolling', asyn
     window.scrollTo(0, 100);
     appShell.scrollTop = 100;
 
+    const shellStyle = getComputedStyle(appShell);
+    const shellRect = appShell.getBoundingClientRect();
+
     return {
+      viewportHeight: window.innerHeight,
       rootClientHeight: rootScroller.clientHeight,
       rootScrollHeight: rootScroller.scrollHeight,
       rootScrollTop: rootScroller.scrollTop,
       bodyOverflow: getComputedStyle(document.body).overflow,
-      appOverflowY: getComputedStyle(appShell).overflowY,
+      appOverflowY: shellStyle.overflowY,
+      appPosition: shellStyle.position,
+      appTop: shellRect.top,
+      appBottom: shellRect.bottom,
       appClientHeight: appShell.clientHeight,
       appScrollHeight: appShell.scrollHeight,
       appScrollTop: appShell.scrollTop,
@@ -63,6 +70,10 @@ test('root document stays fixed while the app shell owns mobile scrolling', asyn
   expect(metrics.rootScrollTop).toBe(0);
   expect(metrics.bodyOverflow).toBe('hidden');
   expect(metrics.appOverflowY).toBe('auto');
+  expect(metrics.appPosition).toBe('fixed');
+  expect(metrics.appTop).toBe(0);
+  expect(metrics.appBottom).toBe(metrics.viewportHeight);
+  expect(metrics.appClientHeight).toBe(metrics.viewportHeight);
   expect(metrics.appScrollHeight).toBeGreaterThan(metrics.appClientHeight);
   expect(metrics.appScrollTop).toBeGreaterThan(0);
 });
