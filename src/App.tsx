@@ -11,6 +11,7 @@ import { useKegelEngine } from './hooks/useKegelEngine';
 import { useVoiceAssistant } from './hooks/useVoiceAssistant';
 import { useTrainingHistory, buildTrainingRecord } from './hooks/useTrainingHistory';
 import { useWeeklyGoal } from './hooks/useWeeklyGoal';
+import { useSavedConfigs } from './hooks/useSavedConfigs';
 import TrainingHistory from './components/TrainingHistory';
 import ProgressiveSuggestion from './components/ProgressiveSuggestion';
 import Onboarding from './components/Onboarding';
@@ -31,6 +32,7 @@ export default function App() {
   const voice = useVoiceAssistant();
   const history = useTrainingHistory();
   const weeklyGoal = useWeeklyGoal(history.records);
+  const savedConfigs = useSavedConfigs();
   const [showHistory, setShowHistory] = useState(false);
   const [suggestion, setSuggestion] = useState<SuggestionType | null>(null);
   const [completionProgress, setCompletionProgress] = useState<CompletionProgress | null>(null);
@@ -257,7 +259,15 @@ export default function App() {
         )}
         {!showFeedback && !showHistory && (
           <>
-            <ConfigPanel config={config} disabled={isActive} onChange={updateConfig} />
+            <ConfigPanel
+              config={config}
+              disabled={isActive}
+              onChange={updateConfig}
+              savedConfigs={savedConfigs.items}
+              onSaveConfig={savedConfigs.add}
+              onRenameConfig={savedConfigs.rename}
+              onDeleteConfig={savedConfigs.remove}
+            />
 
             <VoiceSettingsPanel
               settings={voice.settings}
