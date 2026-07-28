@@ -151,6 +151,24 @@ export default function App() {
           onDismiss={history.dismissStorageError}
         />
       )}
+      {weeklyGoal.storageError && !hasModal && (
+        <StorageErrorNotice
+          message={weeklyGoal.storageError}
+          onDismiss={weeklyGoal.dismissStorageError}
+        />
+      )}
+      {savedConfigs.storageError && !hasModal && (
+        <StorageErrorNotice
+          message={savedConfigs.storageError}
+          onDismiss={savedConfigs.dismissStorageError}
+        />
+      )}
+      {voice.storageError && !hasModal && (
+        <StorageErrorNotice
+          message={voice.storageError}
+          onDismiss={voice.dismissStorageError}
+        />
+      )}
     <div
       className="relative min-h-dvh bg-gradient-to-b from-[#020617] via-slate-900 to-[#111827] flex flex-col items-center px-5 pt-6 pb-8 overflow-x-hidden selection:bg-white/10"
       aria-hidden={hasModal || undefined}

@@ -1,12 +1,12 @@
 {
-  "recordedAt": "2026-07-28T05:49:35Z",
-  "commit": "b044da2",
+  "recordedAt": "2026-07-28T05:57:04Z",
+  "commit": "75b379e",
   "bundles": {
     "mainJS": {
-      "bytes": 446085,
-      "human": "446085B",
+      "bytes": 447027,
+      "human": "447027B",
       "files": [
-        "assets/index-DvFm9ZOK.js"
+        "assets/index-COgfN72g.js"
       ]
     },
     "mainCSS": {
@@ -107,13 +107,13 @@
     }
   },
   "totalDist": {
-    "bytes": 1502262,
-    "human": "1502262B"
+    "bytes": 1503204,
+    "human": "1503204B"
   },
   "gzipEstimates": {
     "mainJS": {
-      "bytes": 132974,
-      "human": "132974B"
+      "bytes": 133229,
+      "human": "133229B"
     },
     "mainCSS": {
       "bytes": 7955,
