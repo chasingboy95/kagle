@@ -21,7 +21,7 @@
 | Voice Coach Recordings | Partial | Seven Mandarin coach recordings are routed through `BASE_URL`; real-device playback remains unverified. |
 | Voice Rhythm Mode | Partial | Uses non-verbal cues and independent countdown, but its audible differentiation still needs device QA. |
 | Voice Settings | Complete | Three modes are validated, final 3-second countdown is the default for new users, and legacy five-mode values migrate to `coach`. |
-| Voice Settings Panel | Complete | UI now exposes common controls first: enable, final countdown, and preview. Mode, volume, fallback speech rate, progress announcement, and haptics live under "高级设置". No component test yet. |
+| Voice Settings Panel | Complete | UI exposes common controls first and includes an optional pre-training self-check with the current mode/countdown/volume, a short preview, “我能听到” confirmation, explicit silent choice, and non-technical failure guidance. It never claims to detect system mute and does not block training. |
 | Accessibility | Partial | Recovery takes priority over onboarding; both dialogs have labels/descriptions, initial focus, focus traps, focus restoration, and explicit Escape behavior. Playwright axe blocks serious/critical violations and covers reduced motion plus key `aria-live` regions. Real-device screen-reader verification remains outstanding. |
 | Background-Tab Timing | Complete | Engineering evaluation done. Worker-based timer (`createTimer` + `timingWorker`) provides reliable ticks even when browser tab is backgrounded, with transparent fallback to setInterval. |
 | PWA / GitHub Pages | Complete | Manifest, service worker, subpath, safe-area, standard PNG icons, apple-touch-icon, version update notification, offline caching, and voice asset cache verified by Playwright E2E tests (e2e/pwa.spec.ts). Real-device QA remains outstanding. |
@@ -85,6 +85,7 @@
 - Training-history capacity, deterministic retention, large-history statistics, and quota-failure UI-state preservation.
 - Progressive-suggestion input-order preservation while retaining existing rule behavior.
 - Progressive-suggestion integration at the second and third matching completion, including stopped-session isolation and synchronous post-write history evaluation.
+- Voice self-check preview success/failure, audible confirmation, silent choice, unsupported playback, and current-setting summary.
 - Modal priority, focus trapping, Tab/Escape rules, ARIA labeling, reduced motion, live regions, and serious/critical axe violations.
 - Training-history ISO/calendar validity, time ordering, numeric bounds, integer repetition counts, count relationships, and mixed valid/corrupt input.
 
