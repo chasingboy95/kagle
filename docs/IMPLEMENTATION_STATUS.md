@@ -1,6 +1,6 @@
 # Implementation Status
 
-**Last verified against repository:** 2026-07-27
+**Last verified against repository:** 2026-07-28
 
 ## Status Legend
 
@@ -26,7 +26,7 @@
 | Background-Tab Timing | Complete | Engineering evaluation done. Worker-based timer (`createTimer` + `timingWorker`) provides reliable ticks even when browser tab is backgrounded, with transparent fallback to setInterval. |
 | PWA / GitHub Pages | Complete | Manifest, service worker, subpath, safe-area, standard PNG icons, apple-touch-icon, version update notification, offline caching, and voice asset cache verified by Playwright E2E tests (e2e/pwa.spec.ts). Real-device QA remains outstanding. |
 | Storage Layer | Complete | `StorageAdapter` with schema validation, versioned keys, upgrade chain, and corruption recovery. Wired to engine config + training history. 16 tests. |
-| Training History | Complete | `TrainingRecord` persisted via storage layer, stats (weekly, streak, total), scrollable history UI with delete/clear. 7 tests. |
+| Training History | Complete | `TrainingRecord` persisted via storage layer, stats (weekly, streak, total), scrollable history UI with delete/clear. Stopped-session integration coverage verifies history writes exactly once and excludes interruptions from completion statistics. |
 | Progressive Training | Complete | Rule engine suggests parameter increases after 3 consecutive same-config completions, with 3-day cooldown after dismiss. 9 tests. |
 | Onboarding | Complete | Three-page first-time guided modal (什么是凯格尔训练/呼吸与安全/关于本应用) with skip, page indicators, ARIA dialog attributes, localStorage persistence, and re-entry button in idle section. |
 | Session Recovery | Complete | Engine saves snapshot to localStorage on state changes; recovery UI offers continue/discard after page refresh with time compensation; 8 integration tests. |
@@ -78,6 +78,8 @@
 - ConfigPanel repetition/set copy and disabled controls.
 - TrainingFeedback objective results and completion actions.
 - Playwright smoke flow from configuration through completion and back to idle.
+- Fake-clock stopped-session flow across the engine, recovery snapshot, history, completion statistics, and progressive suggestions.
+- Playwright stopped-session flow through history display and completion-stat exclusion.
 
 ## Verification Gap
 

@@ -405,6 +405,7 @@ export function useKegelEngine(options: KegelEngineVoiceOptions = {}): UseKegelE
 
   const stop = useCallback(() => {
     const e = eng.current;
+    if (e.status !== 'running' && e.status !== 'paused') return;
     defaultStorage.remove(SESSION_SNAPSHOT_SCHEMA);
     storedSnapRef.current = null;
     stopTick();
