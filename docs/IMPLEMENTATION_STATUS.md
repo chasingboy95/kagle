@@ -12,7 +12,7 @@
 
 | Subsystem | Status | Reason |
 |-----------|--------|--------|
-| Training Engine | Complete | Fake-clock integration tests cover the full lifecycle, repeated pause compensation, stopping directly from pause, early stop, and user-confirmed completion. UI state, recovery snapshots, completion, and stopped-session history share one active-duration calculation. |
+| Training Engine | Complete | Pure session-result functions are the single source for completed repetitions, active duration, and completion/stop payloads. UI state, recovery snapshots, completion, and stopped-session history reuse these calculations; fake-clock tests cover lifecycle and pause boundaries. |
 | Training Lifecycle | Complete | READY (5s) and persistent FEEDBACK completion view with three explicit actions (完成/再次训练/查看训练记录). Feedback phase no longer auto-advances — tick stops on entry and onSessionEnd fires once. State machine: idle → ready → contract → hold → relax → (repeat) → feedback → user confirmation → idle or restart. |
 | Timer / Repetitions | Complete | Each contract→hold→relax cycle is presented as one repetition; all configured repetitions form one set. Unit, component, integration, and browser-flow coverage protect timing and terminology. |
 | MuscleSphere | Complete | Ready (slow breathing) and feedback (release/calm) animation variants added. No automated rendering tests. |
@@ -80,6 +80,7 @@
 - Playwright smoke flow from configuration through completion and back to idle.
 - Fake-clock stopped-session flow across the engine, recovery snapshot, history, completion statistics, and progressive suggestions.
 - Playwright stopped-session flow through history display and completion-stat exclusion.
+- Pure session-result calculations for phase-boundary repetition counts, paused/resumed active duration, and frozen feedback results.
 
 ## Verification Gap
 
