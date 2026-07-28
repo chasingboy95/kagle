@@ -96,10 +96,16 @@ test('voice assets are cached and available offline', async ({ page, context }) 
 
   const cached = await page.evaluate(async () => {
     const url = '/kagle/audio/zh-CN/ready.mp3';
+    // 缓存名随构建版本化，遍历所有 kagle-pwa- 前缀缓存查找语音资源。
     try {
-      const cache = await caches.open('kagle-pwa-v4');
-      const match = await cache.match(url);
-      return match !== undefined && match.ok;
+      const names = await caches.keys();
+      for (const name of names) {
+        if (!name.startsWith('kagle-pwa-')) continue;
+        const cache = await caches.open(name);
+        const match = await cache.match(url);
+        if (match !== undefined && match.ok) return true;
+      }
+      return false;
     } catch {
       return false;
     }
@@ -107,6 +113,33 @@ test('voice assets are cached and available offline', async ({ page, context }) 
   expect(cached).toBe(true);
 
   await context.setOffline(false);
+});
+
+// ── Build-time precache manifest ─────────────────────────────
+//
+// #62: 构建期清单覆盖哈希 JS/CSS/SVG，不依赖手工维护文件名，并作为可验证的
+// 构建产物（precache-manifest.json）。Chromium 离线 E2E 另见 cached-app-shell。
+
+test('precache manifest lists hashed build assets and versioned cache', async ({ request }) => {
+  const resp = await request.get(BASE + 'precache-manifest.json');
+  expect(resp.status()).toBe(200);
+  expect(resp.headers()['content-type']).toContain('application/json');
+
+  const manifest = await resp.json();
+  expect(typeof manifest.cacheName).toBe('string');
+  expect(manifest.cacheName).toMatch(/^kagle-pwa-v4-/);
+  expect(Array.isArray(manifest.assets)).toBe(true);
+
+  const jsAssets = manifest.assets.filter((a: string) => a.endsWith('.js'));
+  const cssAssets = manifest.assets.filter((a: string) => a.endsWith('.css'));
+  const svgAssets = manifest.assets.filter((a: string) => a.endsWith('.svg'));
+  expect(jsAssets.length).toBeGreaterThan(0);
+  expect(cssAssets.length).toBeGreaterThan(0);
+  expect(svgAssets.length).toBeGreaterThan(0);
+
+  for (const asset of [...jsAssets, ...cssAssets, ...svgAssets]) {
+    expect(asset.startsWith('/kagle/assets/')).toBe(true);
+  }
 });
 
 // ── Update prompt UI (equivalent integration flow) ───────────

@@ -1,4 +1,9 @@
-const CACHE_NAME = 'kagle-pwa-v4';
+// CACHE_NAME 与 PRECACHE_ASSETS 在构建期由 vite 插件注入：
+// - CACHE_NAME 以预缓存资源内容生成版本摘要，资源哈希变化时随之变化，
+//   旧缓存在 activate 阶段被安全清理。
+// - PRECACHE_ASSETS 为本次构建生成的哈希 JS/CSS/SVG，无需手工维护文件名。
+const CACHE_NAME = __CACHE_NAME__;
+
 const APP_SHELL = [
   '/kagle/',
   '/kagle/index.html',
@@ -8,6 +13,9 @@ const APP_SHELL = [
   '/kagle/icon-512.png',
   '/kagle/apple-touch-icon.png',
 ];
+
+// 构建期注入的哈希资源。
+const PRECACHE_ASSETS = __PRECACHE_ASSETS__;
 
 const VOICE_FILES = [
   'ready.mp3',
@@ -29,7 +37,9 @@ const VOICE_ASSETS = ['zh-CN', 'en-US'].flatMap((language) =>
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(async (cache) => {
-      await cache.addAll(APP_SHELL);
+      // 预缓存应用外壳 + 构建期哈希资源，保证全新浏览器首次离线安装
+      // 也能进入核心训练界面，不依赖运行时按需缓存。
+      await cache.addAll([...APP_SHELL, ...PRECACHE_ASSETS]);
       await Promise.allSettled(
         VOICE_ASSETS.map((asset) => cache.add(asset)),
       );
