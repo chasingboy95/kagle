@@ -7,6 +7,8 @@ import type { ComfortFeedback } from '../types/training';
 interface TrainingFeedbackProps {
   completedRepetitions: number;
   totalRepetitions: number;
+  completedSets: number;
+  totalSets: number;
   durationMs: number;
   onRestart?: () => void;
   onDone?: () => void;
@@ -61,6 +63,8 @@ function FeedbackSelector({ onComfortFeedback }: { onComfortFeedback?: (feedback
 export default function TrainingFeedback({
   completedRepetitions,
   totalRepetitions,
+  completedSets,
+  totalSets,
   durationMs,
   onRestart,
   onDone,
@@ -83,10 +87,16 @@ export default function TrainingFeedback({
         {completionSummary(completedRepetitions, totalRepetitions)}
       </p>
 
-      <div className="mt-5 grid grid-cols-2 gap-3 text-sm text-slate-300">
+      <div className="mt-5 grid grid-cols-3 gap-3 text-sm text-slate-300">
         <div className="rounded-2xl bg-white/5 p-3">
           <div className="text-2xl font-semibold text-white">{formatDuration(durationMs)}</div>
           <div className="mt-0.5">训练时长</div>
+        </div>
+        <div className="rounded-2xl bg-white/5 p-3">
+          <div className="text-2xl font-semibold text-white tabular-nums">
+            {completedSets}/{totalSets}
+          </div>
+          <div className="mt-0.5">完成组数</div>
         </div>
         <div className="rounded-2xl bg-white/5 p-3">
           <div className="text-2xl font-semibold text-white tabular-nums">

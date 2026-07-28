@@ -101,6 +101,8 @@ function snapshot(overrides: Partial<SessionSnapshot> = {}): SessionSnapshot {
       holdTime: 3,
       relaxTime: 3,
       rounds: 10,
+      sets: 1,
+      restBetweenSets: 30,
     },
     announcedCountdowns: [3, 2, 1],
     sessionStartedAtIso: '2026-07-28T10:00:00.000Z',

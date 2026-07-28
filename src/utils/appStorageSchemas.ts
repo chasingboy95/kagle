@@ -66,6 +66,8 @@ function parseSavedConfig(value: unknown): SavedTrainingConfig | null {
       holdTime: fields.holdTime,
       relaxTime: fields.relaxTime,
       rounds: fields.rounds,
+      sets: isValidConfigValue(fields.sets, 'sets') ? fields.sets : 1,
+      restBetweenSets: isValidConfigValue(fields.restBetweenSets, 'restBetweenSets') ? fields.restBetweenSets : 30,
     },
   };
 }

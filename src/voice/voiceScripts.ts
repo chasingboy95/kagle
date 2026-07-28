@@ -1,6 +1,6 @@
 import type { SoundCue, VoiceEvent, VoiceSettings } from './types';
 
-type ScriptKey = 'training-ready' | 'ready' | 'contract' | 'hold' | 'relax' | 'feedback' | 'paused' | 'resumed' | 'completed' | 'stopped';
+type ScriptKey = 'training-ready' | 'ready' | 'contract' | 'hold' | 'relax' | 'rest' | 'feedback' | 'paused' | 'resumed' | 'completed' | 'stopped';
 
 const coachScripts: Record<VoiceSettings['language'], Record<ScriptKey, string>> = {
   'zh-CN': {
@@ -9,6 +9,7 @@ const coachScripts: Record<VoiceSettings['language'], Record<ScriptKey, string>>
     contract: '开始收缩',
     hold: '保持住',
     relax: '慢慢放松',
+    rest: '休息一下',
     feedback: '训练完成',
     paused: '训练已暂停',
     resumed: '继续训练',
@@ -21,6 +22,7 @@ const coachScripts: Record<VoiceSettings['language'], Record<ScriptKey, string>>
     contract: 'Start contracting',
     hold: 'Hold',
     relax: 'Slowly release',
+    rest: 'Rest a moment',
     feedback: 'Training complete',
     paused: 'Training paused',
     resumed: 'Continue training',

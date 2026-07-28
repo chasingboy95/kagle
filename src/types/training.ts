@@ -7,6 +7,10 @@ export interface TrainingConfig {
   holdTime: number;
   relaxTime: number;
   rounds: number;
+  /** Number of sets (groups). Defaults to 1. */
+  sets?: number;
+  /** Rest duration between sets in seconds. Defaults to 30. */
+  restBetweenSets?: number;
 }
 
 /** 训练状态枚举 */
@@ -19,6 +23,7 @@ export type TrainingPhase =
   | 'contract'
   | 'hold'
   | 'relax'
+  | 'rest'
   | 'feedback';
 
 /** 引擎运行时快照 */
@@ -26,6 +31,8 @@ export interface EngineState {
   status: TrainingStatus;
   phase: TrainingPhase;
   currentRound: number;
+  currentSet: number;
+  roundInSet: number;
   phaseRemainingMs: number;
   totalElapsedMs: number;
   totalDurationMs: number;
@@ -36,6 +43,8 @@ export const DEFAULT_CONFIG: TrainingConfig = {
   holdTime: 3,
   relaxTime: 3,
   rounds: 10,
+  sets: 1,
+  restBetweenSets: 30,
 };
 
 export const CONFIG_RANGE = {
@@ -43,6 +52,8 @@ export const CONFIG_RANGE = {
   holdTime: { min: 1, max: 30, step: 1 },
   relaxTime: { min: 3, max: 20, step: 1 },
   rounds: { min: 1, max: 50, step: 1 },
+  sets: { min: 1, max: 10, step: 1 },
+  restBetweenSets: { min: 5, max: 120, step: 5 },
 } as const;
 
 function clampConfig(key: keyof typeof CONFIG_RANGE, value: number): number {
@@ -74,6 +85,12 @@ export const TRAINING_CONFIG_SCHEMA: StorageSchema<TrainingConfig> = defineSchem
       rounds: typeof v.rounds === 'number' && Number.isFinite(v.rounds)
         ? clampConfig('rounds', Math.round(v.rounds))
         : DEFAULT_CONFIG.rounds,
+      sets: typeof v.sets === 'number' && Number.isFinite(v.sets)
+        ? clampConfig('sets', Math.round(v.sets))
+        : DEFAULT_CONFIG.sets!,
+      restBetweenSets: typeof v.restBetweenSets === 'number' && Number.isFinite(v.restBetweenSets)
+        ? clampConfig('restBetweenSets', Math.round(v.restBetweenSets))
+        : DEFAULT_CONFIG.restBetweenSets!,
     };
   },
 });
@@ -105,19 +122,19 @@ export const TRAINING_PRESETS: TrainingPreset[] = [
     id: 'gentle',
     label: '轻松入门',
     description: '低强度，适合初次尝试凯格尔训练',
-    config: { contractTime: 3, holdTime: 3, relaxTime: 3, rounds: 5 },
+    config: { contractTime: 3, holdTime: 3, relaxTime: 3, rounds: 5, sets: 1, restBetweenSets: 30 },
   },
   {
     id: 'daily',
     label: '日常训练',
     description: '中等强度，适合日常维持',
-    config: { contractTime: 3, holdTime: 3, relaxTime: 3, rounds: 10 },
+    config: { contractTime: 3, holdTime: 3, relaxTime: 3, rounds: 10, sets: 1, restBetweenSets: 30 },
   },
   {
     id: 'endurance',
     label: '耐力提升',
     description: '延长保持时间，逐步增强耐力',
-    config: { contractTime: 5, holdTime: 8, relaxTime: 5, rounds: 10 },
+    config: { contractTime: 5, holdTime: 8, relaxTime: 5, rounds: 10, sets: 1, restBetweenSets: 30 },
   },
 ];
 
@@ -146,6 +163,12 @@ export interface TrainingRecord {
   targetReps: number;
   /** Actually completed repetitions (currentRound at stop/completion). */
   completedReps: number;
+  /** Target number of sets. Defaults to 1. */
+  sets?: number;
+  /** Actually completed sets. Defaults to 0. */
+  completedSets?: number;
+  /** Configured rest duration between sets in seconds. Defaults to 30. */
+  restBetweenSets?: number;
   /** How the session ended. */
   status: CompletionStatus;
   /** Actual elapsed training time in ms (excludes pause duration). */
@@ -254,6 +277,7 @@ const RECOVERABLE_PHASES: TrainingPhase[] = [
   'contract',
   'hold',
   'relax',
+  'rest',
 ];
 
 function isStrictTrainingConfig(value: unknown): value is TrainingConfig {
@@ -289,10 +313,9 @@ export const SESSION_SNAPSHOT_SCHEMA = defineSchema<SessionSnapshot | null>({
     const v = value as Record<string, unknown>;
     if (!isRecoverableStatusPhase(v.status, v.phase)) return null;
     if (!isStrictTrainingConfig(v.config)) return null;
-    if (
-      !isNonNegativeInteger(v.round)
-      || v.round >= v.config.rounds
-    ) return null;
+    if (!isNonNegativeInteger(v.round)) return null;
+    const totalReps = v.config.rounds * (v.config.sets ?? 1);
+    if (v.round >= totalReps) return null;
     if (!isFiniteNonNegative(v.phaseElapsedMs)) return null;
     if (!isFiniteNonNegative(v.sessionElapsedMs)) return null;
     if (!isFiniteNonNegative(v.totalPausedMs)) return null;

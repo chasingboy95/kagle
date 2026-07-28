@@ -17,6 +17,7 @@ export interface SessionCalculationState {
 
 export interface SessionResult {
   completedReps: number;
+  completedSets: number;
   actualDurationMs: number;
   status: SessionEndStatus;
   startedAt: string;
@@ -60,8 +61,15 @@ export function buildSessionResult(
   status: SessionEndStatus,
   now: number,
 ): SessionResult {
+  const completedReps = getCompletedRepetitions(state);
+  const sets = state.config.sets ?? 1;
+  const roundsPerSet = state.config.rounds;
+  const completedSets = sets > 0 && roundsPerSet > 0
+    ? Math.min(sets, Math.floor(completedReps / roundsPerSet))
+    : 0;
   return {
-    completedReps: getCompletedRepetitions(state),
+    completedReps,
+    completedSets,
     actualDurationMs: getActiveElapsedMs(state, now),
     status,
     startedAt: state.sessionStartedAtIso,

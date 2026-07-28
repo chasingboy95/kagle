@@ -16,7 +16,7 @@ import particlesSvg from "@/assets/muscle-sphere/particles.svg";
 import rippleSvg from "@/assets/muscle-sphere/ripple.svg";
 import shadowSvg from "@/assets/muscle-sphere/shadow.svg";
 
-export type MuscleStage = "idle" | "ready" | "contract" | "hold" | "relax" | "feedback";
+export type MuscleStage = "idle" | "ready" | "contract" | "hold" | "relax" | "feedback" | "rest";
 
 export interface MuscleSphereProps {
   /** Current training stage. */
@@ -253,6 +253,7 @@ const PAUSED_CONTAINER_TARGET: Record<MuscleStage, Record<string, number>> = {
   contract: { scale: 0.92, y: -12 },
   hold:     { scale: 0.92, y: -12 },
   relax:    { scale: 1, y: 0 },
+  rest:     { scale: 1, y: 0 },
   feedback: { scale: 1, y: 0 },
 };
 

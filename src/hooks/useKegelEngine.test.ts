@@ -293,7 +293,7 @@ describe('useKegelEngine session recovery', () => {
       phaseElapsedMs: 500,
       sessionElapsedMs: 15_000,
       totalPausedMs: 0,
-      config: { contractTime: 3, holdTime: 3, relaxTime: 3, rounds: 5 },
+      config: { contractTime: 3, holdTime: 3, relaxTime: 3, rounds: 5, sets: 1, restBetweenSets: 30 },
       announcedCountdowns: [3, 2, 1],
       sessionStartedAtIso: new Date().toISOString(),
     };
@@ -314,7 +314,7 @@ describe('useKegelEngine session recovery', () => {
       phaseElapsedMs: 500,
       sessionElapsedMs: 5_000,
       totalPausedMs: 0,
-      config: { contractTime: 3, holdTime: 3, relaxTime: 3, rounds: 3 },
+      config: { contractTime: 3, holdTime: 3, relaxTime: 3, rounds: 3, sets: 1, restBetweenSets: 30 },
       announcedCountdowns: [],
       sessionStartedAtIso: new Date().toISOString(),
     };
@@ -337,7 +337,7 @@ describe('useKegelEngine session recovery', () => {
       phaseElapsedMs: 2_500,
       sessionElapsedMs: 15_000,
       totalPausedMs: 0,
-      config: { contractTime: 3, holdTime: 3, relaxTime: 3, rounds: 5 },
+      config: { contractTime: 3, holdTime: 3, relaxTime: 3, rounds: 5, sets: 1, restBetweenSets: 30 },
       announcedCountdowns: [],
       sessionStartedAtIso: new Date().toISOString(),
     };
@@ -363,7 +363,7 @@ describe('useKegelEngine session recovery', () => {
       phaseElapsedMs: 300,
       sessionElapsedMs: 7_000,
       totalPausedMs: 0,
-      config: { contractTime: 3, holdTime: 1, relaxTime: 3, rounds: 3 },
+      config: { contractTime: 3, holdTime: 1, relaxTime: 3, rounds: 3, sets: 1, restBetweenSets: 30 },
       announcedCountdowns: [],
       sessionStartedAtIso: new Date().toISOString(),
     };
@@ -383,7 +383,7 @@ describe('useKegelEngine session recovery', () => {
       status: 'running',
       phase: 'unknown',
       round: Number.NaN,
-      config: { contractTime: 3, holdTime: 3, relaxTime: 3, rounds: 10 },
+      config: { contractTime: 3, holdTime: 3, relaxTime: 3, rounds: 10, sets: 1, restBetweenSets: 30 },
     }));
 
     const { result } = renderHook(() => useKegelEngine());

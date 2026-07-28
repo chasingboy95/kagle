@@ -76,6 +76,7 @@ export function getCountdownEvent(
   const seconds = Math.ceil(remainingMs / 1000);
   return stage !== 'idle'
     && stage !== 'feedback'
+    && stage !== 'rest'
     && seconds > 0
     && seconds <= countdownFrom
     && !announced.has(seconds)
@@ -89,6 +90,7 @@ function phaseMs(phase: TrainingPhase, config: TrainingConfig): number {
     case 'contract': return config.contractTime * 1000;
     case 'hold': return config.holdTime * 1000;
     case 'relax': return config.relaxTime * 1000;
+    case 'rest': return (config.restBetweenSets ?? 30) * 1000;
     case 'feedback': return 6000;
     default: return 0;
   }
@@ -102,6 +104,10 @@ function finiteNonNegative(value: number): number {
 function buildState(e: EngineInternals, now: number): EngineState {
   const isPaused = e.status === 'paused';
   const phaseDur = phaseMs(e.phase, e.config);
+  const cfg = e.config;
+  const sets = cfg.sets ?? 1;
+  const roundsPerSet = cfg.rounds;
+  const totalReps = roundsPerSet * sets;
 
   let phaseRemaining = 0;
   if (e.status === 'idle' || e.status === 'finished') {
@@ -115,19 +121,34 @@ function buildState(e: EngineInternals, now: number): EngineState {
     phaseRemaining = Math.max(0, phaseDur - elapsed);
   }
 
+  // round = total completed reps across all sets
+  const completedReps = e.phase === 'feedback'
+    ? getCompletedRepetitions(e)
+    : e.round;
+  const currentSet = totalReps > 0
+    ? Math.min(sets, Math.floor(completedReps / roundsPerSet) + 1)
+    : 1;
+  const roundInSet = totalReps > 0
+    ? (completedReps % roundsPerSet) + 1
+    : 1;
+
   return {
     status: e.status,
     phase: e.phase,
     currentRound: e.phase === 'feedback'
-      ? getCompletedRepetitions(e)
+      ? completedReps
       : e.round + 1,
+    currentSet,
+    roundInSet,
     phaseRemainingMs: Math.ceil(phaseRemaining),
     totalElapsedMs: Math.ceil(getActiveElapsedMs(e, now)),
     totalDurationMs: calcTotalDuration(
-      e.config.contractTime,
-      e.config.holdTime,
-      e.config.relaxTime,
-      e.config.rounds,
+      cfg.contractTime,
+      cfg.holdTime,
+      cfg.relaxTime,
+      cfg.rounds,
+      sets,
+      cfg.restBetweenSets ?? 30,
     ),
   };
 }
@@ -139,6 +160,8 @@ export function useKegelEngine(options: KegelEngineVoiceOptions = {}): UseKegelE
     status: 'idle',
     phase: 'idle',
     currentRound: 0,
+    currentSet: 0,
+    roundInSet: 0,
     phaseRemainingMs: 0,
     totalElapsedMs: 0,
     totalDurationMs: calcTotalDuration(
@@ -146,6 +169,8 @@ export function useKegelEngine(options: KegelEngineVoiceOptions = {}): UseKegelE
       loadedConfig.holdTime,
       loadedConfig.relaxTime,
       loadedConfig.rounds,
+      loadedConfig.sets ?? 1,
+      loadedConfig.restBetweenSets ?? 30,
     ),
   }));
   const [recoverableSession, setRecoverableSession] = useState<SessionSnapshot | null>(null);
@@ -255,6 +280,8 @@ export function useKegelEngine(options: KegelEngineVoiceOptions = {}): UseKegelE
   const advance = useCallback(() => {
     const e = eng.current;
     const cfg = e.config;
+    const sets = cfg.sets ?? 1;
+    const totalReps = cfg.rounds * sets;
 
     if (e.phase === 'ready') {
       emitVoice({ type: 'round-start', round: e.round + 1, totalRounds: cfg.rounds });
@@ -271,7 +298,7 @@ export function useKegelEngine(options: KegelEngineVoiceOptions = {}): UseKegelE
     }
     if (e.phase === 'relax') {
       const nextRound = e.round + 1;
-      if (nextRound >= cfg.rounds) {
+      if (nextRound >= totalReps) {
         const now = performance.now();
         e.feedbackElapsedSnapshot = getActiveElapsedMs(e, now);
         emitVoice({ type: 'completed' });
@@ -289,6 +316,18 @@ export function useKegelEngine(options: KegelEngineVoiceOptions = {}): UseKegelE
         return;
       }
       e.round = nextRound;
+      // Check if we just completed a set (boundary)
+      if (sets > 1 && nextRound % cfg.rounds === 0) {
+        // Set complete, go to rest before next set
+        enterPhase('rest');
+        return;
+      }
+      emitVoice({ type: 'round-start', round: e.round + 1, totalRounds: cfg.rounds });
+      enterPhase('contract');
+      return;
+    }
+    if (e.phase === 'rest') {
+      // Rest complete, start next set
       emitVoice({ type: 'round-start', round: e.round + 1, totalRounds: cfg.rounds });
       enterPhase('contract');
       return;
@@ -485,6 +524,8 @@ export function useKegelEngine(options: KegelEngineVoiceOptions = {}): UseKegelE
       status: 'idle',
       phase: 'idle',
       currentRound: 0,
+      currentSet: 0,
+      roundInSet: 0,
       phaseRemainingMs: 0,
       totalElapsedMs: 0,
     }));

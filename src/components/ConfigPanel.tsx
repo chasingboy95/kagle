@@ -85,7 +85,7 @@ export default function ConfigPanel({
     setPresetId(resolvePreset(config)?.id ?? null);
   }, [config]);
 
-  const summary = `${config.contractTime}-${config.holdTime}-${config.relaxTime} × ${config.rounds} 次 = 1 组`;
+  const summary = `${config.contractTime}-${config.holdTime}-${config.relaxTime} × ${config.rounds} 次 = ${config.sets ?? 1} 组`;
 
   const handlePresetChange = (id: string | null) => {
     setPresetId(id);
@@ -198,6 +198,28 @@ export default function ConfigPanel({
         <p className="pt-1 text-right text-[10px] leading-4 text-slate-600">
           完成以上次数计为 1 组
         </p>
+        <div className="h-px bg-white/[0.04]" />
+        <Stepper
+          label="组数"
+          value={config.sets ?? 1}
+          min={CONFIG_RANGE.sets.min}
+          max={CONFIG_RANGE.sets.max}
+          step={CONFIG_RANGE.sets.step}
+          unit="组"
+          disabled={disabled}
+          onChange={handleParamChange('sets')}
+        />
+        <div className="h-px bg-white/[0.04]" />
+        <Stepper
+          label="组间休息"
+          value={config.restBetweenSets ?? 30}
+          min={CONFIG_RANGE.restBetweenSets.min}
+          max={CONFIG_RANGE.restBetweenSets.max}
+          step={CONFIG_RANGE.restBetweenSets.step}
+          unit="秒"
+          disabled={disabled}
+          onChange={handleParamChange('restBetweenSets')}
+        />
         <div className="h-px bg-white/[0.04]" />
         <SavedConfigs
           config={config}

@@ -45,7 +45,7 @@ describe('ConfigPanel', () => {
     render(<ConfigPanel config={customConfig} disabled={false} onChange={onChange} />);
     fireEvent.click(screen.getByRole('button', { name: '轻松入门' }));
     expect(onChange).toHaveBeenCalledWith({
-      contractTime: 3, holdTime: 3, relaxTime: 3, rounds: 5,
+      contractTime: 3, holdTime: 3, relaxTime: 3, rounds: 5, sets: 1, restBetweenSets: 30,
     });
   });
 

@@ -99,6 +99,7 @@ export function buildTrainingRecord(
   actualDurationMs: number,
   status: 'completed' | 'stopped',
   startedAt: string,
+  completedSets: number = 0,
 ): TrainingRecord {
   return {
     id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
@@ -109,6 +110,9 @@ export function buildTrainingRecord(
     relaxSec: config.relaxTime,
     targetReps: config.rounds,
     completedReps,
+    sets: config.sets ?? 1,
+    completedSets,
+    restBetweenSets: config.restBetweenSets ?? 30,
     status,
     actualDurationMs,
   };

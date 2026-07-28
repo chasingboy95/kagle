@@ -57,6 +57,7 @@ export default function App() {
         data.actualDurationMs,
         data.status,
         data.startedAt,
+        data.completedSets,
       );
         const nextRecords = history.addRecord(record);
         // Evaluate progressive suggestion
@@ -95,6 +96,7 @@ export default function App() {
     config.contractTime,
     config.holdTime,
     config.relaxTime,
+    config.restBetweenSets,
   );
 
   const totalDurationMs = useMemo(
@@ -104,6 +106,8 @@ export default function App() {
         config.holdTime,
         config.relaxTime,
         config.rounds,
+        config.sets,
+        config.restBetweenSets,
       ),
     [config],
   );
@@ -320,6 +324,8 @@ export default function App() {
                   <TrainingFeedback
                     completedRepetitions={state.currentRound}
                     totalRepetitions={config.rounds}
+                    completedSets={state.currentSet}
+                    totalSets={config.sets ?? 1}
                     durationMs={state.totalElapsedMs}
                     progress={completionProgress}
                     onRestart={handleRestart}
@@ -349,6 +355,8 @@ export default function App() {
                       phaseRemainingMs={displayTiming.remainingMs}
                       currentRepetition={state.currentRound}
                       totalRepetitions={config.rounds}
+                      currentSet={state.currentSet}
+                      totalSets={config.sets ?? 1}
                       isRunning={isActive || state.status === 'finished'}
                     />
                     <div className="w-full max-w-[200px] mt-2">
@@ -364,6 +372,8 @@ export default function App() {
                       holdTime={config.holdTime}
                       relaxTime={config.relaxTime}
                       rounds={config.rounds}
+                      sets={config.sets ?? 1}
+                      restBetweenSets={config.restBetweenSets ?? 30}
                       voice={voice.settings}
                     />
                     {suggestion && (

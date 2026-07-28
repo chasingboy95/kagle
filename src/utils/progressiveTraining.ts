@@ -13,10 +13,13 @@ export interface ProgressiveSuggestion {
   /** Suggested new config values (only one field differs from before). */
   after: TrainingConfig;
   /** Which parameter is being changed. */
-  changedKey: keyof TrainingConfig;
+  changedKey: SuggestibleParam;
 }
 
 export type SuggestionAction = 'accept' | 'ignore' | 'dismiss';
+
+/** Parameters that can be adjusted by progressive training suggestions. */
+export type SuggestibleParam = 'contractTime' | 'holdTime' | 'relaxTime' | 'rounds';
 
 /* ── Dismissal state (persisted via storage) ──────────────────── */
 
@@ -50,7 +53,7 @@ const DISMISS_COOLDOWN_MS = 3 * 24 * 60 * 60 * 1000; // 3 days
 const MAX_LOOKBACK = 20;
 
 /** Step sizes for each parameter. */
-const SUGGESTION_STEPS: Record<keyof TrainingConfig, number> = {
+const SUGGESTION_STEPS: Partial<Record<keyof TrainingConfig, number>> = {
   holdTime: 1,
   rounds: 2,
   contractTime: 1,
@@ -58,7 +61,7 @@ const SUGGESTION_STEPS: Record<keyof TrainingConfig, number> = {
 };
 
 /** Step sizes for decreasing (used when comfort feedback is "painful"). */
-const DOWNGRADE_STEPS: Record<keyof TrainingConfig, number> = {
+const DOWNGRADE_STEPS: Partial<Record<keyof TrainingConfig, number>> = {
   holdTime: 1,
   rounds: 2,
   contractTime: 1,
@@ -66,7 +69,7 @@ const DOWNGRADE_STEPS: Record<keyof TrainingConfig, number> = {
 };
 
 /** Priority order for suggesting parameter changes. */
-const SUGGESTION_ORDER: (keyof TrainingConfig)[] = ['holdTime', 'rounds', 'contractTime', 'relaxTime'];
+const SUGGESTION_ORDER: SuggestibleParam[] = ['holdTime', 'rounds', 'contractTime', 'relaxTime'];
 
 /* ── Helpers ──────────────────────────────────────────────────── */
 
@@ -83,6 +86,8 @@ function configFromRecord(r: TrainingRecord): TrainingConfig {
     holdTime: r.holdSec,
     relaxTime: r.relaxSec,
     rounds: r.targetReps,
+    sets: r.sets ?? 1,
+    restBetweenSets: r.restBetweenSets ?? 30,
   };
 }
 
@@ -120,7 +125,7 @@ export function evaluateSuggestion(
     for (const key of SUGGESTION_ORDER) {
       const current = before[key];
       const min = CONFIG_RANGE[key].min;
-      const step = DOWNGRADE_STEPS[key];
+      const step = DOWNGRADE_STEPS[key] ?? 0;
 
       if (current > min) {
         const after = { ...before, [key]: Math.max(current - step, min) };
@@ -182,7 +187,7 @@ export function evaluateSuggestion(
   for (const key of SUGGESTION_ORDER) {
     const current = before[key];
     const cap = CONFIG_RANGE[key].max;
-    const step = SUGGESTION_STEPS[key];
+    const step = SUGGESTION_STEPS[key] ?? 0;
 
     if (current < cap) {
       const after = { ...before, [key]: Math.min(current + step, cap) };

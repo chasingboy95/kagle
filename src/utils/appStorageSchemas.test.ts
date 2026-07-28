@@ -93,7 +93,7 @@ describe('app storage schemas', () => {
     const valid = {
       id: 'morning',
       name: '  早晨  ',
-      config: { contractTime: 3, holdTime: 4, relaxTime: 5, rounds: 8 },
+      config: { contractTime: 3, holdTime: 4, relaxTime: 5, rounds: 8, sets: 1, restBetweenSets: 30 },
     };
     expect(SAVED_CONFIGS_SCHEMA.validate([
       valid,
@@ -129,7 +129,7 @@ describe('app storage schemas', () => {
     expect(createStorageAdapter().read(SAVED_CONFIGS_SCHEMA)).toEqual([{
       id: 'legacy',
       name: '旧收藏',
-      config: { contractTime: 5, holdTime: 8, relaxTime: 5, rounds: 10 },
+      config: { contractTime: 5, holdTime: 8, relaxTime: 5, rounds: 10, sets: 1, restBetweenSets: 30 },
     }]);
     expect(localStorage.getItem('kegel.saved-configs.v1')).toBeNull();
     expect(localStorage.getItem('kegel.saved-configs.v2')).not.toBeNull();

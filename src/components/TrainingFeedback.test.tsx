@@ -28,6 +28,8 @@ describe('TrainingFeedback objective session copy', () => {
       <TrainingFeedback
         completedRepetitions={10}
         totalRepetitions={10}
+        completedSets={1}
+        totalSets={3}
         durationMs={65_900}
         onRestart={onRestart}
         onDone={onDone}
@@ -50,6 +52,8 @@ describe('TrainingFeedback objective session copy', () => {
       <TrainingFeedback
         completedRepetitions={10}
         totalRepetitions={10}
+        completedSets={1}
+        totalSets={3}
         durationMs={65_900}
         onRestart={vi.fn()}
         onDone={vi.fn()}
@@ -66,6 +70,8 @@ describe('TrainingFeedback objective session copy', () => {
       <TrainingFeedback
         completedRepetitions={10}
         totalRepetitions={10}
+        completedSets={1}
+        totalSets={3}
         durationMs={65_900}
       />,
     );
@@ -80,6 +86,8 @@ describe('TrainingFeedback objective session copy', () => {
       <TrainingFeedback
         completedRepetitions={10}
         totalRepetitions={10}
+        completedSets={1}
+        totalSets={3}
         durationMs={90_000}
         progress={progress}
       />,
@@ -99,6 +107,8 @@ describe('TrainingFeedback objective session copy', () => {
       <TrainingFeedback
         completedRepetitions={10}
         totalRepetitions={10}
+        completedSets={1}
+        totalSets={3}
         durationMs={90_000}
         progress={null}
       />,

@@ -9,6 +9,8 @@ interface Props {
   phaseRemainingMs: number;
   currentRepetition: number;
   totalRepetitions: number;
+  currentSet: number;
+  totalSets: number;
   isRunning: boolean;
 }
 
@@ -18,6 +20,8 @@ export default function TimerDisplay({
   phaseRemainingMs,
   currentRepetition,
   totalRepetitions,
+  currentSet,
+  totalSets,
   isRunning,
 }: Props) {
   const showTimer = isRunning && phase !== 'idle';
@@ -57,8 +61,15 @@ export default function TimerDisplay({
         {showTimer ? seconds : '--'}
       </motion.div>
 
-      {/* 当前组内的动作次数 */}
+      {/* 组信息 */}
       <div className="flex items-center gap-2 text-xs text-slate-500 tabular-nums mt-1">
+        <span className="text-[10px] tracking-widest text-slate-600">组</span>
+        <span className="font-semibold text-slate-300 text-sm">
+          {showTimer ? currentSet : 0}
+        </span>
+        <span className="text-slate-600">/</span>
+        <span className="text-slate-400">{totalSets}</span>
+        <span className="mx-2 text-slate-700">|</span>
         <span className="text-[10px] tracking-widest text-slate-600">第</span>
         <span className="font-semibold text-slate-300 text-sm">
           {showTimer ? currentRepetition : 0}

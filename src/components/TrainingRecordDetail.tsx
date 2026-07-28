@@ -32,6 +32,8 @@ function recordConfig(record: TrainingRecord): TrainingConfig {
     holdTime: record.holdSec,
     relaxTime: record.relaxSec,
     rounds: record.targetReps,
+    sets: record.sets ?? 1,
+    restBetweenSets: record.restBetweenSets ?? 30,
   };
 }
 

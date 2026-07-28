@@ -13,6 +13,8 @@ const RECOVERED_CONFIG: TrainingConfig = {
   holdTime: 8,
   relaxTime: 5,
   rounds: 3,
+  sets: 1,
+  restBetweenSets: 30,
 };
 
 function seedSnapshot(config: TrainingConfig) {

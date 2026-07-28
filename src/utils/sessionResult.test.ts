@@ -90,6 +90,7 @@ describe('buildSessionResult', () => {
       feedbackElapsedSnapshot: 7_500,
     }), status, 50_000)).toEqual({
       completedReps: 3,
+      completedSets: 0,
       actualDurationMs: 7_500,
       status,
       startedAt: '2026-07-28T00:00:00.000Z',

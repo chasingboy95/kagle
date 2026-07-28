@@ -19,6 +19,8 @@ export default function SessionRecovery({ snapshot, onContinue, onDiscard }: Pro
     snapshot.config.holdTime,
     snapshot.config.relaxTime,
     snapshot.config.rounds,
+    snapshot.config.sets ?? 1,
+    snapshot.config.restBetweenSets ?? 30,
   );
   const elapsedSec = Math.floor(snapshot.sessionElapsedMs / 1000);
 
