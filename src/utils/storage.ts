@@ -232,6 +232,6 @@ export const defaultStorage: StorageAdapter = createStorageAdapter();
 /* ── Helper factories ────────────────────────────────────────── */
 
 /** Build a simple schema with no upgrade chain. */
-export function defineSchema<T>(opts: Omit<StorageSchema<T>, 'upgrades'>): StorageSchema<T> {
+export function defineSchema<T>(opts: StorageSchema<T>): StorageSchema<T> {
   return { ...opts };
 }

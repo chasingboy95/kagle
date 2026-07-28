@@ -3,6 +3,9 @@ import type { TrainingRecord } from '../types/training';
 import type { HistoryStats } from '../hooks/useTrainingHistory';
 import TrainingCalendar from './TrainingCalendar';
 import TrainingRecordDetail from './TrainingRecordDetail';
+import WeeklyGoal from './WeeklyGoal';
+import type { WeeklyGoalSettings } from '../utils/appStorageSchemas';
+import type { WeeklyGoalProgress } from '../utils/weeklyGoal';
 
 interface TrainingHistoryProps {
   records: TrainingRecord[];
@@ -10,6 +13,10 @@ interface TrainingHistoryProps {
   onRemoveRecord: (id: string) => void;
   onClearAll: () => void;
   onClose: () => void;
+  weeklyGoal: WeeklyGoalSettings;
+  weeklyProgress: WeeklyGoalProgress;
+  onSetWeeklyTarget: (days: number) => void;
+  onDisableWeeklyGoal: () => void;
 }
 
 function formatDate(iso: string): string {
@@ -30,6 +37,10 @@ export default function TrainingHistory({
   onRemoveRecord,
   onClearAll,
   onClose,
+  weeklyGoal,
+  weeklyProgress,
+  onSetWeeklyTarget,
+  onDisableWeeklyGoal,
 }: TrainingHistoryProps) {
   const [selectedRecordId, setSelectedRecordId] = useState<string | null>(null);
   const [view, setView] = useState<'list' | 'calendar'>('list');
@@ -47,6 +58,12 @@ export default function TrainingHistory({
 
   return (
     <div className="w-full max-w-sm mx-auto space-y-4">
+      <WeeklyGoal
+        settings={weeklyGoal}
+        progress={weeklyProgress}
+        onSetTargetDays={onSetWeeklyTarget}
+        onDisable={onDisableWeeklyGoal}
+      />
       <div className="grid grid-cols-2 rounded-xl bg-black/20 p-1">
         <button
           type="button"

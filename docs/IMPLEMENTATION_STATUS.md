@@ -27,6 +27,7 @@
 | PWA / GitHub Pages | Complete | Manifest, service worker, subpath, safe-area, standard PNG icons, apple-touch-icon, version update notification, offline caching, and voice asset cache verified by Playwright E2E tests (e2e/pwa.spec.ts). Real-device QA remains outstanding. |
 | Storage Layer | Complete | `StorageAdapter` provides schema validation, versioned keys, upgrade chains, and corruption recovery. Training configuration, history, progressive suggestions, and onboarding use importable module-level schemas instead of render-time definitions. |
 | Training History | Complete | List and timezone-aware monthly calendar views expose real records. The calendar distinguishes completed and stopped sessions, opens daily records in the shared detail flow, and reports completed sessions, completed days, duration, and longest streak. Detail supports objective fields and confirmed deletion. |
+| Weekly Goal | Complete | Optional 1–7 day target counts distinct local completed dates from Monday through Sunday. Users can set, adjust, or close it; progress and remaining days use calm factual copy. Versioned storage migrates legacy numeric targets. |
 | Progressive Training | Complete | History writes synchronously return the normalized record set used for suggestion evaluation, so the third same-config completion triggers immediately without React state timing dependencies. The side-effect-free rule engine preserves input order and applies a 3-day cooldown after dismiss. |
 | Onboarding | Complete | Three-page first-time guided modal with ARIA labeling, page status, keyboard focus trap, Escape-to-skip, reduced-motion transitions, localStorage persistence, and re-entry in idle. It never overlaps session recovery. |
 | Session Recovery | Complete | Engine saves snapshots locally; strict schema validation accepts only recoverable status/phase combinations, bounded config and repetition values, finite non-negative timing, legal countdown markers, and valid timestamps. Corrupt or unknown snapshots are removed before the app remains safely idle. The higher-priority recovery dialog requires an explicit continue/discard choice, traps focus, and defers first-use onboarding until the app is idle. |
@@ -88,6 +89,7 @@
 - Voice self-check preview success/failure, audible confirmation, silent choice, unsupported playback, and current-setting summary.
 - Training-record detail rendering, preset/custom and completed/stopped states, confirmed deletion, and list-detail-back navigation.
 - Calendar timezone/cross-month boundaries, completed/stopped aggregation, monthly statistics, date selection, month navigation, and calendar-to-detail flow.
+- Weekly-goal Monday/Sunday and timezone boundaries, same-day deduplication, stopped-record exclusion, persistence/migration, controls, and pressure-free copy.
 - Modal priority, focus trapping, Tab/Escape rules, ARIA labeling, reduced motion, live regions, and serious/critical axe violations.
 - Training-history ISO/calendar validity, time ordering, numeric bounds, integer repetition counts, count relationships, and mixed valid/corrupt input.
 
