@@ -59,6 +59,7 @@ jobs:
         run: python3 scripts/check_bundle_size.py
 
       - name: Cache Playwright browsers
+        id: playwright-cache
         uses: actions/cache@v4
         with:
           path: ~/.cache/ms-playwright
@@ -66,7 +67,12 @@ jobs:
           restore-keys: playwright-${{ runner.os }}-
 
       - name: Install Playwright browser
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: bunx playwright install --with-deps chromium
+
+      - name: Verify Playwright browser
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: bunx playwright install chromium
 
       - name: End-to-end test
         run: bun run test:e2e
