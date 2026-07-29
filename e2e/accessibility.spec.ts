@@ -133,3 +133,38 @@ test('primary pages stay reachable on regular phone and landscape viewports', as
     await expect.poll(() => shell.evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
   }
 });
+
+test('bottom navigation owns the safe area once and stays visually compact', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.context().addInitScript(() => {
+    localStorage.setItem('kegel.onboarding.v1', JSON.stringify(false));
+  });
+  await page.goto('.');
+  await page.waitForLoadState('networkidle');
+  await page.locator('html').evaluate((element) => {
+    element.style.setProperty('--safe-area-bottom', '24px');
+  });
+
+  const navigation = page.getByRole('navigation', { name: '主要导航' });
+  const navigationContent = navigation.locator('.primary-navigation-content');
+  const actionDock = page.locator('.bottom-action-dock');
+  const startButton = page.getByRole('button', { name: '开始训练' });
+
+  await expect(navigation).toBeVisible();
+  await expect(navigation.locator('svg')).toHaveCount(3);
+  await expect(navigationContent).toHaveCSS('height', '56px');
+  await expect(navigation).toHaveCSS('height', '80px');
+  await expect(actionDock).not.toHaveClass(/pb-\[var\(--safe-area-bottom\)\]/);
+
+  const [buttonBox, navigationBox] = await Promise.all([
+    startButton.boundingBox(),
+    navigation.boundingBox(),
+  ]);
+  expect(buttonBox).not.toBeNull();
+  expect(navigationBox).not.toBeNull();
+  expect(Math.round(navigationBox!.y - (buttonBox!.y + buttonBox!.height))).toBe(16);
+
+  await startButton.click();
+  await expect(navigation).toBeHidden();
+  await expect(actionDock).toHaveClass(/pb-\[var\(--safe-area-bottom\)\]/);
+});

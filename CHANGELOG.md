@@ -11,6 +11,7 @@
 - Optional pre-training audio self-check showing the active mode, countdown, and volume, with a short preview, audible confirmation, explicit silent choice, and non-technical fallback guidance (#39).
 
 ### Fixed
+- Bottom navigation now uses a compact 56px translucent tab bar with consistent linear SVG icons, a restrained active indicator, and a single safe-area owner; the idle action dock and records page no longer stack an extra Home Indicator inset (#103).
 - iOS installed-PWA haptic fallback audio is now unlocked from start/resume/restart user gestures, and haptic events remain active and deduplicated when audible guidance is set to silent (#81).
 - iOS installed-PWA layout now fixes the root document to the standalone viewport, removes duplicated body safe-area padding, and delegates page scrolling to the app shell so vertical dragging cannot reveal a status-bar-height blank strip (#82).
 - Progressive suggestions now evaluate the exact history returned by the same write that saves a completed session, so the third matching completion triggers immediately without React state timing lag (#24).

@@ -304,7 +304,7 @@ export default function App() {
         </div>
 
         {activePage === 'records' && isIdle ? (
-          <main className="relative z-10 w-full max-w-sm flex-1 px-5 pt-[max(1rem,env(safe-area-inset-top))] pb-[calc(1.5rem+env(safe-area-inset-bottom))]">
+          <main className="relative z-10 w-full max-w-sm flex-1 px-5 pb-6 pt-[max(1rem,env(safe-area-inset-top))]">
             <Suspense fallback={
               <div className="flex items-center justify-center py-20">
                 <div className="h-6 w-6 animate-pulse rounded-full bg-slate-700" />

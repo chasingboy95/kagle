@@ -13,8 +13,10 @@ interface Props {
 
 export default function BottomActionDock({ status, onStart, onPause, onResume, onStop, onRestart, onDone, idle }: Props) {
   return (
-    <div className="bottom-action-dock sticky bottom-0 w-full bg-[#111827] bg-gradient-to-t from-[#111827] via-[#111827]/95 to-transparent pb-[env(safe-area-inset-bottom)]">
-      <div className="w-full max-w-sm mx-auto px-5 pt-4 pb-3 space-y-2">
+    <div className={`bottom-action-dock sticky bottom-0 w-full bg-[#111827] bg-gradient-to-t from-[#111827] via-[#111827]/95 to-transparent ${
+      idle ? '' : 'pb-[var(--safe-area-bottom)]'
+    }`}>
+      <div className="mx-auto w-full max-w-sm space-y-2 px-5 pb-4 pt-4">
         {status === 'idle' && idle && (
           <button
             type="button"
