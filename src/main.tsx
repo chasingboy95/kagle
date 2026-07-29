@@ -5,9 +5,9 @@ import App from './App'
 import ErrorBoundary from './components/ErrorBoundary'
 import { defaultStorage } from './utils/storage'
 import { SESSION_SNAPSHOT_SCHEMA } from './types/training'
-import { isTrainingInProgress, requestActivation } from './pwa/swProtocol'
+import { activateUpdateIfSafe } from './pwa/swProtocol'
 
-function showUpdatePrompt(activateUpdate: () => void) {
+function showUpdatePrompt(activateUpdate: () => boolean) {
   if (document.getElementById('pwa-update-prompt')) return
 
   const prompt = document.createElement('div')
@@ -51,9 +51,12 @@ function showUpdatePrompt(activateUpdate: () => void) {
     'cursor:pointer',
   ].join(';')
   button.addEventListener('click', () => {
-    button.disabled = true
-    button.textContent = '更新中…'
-    activateUpdate()
+    if (activateUpdate()) {
+      button.disabled = true
+      button.textContent = '更新中…'
+    } else {
+      button.textContent = '训练结束后更新'
+    }
   })
 
   prompt.append(text, button)
@@ -70,19 +73,24 @@ if ('serviceWorker' in navigator) {
       window.location.reload()
     })
 
-    // Activate a waiting SW only when the user confirms AND training is not in
-    // progress; otherwise defer so an active session is never interrupted.
+    // Idle clients activate a waiting worker immediately so installed iOS PWAs
+    // do not remain on a stale bundle. A live session still blocks activation.
     const activateUpdate = (registration: ServiceWorkerRegistration) => {
       const snapshot = defaultStorage.read(SESSION_SNAPSHOT_SCHEMA)
-      if (isTrainingInProgress(snapshot)) return
-      requestActivation(registration)
+      return activateUpdateIfSafe(registration, snapshot)
+    }
+
+    const handleAvailableUpdate = (registration: ServiceWorkerRegistration) => {
+      if (!activateUpdate(registration)) {
+        showUpdatePrompt(() => activateUpdate(registration))
+      }
     }
 
     navigator.serviceWorker
       .register(`${import.meta.env.BASE_URL}sw.js`)
       .then((registration) => {
         if (registration.waiting && navigator.serviceWorker.controller) {
-          showUpdatePrompt(() => activateUpdate(registration))
+          handleAvailableUpdate(registration)
         }
 
         registration.addEventListener('updatefound', () => {
@@ -93,10 +101,18 @@ if ('serviceWorker' in navigator) {
               && navigator.serviceWorker.controller
               && registration.waiting
             ) {
-              showUpdatePrompt(() => activateUpdate(registration))
+              handleAvailableUpdate(registration)
             }
           })
         })
+
+        const checkForUpdate = () => {
+          if (document.visibilityState === 'visible') {
+            void registration.update()
+          }
+        }
+        document.addEventListener('visibilitychange', checkForUpdate)
+        window.addEventListener('pageshow', checkForUpdate)
 
         return registration.update()
       })

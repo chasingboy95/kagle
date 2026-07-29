@@ -1,6 +1,11 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { SessionSnapshot } from '../types/training';
-import { isTrainingInProgress, requestActivation, SW_SKIP_WAITING } from './swProtocol';
+import {
+  activateUpdateIfSafe,
+  isTrainingInProgress,
+  requestActivation,
+  SW_SKIP_WAITING,
+} from './swProtocol';
 
 function snapshot(status: SessionSnapshot['status']): SessionSnapshot {
   return {
@@ -63,5 +68,27 @@ describe('requestActivation', () => {
     } as unknown as ServiceWorkerRegistration;
 
     expect(requestActivation(registration)).toBe(false);
+  });
+});
+
+describe('activateUpdateIfSafe', () => {
+  it('activates a waiting update while the app is idle', () => {
+    const postMessage = vi.fn();
+    const registration = {
+      waiting: { postMessage },
+    } as unknown as ServiceWorkerRegistration;
+
+    expect(activateUpdateIfSafe(registration, null)).toBe(true);
+    expect(postMessage).toHaveBeenCalledWith({ type: SW_SKIP_WAITING });
+  });
+
+  it('does not activate a waiting update during a live session', () => {
+    const postMessage = vi.fn();
+    const registration = {
+      waiting: { postMessage },
+    } as unknown as ServiceWorkerRegistration;
+
+    expect(activateUpdateIfSafe(registration, snapshot('running'))).toBe(false);
+    expect(postMessage).not.toHaveBeenCalled();
   });
 });

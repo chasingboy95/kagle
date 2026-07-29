@@ -27,3 +27,15 @@ export function requestActivation(registration: ServiceWorkerRegistration): bool
     return false;
   }
 }
+
+/**
+ * Activate an available update immediately when reloading cannot interrupt a
+ * live session. Idle and feedback states are safe; active training is deferred.
+ */
+export function activateUpdateIfSafe(
+  registration: ServiceWorkerRegistration,
+  snapshot: SessionSnapshot | null,
+): boolean {
+  if (isTrainingInProgress(snapshot)) return false;
+  return requestActivation(registration);
+}
