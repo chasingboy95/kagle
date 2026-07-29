@@ -88,6 +88,7 @@
 - Playwright stopped-session flow through history display and completion-stat exclusion.
 - Pure session-result calculations for phase-boundary repetition counts, paused/resumed active duration, and frozen feedback results.
 - Importable progressive-suggestion and onboarding schemas with compatibility tests for existing keys, defaults, and validation behavior.
+- Date-independent history write-failure coverage keeps the newly added UI record newer than its relative baseline; progressive-suggestion fixtures use strictly decreasing timestamps so “most recent feedback” never relies on equal-key sort behavior (#94).
 - Training-history capacity, deterministic retention, large-history statistics, and quota-failure UI-state preservation.
 - Progressive-suggestion input-order preservation while retaining existing rule behavior.
 - Progressive-suggestion integration at the second and third matching completion, including stopped-session isolation and synchronous post-write history evaluation.
