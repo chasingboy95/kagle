@@ -7,12 +7,14 @@ import PlanSummaryCard from './components/PlanSummaryCard';
 import BottomActionDock from './components/BottomActionDock';
 import PrimaryNavigation, { type PrimaryPage } from './components/PrimaryNavigation';
 import SettingsHome from './components/SettingsHome';
+import SettingsDetailPage from './components/SettingsDetailPage';
 import StorageErrorNotice from './components/StorageErrorNotice';
 import ReminderNotification from './components/ReminderNotification';
 import { useKegelEngine } from './hooks/useKegelEngine';
 const ConfigDrawer = lazy(() => import('./components/ConfigDrawer'));
 const VoiceDrawer = lazy(() => import('./components/VoiceDrawer'));
-const MoreMenu = lazy(() => import('./components/MoreMenu'));
+const ScheduleSettings = lazy(() => import('./components/ScheduleSettings'));
+const DataManagement = lazy(() => import('./components/DataManagement'));
 const TrainingHistory = lazy(() => import('./components/TrainingHistory'));
 const ProgressiveSuggestion = lazy(() => import('./components/ProgressiveSuggestion'));
 const Onboarding = lazy(() => import('./components/Onboarding'));
@@ -23,7 +25,7 @@ import { useVoiceAssistant } from './hooks/useVoiceAssistant';
 import { useTrainingHistory, buildTrainingRecord } from './hooks/useTrainingHistory';
 import { useWeeklyGoal } from './hooks/useWeeklyGoal';
 import { useSavedConfigs } from './hooks/useSavedConfigs';
-import { useTrainingSchedule } from './hooks/useTrainingSchedule';
+import { DAY_LABELS, useTrainingSchedule } from './hooks/useTrainingSchedule';
 import { evaluateSuggestion, type ProgressiveSuggestion as SuggestionType, type ProgressiveSuggestionState } from './utils/progressiveTraining';
 import { ONBOARDING_SCHEMA, PROGRESSIVE_SCHEMA } from './utils/appStorageSchemas';
 import { defaultStorage } from './utils/storage';
@@ -48,7 +50,7 @@ export default function App() {
   const [activePage, setActivePage] = useState<PrimaryPage>(pageFromHash);
   const [showConfigDrawer, setShowConfigDrawer] = useState(false);
   const [showVoiceDrawer, setShowVoiceDrawer] = useState(false);
-  const [showMoreMenu, setShowMoreMenu] = useState(false);
+  const [settingsDetail, setSettingsDetail] = useState<'reminder' | 'data' | null>(null);
   const [suggestion, setSuggestion] = useState<SuggestionType | null>(null);
   const [completionProgress, setCompletionProgress] = useState<CompletionProgress | null>(null);
   const [progState, setProgState] = useState<ProgressiveSuggestionState>(() => defaultStorage.read(PROGRESSIVE_SCHEMA));
@@ -98,6 +100,7 @@ export default function App() {
       `${window.location.pathname}${window.location.search}#${pageFromHash()}`,
     );
     const handlePopState = () => {
+      setSettingsDetail(null);
       setActivePage(pageFromHash());
     };
     window.addEventListener('popstate', handlePopState);
@@ -163,10 +166,11 @@ export default function App() {
     defaultStorage.write(PROGRESSIVE_SCHEMA, next);
   };
 
-  const handleOnboardingComplete = () => { setShowOnboarding(false); defaultStorage.write(ONBOARDING_SCHEMA, false); setShowMoreMenu(false); };
+  const handleOnboardingComplete = () => { setShowOnboarding(false); defaultStorage.write(ONBOARDING_SCHEMA, false); };
 
   const navigate = (page: PrimaryPage) => {
     if (page === activePage) return;
+    setSettingsDetail(null);
     window.history.pushState(
       { ...window.history.state, kaglePage: page },
       '',
@@ -278,17 +282,6 @@ export default function App() {
         </Suspense>
       )}
 
-      {showMoreMenu && activePage !== 'records' && (
-        <MoreMenu
-          scheduleSettings={schedule.settings}
-          onScheduleToggleEnabled={schedule.toggleEnabled}
-          onScheduleSetDaysOfWeek={schedule.setDaysOfWeek}
-          onScheduleSetReminderTime={schedule.setReminderTime}
-          onShowOnboarding={() => setShowOnboarding(true)}
-          onClose={() => setShowMoreMenu(false)}
-        />
-      )}
-
       <div
         className="app-shell relative bg-gradient-to-b from-[#020617] via-slate-900 to-[#111827] flex flex-col items-center selection:bg-white/10"
         aria-hidden={hasModal || undefined}
@@ -330,15 +323,45 @@ export default function App() {
               />
             </Suspense>
           </main>
+        ) : activePage === 'settings' && isIdle && settingsDetail === 'reminder' ? (
+          <SettingsDetailPage
+            title="训练提醒"
+            description="选择适合自己的训练日和提醒时间"
+            onBack={() => setSettingsDetail(null)}
+          >
+            <Suspense fallback={null}>
+              <ScheduleSettings
+                settings={schedule.settings}
+                onToggleEnabled={schedule.toggleEnabled}
+                onSetDaysOfWeek={schedule.setDaysOfWeek}
+                onSetReminderTime={schedule.setReminderTime}
+              />
+            </Suspense>
+          </SettingsDetailPage>
+        ) : activePage === 'settings' && isIdle && settingsDetail === 'data' ? (
+          <SettingsDetailPage
+            title="数据备份与恢复"
+            description="本地导出、导入和恢复，不上传到云端"
+            onBack={() => setSettingsDetail(null)}
+          >
+            <Suspense fallback={null}><DataManagement /></Suspense>
+          </SettingsDetailPage>
         ) : activePage === 'settings' && isIdle ? (
           <SettingsHome
             planSummary={`${config.contractTime}-${config.holdTime}-${config.relaxTime} × ${config.rounds} 次`}
             voiceSummary={voice.settings.enabled
               ? ({ off: '静音', 'sound-only': '节奏提示', coach: '语音教练' } as const)[voice.settings.mode]
               : '已关闭'}
+            reminderSummary={schedule.settings.enabled
+              ? `${schedule.settings.daysOfWeek.map((day) => DAY_LABELS[day]).join('、')} · ${String(schedule.settings.reminderHour).padStart(2, '0')}:${String(schedule.settings.reminderMinute).padStart(2, '0')}`
+              : '已关闭'}
+            progressiveDisabled={progState.dismissedPermanently}
             onOpenPlan={() => setShowConfigDrawer(true)}
             onOpenVoice={() => setShowVoiceDrawer(true)}
-            onOpenMore={() => setShowMoreMenu(true)}
+            onOpenReminder={() => setSettingsDetail('reminder')}
+            onShowOnboarding={() => setShowOnboarding(true)}
+            onOpenData={() => setSettingsDetail('data')}
+            onReenableProgressive={reenableProgressiveSuggestions}
           />
         ) : (
           <>
@@ -497,7 +520,7 @@ export default function App() {
           />
           </>
         )}
-        {isIdle && (
+        {isIdle && settingsDetail === null && (
           <PrimaryNavigation current={activePage} onNavigate={navigate} />
         )}
       </div>
