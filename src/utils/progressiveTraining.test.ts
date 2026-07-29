@@ -3,8 +3,14 @@ import { evaluateSuggestion, DEFAULT_PROGRESSIVE_STATE, type ProgressiveSuggesti
 import type { TrainingRecord, TrainingConfig } from '../types/training';
 import { CONFIG_RANGE } from '../types/training';
 
+let recordSequence = 0;
+
 function makeRecord(overrides: Partial<TrainingRecord> = {}): TrainingRecord {
-  const now = new Date();
+  // Callers list records newest-first. Give each generated record a
+  // deterministic, strictly decreasing time so equal-millisecond timestamps
+  // cannot make the feedback tests depend on the runtime's sort behavior.
+  const now = new Date(Date.UTC(2026, 0, 1) - recordSequence * 1_000);
+  recordSequence += 1;
   return {
     id: Math.random().toString(36).slice(2),
     startedAt: now.toISOString(),

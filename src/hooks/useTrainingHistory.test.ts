@@ -129,7 +129,9 @@ describe('useTrainingHistory', () => {
       throw new Error('quota exceeded');
     });
     const { result } = renderHook(() => useTrainingHistory());
-    const current = record('current-ui-record', '2026-07-28T00:00:00.000Z');
+    // Keep this record newer than the relative "yesterday" fixture above.
+    // A fixed calendar date made the assertion start failing after that date.
+    const current = record('current-ui-record', new Date().toISOString());
 
     act(() => result.current.addRecord(current));
 
