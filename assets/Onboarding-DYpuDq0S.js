@@ -1,4 +1,4 @@
-import{o as e,t}from"./jsx-runtime-CZcjcDnw.js";import{t as n}from"./react-9A9D8-nk.js";import{S as r,b as i,x as a}from"./index-CT8l58JB.js";import{t as o}from"./useModalFocus-CaFsfHZc.js";var s=e(n(),1),c=t(),l=[{title:`什么是凯格尔训练`,body:`凯格尔训练通过反复收缩和放松盆底肌来增强肌肉力量。
+import{o as e,t}from"./jsx-runtime-CZcjcDnw.js";import{t as n}from"./react-9A9D8-nk.js";import{S as r,b as i,x as a}from"./index-B5fke7h5.js";import{t as o}from"./useModalFocus-CaFsfHZc.js";var s=e(n(),1),c=t(),l=[{title:`什么是凯格尔训练`,body:`凯格尔训练通过反复收缩和放松盆底肌来增强肌肉力量。
 
 训练时请收缩盆底肌（像憋尿一样的感觉），同时保持腹部、大腿和臀部放松，避免代偿用力。
 
