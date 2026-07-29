@@ -1,6 +1,6 @@
 # Implementation Status
 
-**Last verified against repository:** 2026-07-28
+**Last verified against repository:** 2026-07-29
 
 ## Status Legend
 
@@ -24,6 +24,7 @@
 | Voice Settings Panel | Complete | UI exposes common controls first and includes an optional pre-training self-check with the current mode/countdown/volume, a short preview, “我能听到” confirmation, explicit silent choice, and non-technical failure guidance. It never claims to detect system mute and does not block training. |
 | Haptics / iOS Fallback | Partial | Native vibration is capability-detected. Where unavailable, the short audio fallback is unlocked during start/resume/restart user gestures and covered by adapter/controller tests; iPhone installed-PWA revalidation remains required. |
 | Accessibility | Partial | Recovery takes priority over onboarding; both dialogs have labels/descriptions, initial focus, focus traps, focus restoration, and explicit Escape behavior. Playwright axe blocks serious/critical violations and covers reduced motion plus key `aria-live` regions. Real-device screen-reader verification remains outstanding. |
+| Mobile UX / Navigation | Partial | The target information architecture, staged dependencies, mobile viewport matrix, interaction constraints, and rollback boundaries are documented in `docs/UX_MOBILE_ROADMAP.md` (#88). Implementation remains tracked by #89–#93 and is not yet complete. |
 | Background-Tab Timing | Complete | Engineering evaluation done. Worker-based timer (`createTimer` + `timingWorker`) provides reliable ticks even when browser tab is backgrounded, with transparent fallback to setInterval. |
 | PWA / GitHub Pages | Partial | Manifest, service worker, subpath, standard PNG icons, apple-touch-icon, version update notification, offline caching, and voice asset cache are covered by Playwright E2E tests. The root document is now fixed to the standalone viewport, while `.app-shell` exclusively owns page scrolling and bottom safe-area handling remains with the action dock (#82). Automated coverage verifies no root overflow at 320×568; iPhone standalone-mode safe-area revalidation remains outstanding. Service worker activation is user-triggered and blocked during a live training session. |
 | PWA / GitHub Pages | Complete | Precache list is now generated at build time: `precache-manifest.json` lists the hashed JS/CSS/SVG assets and the service worker uses a content-hashed, versioned cache name (injected after the public-dir copy), so a fresh browser context precaches the full build on first install and old caches are cleared on upgrade (#62). |
