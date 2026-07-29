@@ -35,6 +35,7 @@
 
 
 ### Changed
+- Training records now open as a dedicated page with a consistent back action, natural page scrolling, focus restoration, and working completed/stopped filters instead of rendering beneath the training home (#89).
 - CI 拆分为 ci.yml（PR + main push）和 deploy.yml（main CI 成功后部署），固定 Bun 1.3.14，增加缓存与并发控制
 
 

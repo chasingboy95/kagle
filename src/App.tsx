@@ -1,5 +1,5 @@
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import { lazy, Suspense, useMemo, useState } from 'react';
+import { lazy, Suspense, useMemo, useRef, useState } from 'react';
 import MuscleSphere from './components/MuscleSphere';
 import TimerDisplay from './components/TimerDisplay';
 import ProgressBar from './components/ProgressBar';
@@ -38,6 +38,7 @@ export default function App() {
   const weeklyGoal = useWeeklyGoal(history.records);
   const savedConfigs = useSavedConfigs();
   const schedule = useTrainingSchedule();
+  const historyEntryRef = useRef<HTMLButtonElement>(null);
   const [showHistory, setShowHistory] = useState(false);
   const [showConfigDrawer, setShowConfigDrawer] = useState(false);
   const [showVoiceDrawer, setShowVoiceDrawer] = useState(false);
@@ -144,6 +145,13 @@ export default function App() {
   };
 
   const handleOnboardingComplete = () => { setShowOnboarding(false); defaultStorage.write(ONBOARDING_SCHEMA, false); setShowMoreMenu(false); };
+
+  const openHistory = () => setShowHistory(true);
+
+  const closeHistory = () => {
+    setShowHistory(false);
+    window.setTimeout(() => historyEntryRef.current?.focus(), 0);
+  };
 
   const handleStart = () => {
     setCompletionProgress(null);
@@ -266,26 +274,36 @@ export default function App() {
           />
         </div>
 
-        <div className="flex flex-col items-center w-full max-w-sm px-5 flex-1">
-          {/* Top bar - only in idle */}
-          {isIdle && showHistory && (
-            <div className="w-full pt-4 pb-2">
-              <button
-                type="button"
-                onClick={() => setShowHistory(true)}
-                className="text-xs text-slate-500 hover:text-slate-400"
-              >
-                训练记录
-              </button>
-            </div>
-          )}
-
-          {isIdle && !showHistory && (
+        {showHistory && isIdle ? (
+          <main className="relative z-10 w-full max-w-sm flex-1 px-5 pt-[max(1rem,env(safe-area-inset-top))] pb-[calc(1.5rem+env(safe-area-inset-bottom))]">
+            <Suspense fallback={
+              <div className="flex items-center justify-center py-20">
+                <div className="h-6 w-6 animate-pulse rounded-full bg-slate-700" />
+              </div>
+            }>
+              <TrainingHistory
+                records={history.records}
+                stats={history.stats}
+                onRemoveRecord={history.removeRecord}
+                onClearAll={history.clearAll}
+                onClose={closeHistory}
+                weeklyGoal={weeklyGoal.settings}
+                weeklyProgress={weeklyGoal.progress}
+                onSetWeeklyTarget={weeklyGoal.setTargetDays}
+                onDisableWeeklyGoal={weeklyGoal.disable}
+              />
+            </Suspense>
+          </main>
+        ) : (
+          <>
+            <div className="flex flex-col items-center w-full max-w-sm px-5 flex-1">
+          {isIdle && (
             <div className="w-full pt-6 pb-2 flex items-center justify-between">
               <h1 className="text-sm font-semibold text-slate-300">盆底肌训练</h1>
               <button
+                ref={historyEntryRef}
                 type="button"
-                onClick={() => setShowHistory(true)}
+                onClick={openHistory}
                 className="rounded-lg bg-white/5 px-3 py-1.5 text-xs font-medium text-slate-400 hover:bg-white/10 transition-colors"
               >
                 训练记录
@@ -355,7 +373,7 @@ export default function App() {
                       progress={completionProgress}
                       onRestart={handleRestart}
                       onDone={finish}
-                      onViewHistory={() => { finish(); setShowHistory(true); }}
+                      onViewHistory={() => { finish(); openHistory(); }}
                       onComfortFeedback={handleComfortFeedback}
                     />
                   </Suspense>
@@ -391,7 +409,7 @@ export default function App() {
                   </>
                 )}
 
-                {isIdle && !showHistory && (
+                {isIdle && (
                   <div className="w-full space-y-3 mt-2">
                     <PlanSummaryCard
                       contractTime={config.contractTime}
@@ -428,28 +446,6 @@ export default function App() {
           </div>
         </div>
 
-        {/* Bottom action dock */}
-        {showHistory && isIdle ? (
-          <div className="w-full max-w-sm px-5 pb-[env(safe-area-inset-bottom)]">
-            <Suspense fallback={
-              <div className="flex items-center justify-center py-20">
-                <div className="h-6 w-6 animate-pulse rounded-full bg-slate-700" />
-              </div>
-            }>
-              <TrainingHistory
-                records={history.records}
-                stats={history.stats}
-                onRemoveRecord={history.removeRecord}
-                onClearAll={history.clearAll}
-                onClose={() => setShowHistory(false)}
-                weeklyGoal={weeklyGoal.settings}
-                weeklyProgress={weeklyGoal.progress}
-                onSetWeeklyTarget={weeklyGoal.setTargetDays}
-                onDisableWeeklyGoal={weeklyGoal.disable}
-              />
-            </Suspense>
-          </div>
-        ) : (
           <BottomActionDock
             status={state.status}
             onStart={handleStart}
@@ -463,6 +459,7 @@ export default function App() {
             onMore={() => setShowMoreMenu(true)}
             idle={isIdle}
           />
+          </>
         )}
       </div>
     </>
