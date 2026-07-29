@@ -1,6 +1,6 @@
  # Test Plan
 
- **Last verified against repository:** 2026-07-28
+ **Last verified against repository:** 2026-07-29
 
  ## Automated Status
 
@@ -19,11 +19,12 @@
  - Accessibility: modal priority, initial/restored focus, focus traps, Tab/Escape rules, ARIA names/descriptions, reduced motion, live regions, and Playwright axe serious/critical violations.
  - Voice preflight: current-setting summary, preview success/failure, audible confirmation, silent choice, and controller handling for silent or unsupported playback.
  - Training record validation: ISO/calendar timestamps, time ordering, finite non-negative numeric fields, integer/count bounds, and per-entry corruption isolation.
- - Component tests: ConfigPanel, ConfigDrawer, VoiceSettingsPanel, VoiceDrawer, PrimaryNavigation, SettingsHome, and TrainingFeedback, including draft apply/cancel, dirty-close confirmation, Escape, focus trapping, selection state, and grouped settings entry routing.
+ - Component tests: ConfigPanel, ConfigDrawer, VoiceSettingsPanel, VoiceDrawer, PrimaryNavigation, BottomActionDock, SettingsHome, and TrainingFeedback, including draft apply/cancel, dirty-close confirmation, Escape, focus trapping, selection state, grouped settings entry routing, and exclusive bottom safe-area ownership.
  - Playwright: Chromium flows cover three-page navigation, browser back, active-session navigation hiding, explicit plan apply/discard, completion, history, and stopped-session persistence.
 - Settings: native time input updates hour/minute atomically; weekday targets remain at least 44px; narrow-phone E2E covers reminder and data-management detail entry without horizontal overflow.
 - Playwright accessibility: recovery/onboarding flow and full-page axe audits.
 - Mobile presentation: component tests protect shared bottom-sheet and 44px control classes; Playwright covers 320×568 at 200% text, no horizontal overflow, core 44×44px targets, reduced-motion transition suppression, and axe serious/critical violations.
+- Bottom navigation: Playwright simulates a 24px Home Indicator inset and verifies a 56px content area, one 80px total safe-area-aware tab bar, 16px action spacing, three SVG icons, and safe-area transfer to the action dock when training hides navigation (#103).
 
  ### Unit: getCountdownEvent (`src/hooks/useKegelEngine.test.ts`)
 
