@@ -50,6 +50,9 @@ export default function TrainingHistory({
   const [statusFilter, setStatusFilter] = useState<"all" | "completed" | "stopped">("all");
   const [confirmingClear, setConfirmingClear] = useState(false);
   const selectedRecord = records.find((record) => record.id === selectedRecordId);
+  const filteredRecords = statusFilter === 'all'
+    ? records
+    : records.filter((record) => record.status === statusFilter);
   const handleClearAll = useCallback(() => {
     // Backup before clearing
     try {
@@ -79,6 +82,20 @@ export default function TrainingHistory({
 
   return (
     <div className="w-full max-w-sm mx-auto space-y-4">
+      <header className="flex min-h-11 items-center gap-3">
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="返回训练"
+          className="grid min-h-11 min-w-11 place-items-center rounded-full text-xl text-slate-300 transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300"
+        >
+          <span aria-hidden="true">‹</span>
+        </button>
+        <div>
+          <h1 className="text-lg font-semibold text-white">训练记录</h1>
+          <p className="text-xs text-slate-400">查看进度、日历和训练详情</p>
+        </div>
+      </header>
       <WeeklyGoal
         settings={weeklyGoal}
         progress={weeklyProgress}
@@ -159,13 +176,17 @@ export default function TrainingHistory({
             </div>
           )}
       {/* Records list */}
-      {records.length === 0 ? (
+      {filteredRecords.length === 0 ? (
         <p className="text-sm text-slate-500 text-center py-8">
-          暂无训练记录
+          {records.length === 0
+            ? '暂无训练记录'
+            : statusFilter === 'completed'
+              ? '暂无已完成记录'
+              : '暂无已中止记录'}
         </p>
       ) : (
-        <div className="space-y-2 max-h-[300px] overflow-y-auto">
-          {records.map((r) => (
+        <div className="space-y-2">
+          {filteredRecords.map((r) => (
             <button
               type="button"
               key={r.id}
@@ -196,7 +217,6 @@ export default function TrainingHistory({
         </>
       )}
 
-      {/* Actions */}
       {confirmingClear && (
         <ConfirmClearAllDialog
           recordCount={records.length}
@@ -204,23 +224,15 @@ export default function TrainingHistory({
           onConfirm={handleClearConfirm}
         />
       )}
-      {/* Actions */}
-      <div className="flex gap-2">
-        {records.length > 0 && (
-          <button
-            onClick={handleClearAll}
-            className="flex-1 rounded-lg bg-red-500/10 text-red-400 py-2 text-sm font-medium hover:bg-red-500/20 transition-colors"
-          >
-            清除全部
-          </button>
-        )}
+      {records.length > 0 && (
         <button
-          onClick={onClose}
-          className="flex-1 rounded-lg bg-white/10 text-slate-300 py-2 text-sm font-medium hover:bg-white/15 transition-colors"
+          type="button"
+          onClick={handleClearAll}
+          className="w-full min-h-11 rounded-lg bg-red-500/10 px-4 py-2 text-sm font-medium text-red-400 transition-colors hover:bg-red-500/20"
         >
-          返回
+          清除全部
         </button>
-      </div>
+      )}
     </div>
   );
 }

@@ -18,6 +18,15 @@ const record: TrainingRecord = {
   actualDurationMs: 90_000,
 };
 
+const stoppedRecord: TrainingRecord = {
+  ...record,
+  id: 'record-2',
+  endedAt: '2026-07-28T11:01:30.000Z',
+  completedReps: 4,
+  status: 'stopped',
+  actualDurationMs: 36_000,
+};
+
 const stats: HistoryStats = {
   weeklyCompletions: 1,
   totalCompletions: 1,
@@ -42,6 +51,61 @@ afterEach(() => {
 });
 
 describe('TrainingHistory detail navigation', () => {
+  it('renders an independent page header and returns to training', () => {
+    const onClose = vi.fn();
+    render(
+      <TrainingHistory
+        records={[record]}
+        stats={stats}
+        onRemoveRecord={() => {}}
+        onClearAll={() => {}}
+        onClose={onClose}
+        {...weeklyProps}
+      />,
+    );
+
+    expect(screen.getByRole('heading', { name: '训练记录' })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: '返回训练' }));
+    expect(onClose).toHaveBeenCalledOnce();
+  });
+
+  it('filters the rendered list and shows a filter-specific empty state', () => {
+    render(
+      <TrainingHistory
+        records={[stoppedRecord, record]}
+        stats={stats}
+        onRemoveRecord={() => {}}
+        onClearAll={() => {}}
+        onClose={() => {}}
+        {...weeklyProps}
+      />,
+    );
+
+    expect(screen.getAllByRole('button', { name: /训练记录详情/ })).toHaveLength(2);
+    fireEvent.click(screen.getByRole('button', { name: '已完成' }));
+    expect(screen.getAllByRole('button', { name: /训练记录详情/ })).toHaveLength(1);
+    expect(screen.queryByText('中止')).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: '已中止' }));
+    expect(screen.getAllByRole('button', { name: /训练记录详情/ })).toHaveLength(1);
+    expect(screen.getByText('中止')).toBeInTheDocument();
+
+  });
+
+  it('shows a filter-specific empty state', () => {
+    render(
+      <TrainingHistory
+        records={[record]}
+        stats={stats}
+        onRemoveRecord={() => {}}
+        onClearAll={() => {}}
+        onClose={() => {}}
+        {...weeklyProps}
+      />,
+    );
+    fireEvent.click(screen.getByRole('button', { name: '已中止' }));
+    expect(screen.getByText('暂无已中止记录')).toBeInTheDocument();
+  });
+
   it('opens one record and returns to the history list', () => {
     render(
       <TrainingHistory
