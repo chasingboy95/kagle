@@ -1,10 +1,12 @@
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import { lazy, Suspense, useMemo, useRef, useState } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
 import MuscleSphere from './components/MuscleSphere';
 import TimerDisplay from './components/TimerDisplay';
 import ProgressBar from './components/ProgressBar';
 import PlanSummaryCard from './components/PlanSummaryCard';
 import BottomActionDock from './components/BottomActionDock';
+import PrimaryNavigation, { type PrimaryPage } from './components/PrimaryNavigation';
+import SettingsHome from './components/SettingsHome';
 import StorageErrorNotice from './components/StorageErrorNotice';
 import ReminderNotification from './components/ReminderNotification';
 import { useKegelEngine } from './hooks/useKegelEngine';
@@ -31,6 +33,11 @@ import {
   type CompletionProgress,
 } from './utils/completionProgress';
 
+function pageFromHash(): PrimaryPage {
+  const page = window.location.hash.slice(1);
+  return page === 'records' || page === 'settings' ? page : 'training';
+}
+
 export default function App() {
   const reducedMotion = useReducedMotion();
   const voice = useVoiceAssistant();
@@ -38,8 +45,7 @@ export default function App() {
   const weeklyGoal = useWeeklyGoal(history.records);
   const savedConfigs = useSavedConfigs();
   const schedule = useTrainingSchedule();
-  const historyEntryRef = useRef<HTMLButtonElement>(null);
-  const [showHistory, setShowHistory] = useState(false);
+  const [activePage, setActivePage] = useState<PrimaryPage>(pageFromHash);
   const [showConfigDrawer, setShowConfigDrawer] = useState(false);
   const [showVoiceDrawer, setShowVoiceDrawer] = useState(false);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
@@ -84,6 +90,19 @@ export default function App() {
         }
       },
     });
+
+  useEffect(() => {
+    window.history.replaceState(
+      { ...window.history.state, kaglePage: pageFromHash() },
+      '',
+      `${window.location.pathname}${window.location.search}#${pageFromHash()}`,
+    );
+    const handlePopState = () => {
+      setActivePage(pageFromHash());
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
   const isIdle = state.status === 'idle';
   const isActive = state.status === 'running' || state.status === 'paused' || state.status === 'feedback';
@@ -146,11 +165,28 @@ export default function App() {
 
   const handleOnboardingComplete = () => { setShowOnboarding(false); defaultStorage.write(ONBOARDING_SCHEMA, false); setShowMoreMenu(false); };
 
-  const openHistory = () => setShowHistory(true);
+  const navigate = (page: PrimaryPage) => {
+    if (page === activePage) return;
+    window.history.pushState(
+      { ...window.history.state, kaglePage: page },
+      '',
+      `${window.location.pathname}${window.location.search}#${page}`,
+    );
+    setActivePage(page);
+  };
+
+  const openHistory = () => navigate('records');
 
   const closeHistory = () => {
-    setShowHistory(false);
-    window.setTimeout(() => historyEntryRef.current?.focus(), 0);
+    window.history.replaceState(
+      { ...window.history.state, kaglePage: 'training' },
+      '',
+      `${window.location.pathname}${window.location.search}#training`,
+    );
+    setActivePage('training');
+    window.setTimeout(() => {
+      document.querySelector<HTMLButtonElement>('nav[aria-label="主要导航"] button[data-page="training"]')?.focus();
+    }, 0);
   };
 
   const handleStart = () => {
@@ -215,7 +251,7 @@ export default function App() {
         />
       )}
 
-      {showConfigDrawer && !showHistory && (
+      {showConfigDrawer && activePage !== 'records' && (
         <Suspense fallback={null}>
           <ConfigDrawer
             config={config}
@@ -229,7 +265,7 @@ export default function App() {
         </Suspense>
       )}
 
-      {showVoiceDrawer && !showHistory && (
+      {showVoiceDrawer && activePage !== 'records' && (
         <Suspense fallback={null}>
           <VoiceDrawer
             settings={voice.settings}
@@ -242,7 +278,7 @@ export default function App() {
         </Suspense>
       )}
 
-      {showMoreMenu && !showHistory && (
+      {showMoreMenu && activePage !== 'records' && (
         <MoreMenu
           scheduleSettings={schedule.settings}
           onScheduleToggleEnabled={schedule.toggleEnabled}
@@ -274,7 +310,7 @@ export default function App() {
           />
         </div>
 
-        {showHistory && isIdle ? (
+        {activePage === 'records' && isIdle ? (
           <main className="relative z-10 w-full max-w-sm flex-1 px-5 pt-[max(1rem,env(safe-area-inset-top))] pb-[calc(1.5rem+env(safe-area-inset-bottom))]">
             <Suspense fallback={
               <div className="flex items-center justify-center py-20">
@@ -294,20 +330,22 @@ export default function App() {
               />
             </Suspense>
           </main>
+        ) : activePage === 'settings' && isIdle ? (
+          <SettingsHome
+            planSummary={`${config.contractTime}-${config.holdTime}-${config.relaxTime} × ${config.rounds} 次`}
+            voiceSummary={voice.settings.enabled
+              ? ({ off: '静音', 'sound-only': '节奏提示', coach: '语音教练' } as const)[voice.settings.mode]
+              : '已关闭'}
+            onOpenPlan={() => setShowConfigDrawer(true)}
+            onOpenVoice={() => setShowVoiceDrawer(true)}
+            onOpenMore={() => setShowMoreMenu(true)}
+          />
         ) : (
           <>
             <div className="flex flex-col items-center w-full max-w-sm px-5 flex-1">
           {isIdle && (
-            <div className="w-full pt-6 pb-2 flex items-center justify-between">
+            <div className="w-full pt-6 pb-2">
               <h1 className="text-sm font-semibold text-slate-300">盆底肌训练</h1>
-              <button
-                ref={historyEntryRef}
-                type="button"
-                onClick={openHistory}
-                className="rounded-lg bg-white/5 px-3 py-1.5 text-xs font-medium text-slate-400 hover:bg-white/10 transition-colors"
-              >
-                训练记录
-              </button>
             </div>
           )}
 
@@ -419,6 +457,7 @@ export default function App() {
                       sets={config.sets ?? 1}
                       restBetweenSets={config.restBetweenSets ?? 30}
                       voice={voice.settings}
+                      onClick={() => setShowConfigDrawer(true)}
                     />
                     {suggestion && (
                       <Suspense fallback={null}><ProgressiveSuggestion suggestion={suggestion} onAction={handleSuggestionAction} /></Suspense>
@@ -454,12 +493,12 @@ export default function App() {
             onStop={stop}
             onRestart={handleRestart}
             onDone={finish}
-            onAdjustPlan={() => setShowConfigDrawer(true)}
-            onVoiceSettings={() => setShowVoiceDrawer(true)}
-            onMore={() => setShowMoreMenu(true)}
             idle={isIdle}
           />
           </>
+        )}
+        {isIdle && (
+          <PrimaryNavigation current={activePage} onNavigate={navigate} />
         )}
       </div>
     </>

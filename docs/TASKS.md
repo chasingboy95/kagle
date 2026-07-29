@@ -4,7 +4,7 @@
 
 ## In Progress
 
-- **Issue #88–#93: 移动端 UX 优化路线图**: 路线图已建立于 `docs/UX_MOBILE_ROADMAP.md`；#89 记录页和 #90 配置提交语义已完成，下一步按 #91 一级导航、#92 设置重组、#93 视觉与交互统一的顺序逐项实施。
+- **Issue #88–#93: 移动端 UX 优化路线图**: 路线图已建立于 `docs/UX_MOBILE_ROADMAP.md`；#89–#91 的记录页、配置提交语义和一级导航已完成，下一步实施 #92 设置重组与 #93 视觉交互统一。
 - Verify the #82 standalone safe-area fix on an iPhone installed PWA; automated coverage confirms the root document cannot scroll and the app shell remains the only page scroller.
 - Verify the simplified voice-assistance modes on real iOS and Android devices.
 - Verify the revised completion view and simplified voice settings on a real mobile device.
@@ -51,6 +51,7 @@
 
 ## Completed
 
+- [x] **Issue #91: 训练、记录与设置一级导航**: 空闲态提供稳定三页导航和 `aria-current`；训练页聚焦计划摘要与开始训练，计划卡整体可编辑；设置首页按训练/通用分组入口；页面 hash 支持浏览器后退，训练开始后隐藏一级导航。
 - [x] **Issue #90: 训练计划与声音设置草稿提交语义**: 两个抽屉使用本地草稿；应用后才一次性更新正式状态，取消不写入；脏状态下遮罩、关闭与 Escape 均提供“放弃修改/继续编辑”选择。预设保持单选，三种声音模式直接可见，草稿声音可预览但不会提前持久化。
 - [x] **Issue #89: 训练记录独立页面与筛选导航**: 记录视图完全替换训练首页内容，提供页面级标题和返回入口；列表使用自然滚动，完成/中止筛选真实作用于记录和空状态，返回后焦点恢复到训练记录入口。
 - [x] **Issue #94: 时间与排序相关测试去除日期依赖**: 训练历史待加入记录改为相对运行时的当前时间；渐进建议记录使用确定性递减时间，避免相同毫秒时间戳改变“最新反馈”语义。生产排序和建议规则均未修改。

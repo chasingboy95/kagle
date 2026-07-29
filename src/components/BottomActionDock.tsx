@@ -8,49 +8,21 @@ interface Props {
   onStop?: () => void;
   onRestart?: () => void;
   onDone?: () => void;
-  onAdjustPlan?: () => void;
-  onVoiceSettings?: () => void;
-  onMore?: () => void;
   idle?: boolean;
 }
 
-export default function BottomActionDock({ status, onStart, onPause, onResume, onStop, onRestart, onDone, onAdjustPlan, onVoiceSettings, onMore, idle }: Props) {
+export default function BottomActionDock({ status, onStart, onPause, onResume, onStop, onRestart, onDone, idle }: Props) {
   return (
     <div className="bottom-action-dock sticky bottom-0 w-full bg-[#111827] bg-gradient-to-t from-[#111827] via-[#111827]/95 to-transparent pb-[env(safe-area-inset-bottom)]">
       <div className="w-full max-w-sm mx-auto px-5 pt-4 pb-3 space-y-2">
         {status === 'idle' && idle && (
-          <>
-            <button
-              type="button"
-              onClick={onStart}
-              className="w-full rounded-full bg-white py-3.5 text-sm font-semibold text-slate-900 transition-colors active:bg-white/90 min-h-[56px]"
-            >
-              开始训练
-            </button>
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={onAdjustPlan}
-                className="flex-1 rounded-lg bg-white/5 py-2.5 text-xs font-medium text-slate-400 hover:bg-white/10 transition-colors"
-              >
-                调整计划
-              </button>
-              <button
-                type="button"
-                onClick={onVoiceSettings}
-                className="flex-1 rounded-lg bg-white/5 py-2.5 text-xs font-medium text-slate-400 hover:bg-white/10 transition-colors"
-              >
-                声音与震动
-              </button>
-              <button
-                type="button"
-                onClick={onMore}
-                className="flex-1 rounded-lg bg-white/5 py-2.5 text-xs font-medium text-slate-400 hover:bg-white/10 transition-colors"
-              >
-                更多
-              </button>
-            </div>
-          </>
+          <button
+            type="button"
+            onClick={onStart}
+            className="w-full rounded-full bg-white py-3.5 text-sm font-semibold text-slate-900 transition-colors active:bg-white/90 min-h-[56px]"
+          >
+            开始训练
+          </button>
         )}
 
         {status === 'running' && (

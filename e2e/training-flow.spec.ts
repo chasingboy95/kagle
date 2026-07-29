@@ -21,7 +21,7 @@ test('history replaces the training home and uses page scrolling on a narrow pho
   await page.goto('.');
   await page.waitForLoadState('networkidle');
 
-  await page.getByRole('button', { name: '训练记录' }).click();
+  await page.getByRole('button', { name: '记录' }).click();
   await expect(page.getByRole('heading', { name: '训练记录' })).toBeVisible();
   await expect(page.getByText('准备开始')).toBeHidden();
   await expect(page.getByRole('button', { name: '开始训练' })).toBeHidden();
@@ -34,6 +34,36 @@ test('history replaces the training home and uses page scrolling on a narrow pho
   await expect(page.getByRole('button', { name: '清除全部' })).toBeVisible();
 });
 
+test('switches between training, records, and settings then hides navigation during training', async ({ page }) => {
+  await page.context().addInitScript(() => {
+    localStorage.setItem('kegel.onboarding.v1', JSON.stringify(false));
+  });
+  await page.goto('.');
+  await page.waitForLoadState('networkidle');
+
+  const navigation = page.getByRole('navigation', { name: '主要导航' });
+  await expect(navigation).toBeVisible();
+  await expect(navigation.getByRole('button', { name: '训练', exact: true })).toHaveAttribute('aria-current', 'page');
+
+  await page.getByRole('button', { name: '设置' }).click();
+  await expect(page).toHaveURL(/#settings$/);
+  await expect(page.getByRole('heading', { name: '设置' })).toBeVisible();
+  await expect(page.getByRole('button', { name: /训练计划/ })).toBeVisible();
+
+  await page.getByRole('button', { name: '记录' }).click();
+  await expect(page).toHaveURL(/#records$/);
+  await expect(page.getByRole('heading', { name: '训练记录' })).toBeVisible();
+
+  await page.goBack();
+  await expect(page.getByRole('heading', { name: '设置' })).toBeVisible();
+  await navigation.getByRole('button', { name: '训练', exact: true }).click();
+  await expect(page.getByRole('button', { name: '开始训练' })).toBeVisible();
+
+  await page.getByRole('button', { name: '开始训练' }).click();
+  await expect(navigation).toBeHidden();
+  await expect(page.getByRole('button', { name: '暂停' })).toBeVisible();
+});
+
 test('training plan changes require apply and dirty cancel can discard safely', async ({ page }) => {
   await page.context().addInitScript(() => {
     localStorage.setItem('kegel.onboarding.v1', JSON.stringify(false));
@@ -42,14 +72,14 @@ test('training plan changes require apply and dirty cancel can discard safely', 
   await page.waitForLoadState('networkidle');
 
   await expect(page.getByText('3 秒收缩 · 3 秒保持 · 3 秒放松')).toBeVisible();
-  await page.getByRole('button', { name: '调整计划' }).click();
+  await page.getByRole('button', { name: '编辑当前训练计划' }).click();
   await page.getByRole('button', { name: '增加收缩' }).click();
   await page.getByRole('button', { name: '取消' }).click();
   await expect(page.getByRole('heading', { name: '放弃未应用的修改？' })).toBeVisible();
   await page.getByRole('button', { name: '放弃修改' }).click();
   await expect(page.getByText('3 秒收缩 · 3 秒保持 · 3 秒放松')).toBeVisible();
 
-  await page.getByRole('button', { name: '调整计划' }).click();
+  await page.getByRole('button', { name: '编辑当前训练计划' }).click();
   await page.getByRole('button', { name: '增加收缩' }).click();
   await page.getByRole('button', { name: '应用此计划' }).click();
   await expect(page.getByText('4 秒收缩 · 3 秒保持 · 3 秒放松')).toBeVisible();
@@ -64,7 +94,7 @@ test('completes one configured set and returns to the start screen', async ({ pa
   await page.waitForLoadState('networkidle');
 
   // Open config drawer to adjust settings
-  await page.getByRole('button', { name: '调整计划' }).click();
+  await page.getByRole('button', { name: '编辑当前训练计划' }).click();
   await expect(page.getByRole('dialog', { name: '调整训练计划' })).toBeVisible();
 
   for (let repetition = 10; repetition > 1; repetition -= 1) {
@@ -99,7 +129,7 @@ test('completes training and views training history from feedback page', async (
   await page.waitForLoadState('networkidle');
 
   // Open config drawer to adjust settings
-  await page.getByRole('button', { name: '调整计划' }).click();
+  await page.getByRole('button', { name: '编辑当前训练计划' }).click();
   await expect(page.getByRole('dialog', { name: '调整训练计划' })).toBeVisible();
 
   for (let repetition = 10; repetition > 1; repetition -= 1) {
@@ -143,7 +173,7 @@ test('stops training once, clears recovery state, and excludes it from completio
     localStorage.getItem('kegel.session-snapshot.v1'),
   )).toBeNull();
 
-  await page.getByRole('button', { name: '训练记录' }).click();
+  await page.getByRole('button', { name: '记录' }).click();
   await expect(page.getByRole('heading', { name: '训练记录' })).toBeVisible();
   // Use exact regex match to find only the "中止" status badge (not the "已中止" filter button)
   await expect(page.getByText(/^中止$/)).toHaveCount(1);
@@ -154,5 +184,5 @@ test('stops training once, clears recovery state, and excludes it from completio
   await page.getByRole('button', { name: '已中止' }).click();
   await expect(page.getByText(/^中止$/)).toHaveCount(1);
   await page.getByRole('button', { name: '返回训练' }).click();
-  await expect(page.getByRole('button', { name: '训练记录' })).toBeFocused();
+  await expect(page.getByRole('navigation', { name: '主要导航' }).getByRole('button', { name: '训练', exact: true })).toBeFocused();
 });

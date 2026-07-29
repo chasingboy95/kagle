@@ -9,6 +9,7 @@ interface Props {
   sets: number;
   restBetweenSets: number;
   voice: VoiceSettings;
+  onClick?: () => void;
 }
 
 function formatDuration(totalMs: number): string {
@@ -19,11 +20,16 @@ function formatDuration(totalMs: number): string {
   return sec > 0 ? `${min} 分 ${sec} 秒` : `${min} 分钟`;
 }
 
-export default function PlanSummaryCard({ contractTime, holdTime, relaxTime, rounds, sets, restBetweenSets, voice }: Props) {
+export default function PlanSummaryCard({ contractTime, holdTime, relaxTime, rounds, sets, restBetweenSets, voice, onClick }: Props) {
   const totalMs = calcTotalDuration(contractTime, holdTime, relaxTime, rounds, sets, restBetweenSets);
 
   return (
-    <div className="w-full rounded-xl bg-white/[0.04] border border-white/[0.06] p-4 space-y-2">
+    <button
+      type="button"
+      onClick={onClick}
+      className="w-full space-y-2 rounded-xl border border-white/[0.06] bg-white/[0.04] p-4 text-left transition-colors hover:bg-white/[0.07]"
+      aria-label="编辑当前训练计划"
+    >
       <h2 className="text-sm font-semibold text-slate-200">基础训练</h2>
       <p className="text-xs text-slate-400">
         {contractTime} 秒收缩 · {holdTime} 秒保持 · {relaxTime} 秒放松
@@ -39,6 +45,6 @@ export default function PlanSummaryCard({ contractTime, holdTime, relaxTime, rou
           {voice.hapticsEnabled ? '震动已开启' : '震动已关闭'}
         </span>
       </div>
-    </div>
+    </button>
   );
 }
