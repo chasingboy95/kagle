@@ -220,7 +220,7 @@ export default function App() {
           <ConfigDrawer
             config={config}
             savedConfigs={savedConfigs.items}
-            onChange={updateConfig}
+            onApply={updateConfig}
             onSaveConfig={savedConfigs.add}
             onRenameConfig={savedConfigs.rename}
             onDeleteConfig={savedConfigs.remove}
@@ -235,7 +235,7 @@ export default function App() {
             settings={voice.settings}
             supported={voice.supported}
             hapticsSupported={voice.hapticsSupported}
-            onChange={voice.updateSettings}
+            onApply={(settings) => voice.updateSettings(settings)}
             onPreview={voice.preview}
             onClose={() => setShowVoiceDrawer(false)}
           />

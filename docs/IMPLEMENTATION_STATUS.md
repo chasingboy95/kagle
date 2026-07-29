@@ -21,10 +21,10 @@
 | Voice Coach Recordings | Partial | Seven Mandarin coach recordings are routed through `BASE_URL`; real-device playback remains unverified. |
 | Voice Rhythm Mode | Partial | Uses non-verbal cues and independent countdown, but its audible differentiation still needs device QA. |
 | Voice Settings | Complete | Three modes are validated, final 3-second countdown is the default for new users, and legacy five-mode values migrate to `coach`. |
-| Voice Settings Panel | Complete | UI exposes common controls first and includes an optional pre-training self-check with the current mode/countdown/volume, a short preview, “我能听到” confirmation, explicit silent choice, and non-technical failure guidance. It never claims to detect system mute and does not block training. |
+| Voice Settings Panel | Complete | The drawer edits a local draft and persists only on explicit apply. Dirty cancel, overlay, close, and Escape paths require a discard choice; preview uses the draft without saving it. The three modes stay directly visible, while self-check and advanced controls remain available (#90). |
 | Haptics / iOS Fallback | Partial | Native vibration is capability-detected. Where unavailable, the short audio fallback is unlocked during start/resume/restart user gestures and covered by adapter/controller tests; iPhone installed-PWA revalidation remains required. |
 | Accessibility | Partial | Recovery takes priority over onboarding; both dialogs have labels/descriptions, initial focus, focus traps, focus restoration, and explicit Escape behavior. Playwright axe blocks serious/critical violations and covers reduced motion plus key `aria-live` regions. Real-device screen-reader verification remains outstanding. |
-| Mobile UX / Navigation | Partial | The target information architecture, staged dependencies, mobile viewport matrix, interaction constraints, and rollback boundaries are documented in `docs/UX_MOBILE_ROADMAP.md` (#88). Implementation remains tracked by #89–#93 and is not yet complete. |
+| Mobile UX / Navigation | Partial | The roadmap is documented in `docs/UX_MOBILE_ROADMAP.md` (#88). Dedicated records navigation (#89) and explicit plan/voice draft submission (#90) are complete; primary navigation, settings regrouping, and visual consistency remain tracked by #91–#93. |
 | Background-Tab Timing | Complete | Engineering evaluation done. Worker-based timer (`createTimer` + `timingWorker`) provides reliable ticks even when browser tab is backgrounded, with transparent fallback to setInterval. |
 | PWA / GitHub Pages | Partial | Manifest, service worker, subpath, standard PNG icons, apple-touch-icon, version update notification, offline caching, and voice asset cache are covered by Playwright E2E tests. The root document is now fixed to the standalone viewport, while `.app-shell` exclusively owns page scrolling and bottom safe-area handling remains with the action dock (#82). Automated coverage verifies no root overflow at 320×568; iPhone standalone-mode safe-area revalidation remains outstanding. Service worker activation is user-triggered and blocked during a live training session. |
 | PWA / GitHub Pages | Complete | Precache list is now generated at build time: `precache-manifest.json` lists the hashed JS/CSS/SVG assets and the service worker uses a content-hashed, versioned cache name (injected after the public-dir copy), so a fresh browser context precaches the full build on first install and old caches are cleared on upgrade (#62). |
@@ -83,6 +83,7 @@
 - Full ready → contract → hold → relax → feedback engine progression.
 - Pause/resume timing compensation and early-stop reset.
 - ConfigPanel repetition/set copy and disabled controls.
+- ConfigDrawer and VoiceDrawer draft/apply/cancel behavior, guarded dirty close, keyboard focus trap, single-select presets, and draft-only voice preview (#90).
 - TrainingFeedback objective results and completion actions.
 - Playwright smoke flow from configuration through completion and back to idle.
 - Fake-clock stopped-session flow across the engine, recovery snapshot, history, completion statistics, and progressive suggestions.

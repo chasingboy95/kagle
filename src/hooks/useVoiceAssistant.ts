@@ -23,7 +23,7 @@ export interface UseVoiceAssistantReturn {
   emit: (event: VoiceEvent, context: VoiceEventContext) => void;
   updateSettings: (updates: Partial<VoiceSettings>) => void;
   unlock: () => Promise<void>;
-  preview: () => Promise<boolean>;
+  preview: (settingsOverride?: VoiceSettings) => Promise<boolean>;
 }
 
 export function useVoiceAssistant(): UseVoiceAssistantReturn {
@@ -68,9 +68,18 @@ export function useVoiceAssistant(): UseVoiceAssistantReturn {
     await controllerRef.current?.preload();
   }, []);
 
-  const preview = useCallback(async () => (
-    await controllerRef.current?.preview() ?? false
-  ), []);
+  const preview = useCallback(async (settingsOverride?: VoiceSettings) => {
+    const controller = controllerRef.current;
+    if (!controller) return false;
+    if (!settingsOverride) return await controller.preview();
+
+    controller.updateSettings(validateVoiceSettings(settingsOverride));
+    try {
+      return await controller.preview();
+    } finally {
+      controller.updateSettings(settings);
+    }
+  }, [settings]);
 
   return {
     settings,

@@ -35,7 +35,7 @@ describe('ConfigPanel', () => {
   it('shows 自定义 when config does not match any preset', () => {
     const customConfig = { ...DEFAULT_CONFIG, holdTime: 7 };
     render(<ConfigPanel config={customConfig} disabled={false} onChange={() => undefined} />);
-    expect(screen.getByText('训练计划')).toBeInTheDocument();
+    expect(screen.getByText('自定义计划')).toBeInTheDocument();
   });
 
   it('selecting a preset calls onChange with full config', () => {
@@ -68,7 +68,14 @@ describe('ConfigPanel', () => {
     expect(body).not.toContain('诊断');
   });
 
-  it('toggles preset off when clicking the active preset again', () => {    const onChange = vi.fn();    render(<ConfigPanel config={DEFAULT_CONFIG} disabled={false} onChange={onChange} />);    // DEFAULT_CONFIG matches daily preset    expect(screen.getByText('日常训练')).toBeInTheDocument();    // Click the active preset to deselect    fireEvent.click(screen.getByRole('button', { name: '日常训练' }));    // Should switch to 自定义 mode without calling onChange (no config change)    expect(screen.getByText('训练计划')).toBeInTheDocument();  });
+  it('keeps presets single-select when the active preset is clicked again', () => {
+    const onChange = vi.fn();
+    render(<ConfigPanel config={DEFAULT_CONFIG} disabled={false} onChange={onChange} />);
+
+    fireEvent.click(screen.getByRole('button', { name: '日常训练' }));
+
+    expect(screen.getByRole('button', { name: '日常训练' })).toHaveClass('bg-indigo-500/30');
+    expect(onChange).toHaveBeenCalledWith({ ...DEFAULT_CONFIG });
   });
 
   it('disables preset buttons when training is active', () => {
