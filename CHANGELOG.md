@@ -39,6 +39,7 @@
 - Training-plan and voice drawers now edit local drafts, apply changes explicitly, protect dirty closes with discard confirmation, and expose single-select presets and the three voice modes without an extra outer accordion (#90).
 - Idle navigation now uses stable Training, Records, and Settings pages; the plan summary opens editing directly, settings are grouped by purpose, browser back follows page history, and navigation is hidden during training (#91).
 - Settings now exposes dedicated reminder and data-management pages, uses the system time picker, provides 44px weekday targets on narrow phones, and keeps onboarding/progressive recovery as clear general entries (#92).
+- Mobile presentation now uses a 12px minimum for ordinary supporting text, 44px core controls, two-column narrow-screen statistics, shared bottom-sheet structure, consistent focus rings, and reduced-motion-safe transitions (#93).
 - CI 拆分为 ci.yml（PR + main push）和 deploy.yml（main CI 成功后部署），固定 Bun 1.3.14，增加缓存与并发控制
 
 

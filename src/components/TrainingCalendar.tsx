@@ -59,14 +59,14 @@ export default function TrainingCalendar({
   return (
     <section aria-labelledby="calendar-title" className="space-y-4">
       <header className="flex items-center justify-between">
-        <button type="button" onClick={() => changeMonth(-1)} aria-label="上个月" className="rounded-lg bg-white/[0.06] px-3 py-2 text-slate-300">‹</button>
+        <button type="button" onClick={() => changeMonth(-1)} aria-label="上个月" className="grid min-h-11 min-w-11 place-items-center rounded-lg bg-white/[0.06] text-slate-300">‹</button>
         <h2 id="calendar-title" className="text-base font-semibold text-slate-100">
           {month.year}年{month.month}月
         </h2>
-        <button type="button" onClick={() => changeMonth(1)} aria-label="下个月" className="rounded-lg bg-white/[0.06] px-3 py-2 text-slate-300">›</button>
+        <button type="button" onClick={() => changeMonth(1)} aria-label="下个月" className="grid min-h-11 min-w-11 place-items-center rounded-lg bg-white/[0.06] text-slate-300">›</button>
       </header>
 
-      <div className="grid grid-cols-4 gap-2 text-center">
+      <div className="grid grid-cols-2 gap-2 text-center sm:grid-cols-4">
         {[
           ['本月完成', summary.completedCount, '次'],
           ['训练天数', summary.completedDays, '天'],
@@ -75,13 +75,13 @@ export default function TrainingCalendar({
         ].map(([label, value, unit]) => (
           <div key={label} className="rounded-lg bg-white/5 px-1 py-2.5">
             <div className="text-sm font-bold text-indigo-300">{value}{unit}</div>
-            <div className="mt-0.5 text-[10px] text-slate-500">{label}</div>
+            <div className="mt-0.5 text-xs text-slate-500">{label}</div>
           </div>
         ))}
       </div>
 
       <div>
-        <div className="grid grid-cols-7 text-center text-[10px] text-slate-600">
+        <div className="grid grid-cols-7 text-center text-xs text-slate-600">
           {weekdays.map((weekday) => <span key={weekday} className="py-1">{weekday}</span>)}
         </div>
         <div className="grid grid-cols-7 gap-1">
@@ -103,7 +103,7 @@ export default function TrainingCalendar({
                 onClick={() => setSelectedDateKey(dateKey)}
                 aria-label={`${month.month}月${dayNumber}日，${status}`}
                 aria-pressed={selected}
-                className={`relative aspect-square rounded-lg text-xs transition-colors ${
+                className={`relative min-h-11 rounded-lg text-xs transition-colors ${
                   selected ? 'bg-indigo-500/30 text-white ring-1 ring-indigo-300'
                     : day?.completedCount ? 'bg-emerald-500/15 text-emerald-200'
                       : day?.stoppedCount ? 'bg-amber-500/15 text-amber-200'
@@ -118,7 +118,7 @@ export default function TrainingCalendar({
         </div>
       </div>
 
-      <div className="flex items-center justify-center gap-4 text-[10px] text-slate-500">
+      <div className="flex items-center justify-center gap-4 text-xs text-slate-500">
         <span><span className="mr-1 inline-block h-2 w-2 rounded-sm bg-emerald-500/30" />有完成</span>
         <span><span className="mr-1 inline-block h-2 w-2 rounded-full bg-amber-300" />含中止</span>
       </div>
@@ -137,7 +137,7 @@ export default function TrainingCalendar({
                   type="button"
                   key={record.id}
                   onClick={() => onOpenRecord(record.id)}
-                  className="flex w-full items-center justify-between rounded-lg bg-white/[0.05] px-3 py-2 text-left text-xs text-slate-300"
+                  className="flex min-h-11 w-full items-center justify-between rounded-lg bg-white/[0.05] px-3 py-2 text-left text-xs text-slate-300"
                   aria-label={`查看 ${timeLabel(record.endedAt, timeZone)} ${record.status === 'completed' ? '已完成' : '已中止'}记录详情`}
                 >
                   <span>{timeLabel(record.endedAt, timeZone)} · {record.completedReps}/{record.targetReps}次</span>

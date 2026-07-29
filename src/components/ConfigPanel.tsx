@@ -39,7 +39,7 @@ function Stepper({ label, value, min, max, step, unit, disabled, onChange }: Ste
           whileTap={{ scale: 0.88 }}
           onClick={dec}
           disabled={disabled || value <= min}
-          className="w-8 h-8 rounded-full flex items-center justify-center text-sm
+          className="min-h-11 min-w-11 rounded-full flex items-center justify-center text-sm
             bg-white/[0.07] text-slate-300 disabled:opacity-15
             active:bg-white/[0.12] transition-colors select-none"
           aria-label={`减少${label}`}
@@ -54,14 +54,14 @@ function Stepper({ label, value, min, max, step, unit, disabled, onChange }: Ste
           whileTap={{ scale: 0.88 }}
           onClick={inc}
           disabled={disabled || value >= max}
-          className="w-8 h-8 rounded-full flex items-center justify-center text-sm
+          className="min-h-11 min-w-11 rounded-full flex items-center justify-center text-sm
             bg-white/[0.07] text-slate-300 disabled:opacity-15
             active:bg-white/[0.12] transition-colors select-none"
           aria-label={`增加${label}`}
         >
           +
         </motion.button>
-        <span className="text-[10px] text-slate-600 w-4 tracking-wide">{unit}</span>
+        <span className="text-xs text-slate-600 w-4 tracking-wide">{unit}</span>
       </div>
     </div>
   );
@@ -106,7 +106,7 @@ export default function ConfigPanel({
   const activePreset = presetId ? TRAINING_PRESETS.find((p) => p.id === presetId) : null;
 
   return (
-    <section className="w-full rounded-2xl border border-white/[0.06] bg-white/[0.03] backdrop-blur-xl">
+    <section className="w-full">
       <div className="border-b border-white/[0.05] px-4 py-3.5">
         <span>
           <span className="block text-xs font-medium tracking-[0.12em] text-slate-500">
@@ -128,7 +128,7 @@ export default function ConfigPanel({
                 whileTap={{ scale: 0.95 }}
                 onClick={() => handlePresetChange(p.id)}
                 disabled={disabled}
-                className={`px-2.5 py-1 rounded-full text-xs font-medium transition-colors select-none
+                className={`min-h-11 px-3 py-2 rounded-full text-xs font-medium transition-colors select-none
                   ${presetId === p.id
                     ? 'bg-indigo-500/30 text-indigo-200'
                     : 'bg-white/[0.06] text-slate-400 hover:bg-white/[0.10] hover:text-slate-300'
@@ -141,7 +141,7 @@ export default function ConfigPanel({
             ))}
           </div>
         </div>
-        <p className="text-[10px] text-slate-600 leading-4">
+        <p className="text-xs text-slate-600 leading-4">
           {activePreset
             ? activePreset.description
             : '自定义节奏模板，不代表医疗建议'}
@@ -192,7 +192,7 @@ export default function ConfigPanel({
           disabled={disabled}
           onChange={handleParamChange('rounds')}
         />
-        <p className="pt-1 text-right text-[10px] leading-4 text-slate-600">
+        <p className="pt-1 text-right text-xs leading-4 text-slate-600">
           完成以上次数计为 1 组
         </p>
         <div className="h-px bg-white/[0.04]" />

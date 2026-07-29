@@ -45,9 +45,10 @@ export default function VoiceDrawer({ settings, supported, hapticsSupported, onA
         aria-label="声音与震动设置"
         tabIndex={-1}
         onClick={(e) => e.stopPropagation()}
-        className="flex max-h-[85vh] w-full max-w-lg flex-col rounded-t-2xl border-t border-white/[0.06] bg-slate-900"
+        className="bottom-sheet flex max-h-[85vh] w-full max-w-lg flex-col rounded-t-2xl border-t border-white/[0.06] bg-slate-900"
       >
-        <div className="flex items-center justify-between border-b border-white/[0.05] px-5 py-4">
+        <div aria-hidden="true" className="mx-auto mt-2 h-1 w-10 shrink-0 rounded-full bg-white/20" />
+        <div className="flex items-center justify-between border-b border-white/[0.05] px-5 py-3">
           <h2 className="text-sm font-semibold text-slate-200">声音与震动</h2>
           <button
             type="button"

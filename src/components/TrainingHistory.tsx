@@ -107,7 +107,7 @@ export default function TrainingHistory({
           type="button"
           onClick={() => setView('list')}
           aria-pressed={view === 'list'}
-          className={`rounded-lg py-2 text-sm ${view === 'list' ? 'bg-white/10 text-white' : 'text-slate-500'}`}
+          className={`min-h-11 rounded-lg py-2 text-sm ${view === 'list' ? 'bg-white/10 text-white' : 'text-slate-500'}`}
         >
           列表
         </button>
@@ -115,7 +115,7 @@ export default function TrainingHistory({
           type="button"
           onClick={() => setView('calendar')}
           aria-pressed={view === 'calendar'}
-          className={`rounded-lg py-2 text-sm ${view === 'calendar' ? 'bg-white/10 text-white' : 'text-slate-500'}`}
+          className={`min-h-11 rounded-lg py-2 text-sm ${view === 'calendar' ? 'bg-white/10 text-white' : 'text-slate-500'}`}
         >
           日历
         </button>
@@ -123,7 +123,7 @@ export default function TrainingHistory({
           type="button"
           onClick={() => setView('trend')}
           aria-pressed={view === 'trend'}
-          className={`rounded-lg py-2 text-sm ${view === 'trend' ? 'bg-white/10 text-white' : 'text-slate-500'}`}
+          className={`min-h-11 rounded-lg py-2 text-sm ${view === 'trend' ? 'bg-white/10 text-white' : 'text-slate-500'}`}
         >
           趋势
         </button>
@@ -136,22 +136,22 @@ export default function TrainingHistory({
       ) : (
         <>
       {/* Stats row */}
-      <div className="grid grid-cols-4 gap-2 text-center">
+      <div className="grid grid-cols-2 gap-2 text-center sm:grid-cols-4">
         <div className="rounded-lg bg-white/5 px-2 py-3">
           <div className="text-lg font-bold text-indigo-300">{stats.weeklyCompletions}</div>
-          <div className="text-[10px] text-slate-400 mt-0.5">本周完成</div>
+          <div className="text-xs text-slate-400 mt-0.5">本周完成</div>
         </div>
         <div className="rounded-lg bg-white/5 px-2 py-3">
           <div className="text-lg font-bold text-indigo-300">{stats.streakDays}</div>
-          <div className="text-[10px] text-slate-400 mt-0.5">连续天数</div>
+          <div className="text-xs text-slate-400 mt-0.5">连续天数</div>
         </div>
         <div className="rounded-lg bg-white/5 px-2 py-3">
           <div className="text-lg font-bold text-indigo-300">{stats.totalCompletions}</div>
-          <div className="text-[10px] text-slate-400 mt-0.5">总次数</div>
+          <div className="text-xs text-slate-400 mt-0.5">总次数</div>
         </div>
         <div className="rounded-lg bg-white/5 px-2 py-3">
           <div className="text-lg font-bold text-indigo-300">{formatDuration(stats.totalDurationMs)}</div>
-          <div className="text-[10px] text-slate-400 mt-0.5">累计时长</div>
+          <div className="text-xs text-slate-400 mt-0.5">累计时长</div>
         </div>
       </div>
 
@@ -164,7 +164,7 @@ export default function TrainingHistory({
                   type="button"
                   onClick={() => setStatusFilter(value)}
                   aria-pressed={statusFilter === value}
-                  className={`flex-1 rounded-md py-1.5 text-xs transition-colors ${
+                  className={`min-h-11 flex-1 rounded-md py-2 text-xs transition-colors ${
                     statusFilter === value
                       ? 'bg-white/10 text-white'
                       : 'text-slate-500 hover:text-slate-300'
@@ -191,7 +191,7 @@ export default function TrainingHistory({
               type="button"
               key={r.id}
               onClick={() => setSelectedRecordId(r.id)}
-              className="flex w-full items-center justify-between rounded-lg bg-white/5 px-3 py-2.5 text-left transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300"
+              className="flex min-h-11 w-full items-center justify-between rounded-lg bg-white/5 px-3 py-2.5 text-left transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300"
               aria-label={`查看 ${formatDate(r.endedAt)} 训练记录详情`}
             >
               <div className="min-w-0 flex-1">
@@ -200,7 +200,7 @@ export default function TrainingHistory({
                     {formatDate(r.endedAt)}
                   </span>
                   {r.status === 'stopped' && (
-                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-400 font-medium">
+                    <span className="text-xs px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-400 font-medium">
                       中止
                     </span>
                   )}

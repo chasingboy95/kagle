@@ -4,7 +4,7 @@
 
 ## In Progress
 
-- **Issue #88–#93: 移动端 UX 优化路线图**: 路线图已建立于 `docs/UX_MOBILE_ROADMAP.md`；#89–#92 的信息架构与设置重组已完成，下一步实施 #93 视觉交互统一。
+- **Issue #88–#93: 移动端 UX 优化路线图**: #89–#93 的信息架构、设置重组、移动字号、触控、抽屉和 reduced-motion 基线均已完成自动化实施；下一步执行 iOS PWA、iOS Safari 与 Android Chrome 真机总验收。
 - Verify the #82 standalone safe-area fix on an iPhone installed PWA; automated coverage confirms the root document cannot scroll and the app shell remains the only page scroller.
 - Verify the simplified voice-assistance modes on real iOS and Android devices.
 - Verify the revised completion view and simplified voice settings on a real mobile device.

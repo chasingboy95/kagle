@@ -30,10 +30,10 @@ function Toggle({ id, label, description, checked, disabled = false, onChange }:
   onChange: (checked: boolean) => void;
 }) {
   return (
-    <label htmlFor={id} className={`flex items-center justify-between gap-4 py-2 ${disabled ? 'cursor-not-allowed opacity-40' : 'cursor-pointer'}`}>
+    <label htmlFor={id} className={`flex min-h-11 items-center justify-between gap-4 py-2 ${disabled ? 'cursor-not-allowed opacity-40' : 'cursor-pointer'}`}>
       <span>
         <span className="block text-sm text-slate-200">{label}</span>
-        {description && <span className="block text-[11px] leading-4 text-slate-500">{description}</span>}
+        {description && <span className="block text-xs leading-4 text-slate-500">{description}</span>}
       </span>
       <span className="relative shrink-0">
         <input id={id} type="checkbox" disabled={disabled} checked={checked} onChange={event => onChange(event.target.checked)} className="peer sr-only" />
@@ -75,7 +75,7 @@ export default function VoiceSettingsPanel({
   };
 
   return (
-    <section className="w-full rounded-2xl border border-white/[0.06] bg-white/[0.03] backdrop-blur-xl">
+    <section className="w-full">
       <div className="border-b border-white/[0.05] px-4 py-3.5">
         <span>
           <span className="block text-xs font-medium tracking-[0.12em] text-slate-500">语音辅助</span>
@@ -107,7 +107,7 @@ export default function VoiceSettingsPanel({
           <p className="mt-1 text-xs leading-5 text-slate-400">
             当前：{settings.enabled ? modeLabels[settings.mode] : '已关闭'} · {countdownLabels[settings.countdownFrom]} · 音量 {Math.round(settings.volume * 100)}%
           </p>
-          <p className="mt-1 text-[11px] leading-4 text-slate-500">
+          <p className="mt-1 text-xs leading-4 text-slate-500">
             浏览器无法判断设备是否静音，请以实际听感确认。自检可跳过，不影响直接开始训练。
           </p>
           <div className="mt-3 grid grid-cols-3 gap-2">
@@ -115,7 +115,7 @@ export default function VoiceSettingsPanel({
               type="button"
               disabled={disabled || !audible || checkState === 'playing'}
               onClick={() => { void runPreview(); }}
-              className="rounded-lg bg-indigo-500/20 px-2 py-2 text-xs font-medium text-indigo-100 transition-colors hover:bg-indigo-500/30 disabled:cursor-not-allowed disabled:opacity-40"
+              className="min-h-11 rounded-lg bg-indigo-500/20 px-2 py-2 text-xs font-medium text-indigo-100 transition-colors hover:bg-indigo-500/30 disabled:cursor-not-allowed disabled:opacity-40"
             >
               {checkState === 'playing' ? '播放中…' : '播放测试'}
             </button>
@@ -123,14 +123,14 @@ export default function VoiceSettingsPanel({
               type="button"
               disabled={checkState !== 'ready'}
               onClick={() => setCheckState('heard')}
-              className="rounded-lg bg-emerald-500/15 px-2 py-2 text-xs font-medium text-emerald-100 transition-colors hover:bg-emerald-500/25 disabled:cursor-not-allowed disabled:opacity-40"
+              className="min-h-11 rounded-lg bg-emerald-500/15 px-2 py-2 text-xs font-medium text-emerald-100 transition-colors hover:bg-emerald-500/25 disabled:cursor-not-allowed disabled:opacity-40"
             >
               我能听到
             </button>
             <button
               type="button"
               onClick={keepMuted}
-              className="rounded-lg bg-white/[0.06] px-2 py-2 text-xs font-medium text-slate-200 transition-colors hover:bg-white/10"
+              className="min-h-11 rounded-lg bg-white/[0.06] px-2 py-2 text-xs font-medium text-slate-200 transition-colors hover:bg-white/10"
             >
               保持静音
             </button>
@@ -149,7 +149,7 @@ export default function VoiceSettingsPanel({
             {([[0, '关闭'], [3, '最后 3 秒'], [5, '最后 5 秒']] as const).map(([value, label]) => (
               <label key={value} className="cursor-pointer">
                 <input type="radio" name="voice-countdown" value={value} checked={settings.countdownFrom === value} onChange={() => onChange({ countdownFrom: value })} className="peer sr-only" />
-                <span className="block rounded-lg px-2 py-2 text-center text-xs text-slate-500 transition-colors peer-checked:bg-white/10 peer-checked:text-slate-100 peer-focus-visible:ring-2 peer-focus-visible:ring-indigo-300">{label}</span>
+                <span className="flex min-h-11 items-center justify-center rounded-lg px-2 py-2 text-center text-xs text-slate-500 transition-colors peer-checked:bg-white/10 peer-checked:text-slate-100 peer-focus-visible:ring-2 peer-focus-visible:ring-indigo-300">{label}</span>
               </label>
             ))}
           </div>
@@ -160,7 +160,7 @@ export default function VoiceSettingsPanel({
         )}
 
         <details className="group/advanced mt-3 rounded-xl border border-white/[0.05] bg-black/10">
-          <summary className="flex cursor-pointer list-none items-center justify-between px-3 py-2.5 text-sm text-slate-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-indigo-300">
+          <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between px-3 py-2.5 text-sm text-slate-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-indigo-300">
             <span>高级设置</span>
             <span aria-hidden="true" className="text-slate-500 transition-transform group-open/advanced:rotate-180">⌄</span>
           </summary>
@@ -174,13 +174,13 @@ export default function VoiceSettingsPanel({
             <label htmlFor="voice-rate" className="block py-2 text-sm text-slate-300">
               <span className="flex justify-between"><span>语速</span><span className="tabular-nums text-slate-500">{settings.rate.toFixed(2)}×</span></span>
               <input id="voice-rate" type="range" min="0.5" max="1.5" step="0.05" value={settings.rate} disabled={disabled || !coachMode} onChange={event => onChange({ rate: Number(event.target.value) })} className="mt-2 w-full accent-indigo-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300 disabled:opacity-40" />
-              <span className="mt-1 block text-[11px] leading-4 text-slate-500">真人录音播放时保持原速；录音不可用并回退系统语音时生效。</span>
+              <span className="mt-1 block text-xs leading-4 text-slate-500">真人录音播放时保持原速；录音不可用并回退系统语音时生效。</span>
             </label>
 
             <Toggle id="voice-rounds" label="播报训练进度" description="每次动作开始时播报当前次数" checked={settings.announceRound} disabled={disabled || !coachMode} onChange={announceRound => onChange({ announceRound })} />
             <Toggle id="voice-haptics" label="震动反馈" description="阶段切换时使用轻柔振动" checked={settings.hapticsEnabled} disabled={disabled} onChange={hapticsEnabled => onChange({ hapticsEnabled })} />
             {!hapticsSupported && (
-              <p className="mt-1 text-[11px] leading-4 text-amber-300/70">
+              <p className="mt-1 text-xs leading-4 text-amber-300/70">
                 当前设备不支持震动反馈，切换时将使用短促提示音替代。
               </p>
             )}

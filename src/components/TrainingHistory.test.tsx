@@ -91,6 +91,23 @@ describe('TrainingHistory detail navigation', () => {
 
   });
 
+  it('uses a two-column narrow-phone stats layout and 44px view controls', () => {
+    render(
+      <TrainingHistory
+        records={[record]}
+        stats={stats}
+        onRemoveRecord={() => {}}
+        onClearAll={() => {}}
+        onClose={() => {}}
+        {...weeklyProps}
+      />,
+    );
+
+    expect(screen.getByText('本周完成').parentElement?.parentElement).toHaveClass('grid-cols-2', 'sm:grid-cols-4');
+    expect(screen.getByRole('button', { name: '列表' })).toHaveClass('min-h-11');
+    expect(screen.getByRole('button', { name: '已完成' })).toHaveClass('min-h-11');
+  });
+
   it('shows a filter-specific empty state', () => {
     render(
       <TrainingHistory

@@ -69,5 +69,67 @@ test('main page respects reduced motion and has no serious axe violations', asyn
   await expect(primaryNavigation.getByRole('button', { name: '记录', exact: true })).toBeVisible();
   await expect(primaryNavigation.getByRole('button', { name: '设置', exact: true })).toBeVisible();
 
+  await page.getByRole('button', { name: '编辑当前训练计划' }).click();
+  const planDialog = page.getByRole('dialog', { name: '调整训练计划' });
+  const sheetAnimationDuration = await planDialog.evaluate(
+    (element) => getComputedStyle(element).animationDuration,
+  );
+  expect(Number.parseFloat(sheetAnimationDuration || '0')).toBeLessThanOrEqual(0.001);
+  await page.getByRole('button', { name: '关闭训练计划' }).click();
+
   await expectNoSeriousAxeViolations(page);
+});
+
+test('settings and plan drawer remain usable at 320px with 200% text', async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 568 });
+  await page.context().addInitScript(() => {
+    localStorage.setItem('kegel.onboarding.v1', JSON.stringify(false));
+  });
+  await page.goto('.');
+  await page.waitForLoadState('networkidle');
+  await page.locator('html').evaluate((element) => {
+    element.style.fontSize = '200%';
+  });
+
+  const shell = page.locator('.app-shell');
+  const navigation = page.getByRole('navigation', { name: '主要导航' });
+  await navigation.getByRole('button', { name: '设置', exact: true }).click();
+  await expect.poll(() => shell.evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
+
+  await page.getByRole('button', { name: /训练计划/ }).click();
+  const dialog = page.getByRole('dialog', { name: '调整训练计划' });
+  await expect(dialog).toBeVisible();
+  await expect(dialog).toHaveClass(/bottom-sheet/);
+
+  for (const name of ['关闭训练计划', '增加收缩', '应用此计划']) {
+    const box = await page.getByRole('button', { name }).boundingBox();
+    expect(box?.height).toBeGreaterThanOrEqual(44);
+    expect(box?.width).toBeGreaterThanOrEqual(44);
+  }
+  await expect.poll(() => dialog.evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
+  await expectNoSeriousAxeViolations(page);
+});
+
+test('primary pages stay reachable on regular phone and landscape viewports', async ({ page }) => {
+  await page.context().addInitScript(() => {
+    localStorage.setItem('kegel.onboarding.v1', JSON.stringify(false));
+  });
+
+  for (const viewport of [
+    { width: 390, height: 844 },
+    { width: 844, height: 390 },
+  ]) {
+    await page.setViewportSize(viewport);
+    await page.goto('.');
+    await page.waitForLoadState('networkidle');
+    const shell = page.locator('.app-shell');
+    const navigation = page.getByRole('navigation', { name: '主要导航' });
+
+    await expect(page.getByRole('button', { name: '开始训练' })).toBeVisible();
+    await navigation.getByRole('button', { name: '记录', exact: true }).click();
+    await expect(page.getByRole('heading', { name: '训练记录' })).toBeVisible();
+    await navigation.getByRole('button', { name: '设置', exact: true }).click();
+    await expect(page.getByRole('heading', { name: '设置' })).toBeVisible();
+    await expect.poll(() => shell.evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
+  }
 });
