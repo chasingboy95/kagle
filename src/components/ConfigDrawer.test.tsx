@@ -59,4 +59,13 @@ describe('ConfigDrawer', () => {
     expect(screen.getByRole('heading', { name: '放弃未应用的修改？' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: '继续编辑' })).toHaveFocus();
   });
+
+  it('uses the shared bottom sheet structure and 44px parameter controls', () => {
+    render(<ConfigDrawer {...baseProps} onApply={() => undefined} onClose={() => undefined} />);
+
+    const dialog = screen.getByRole('dialog', { name: '调整训练计划' });
+    expect(dialog).toHaveClass('bottom-sheet');
+    expect(screen.getByRole('button', { name: '增加收缩' })).toHaveClass('min-h-11', 'min-w-11');
+    expect(screen.getByRole('button', { name: '日常训练' })).toHaveClass('min-h-11');
+  });
 });

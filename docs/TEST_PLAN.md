@@ -21,8 +21,9 @@
  - Training record validation: ISO/calendar timestamps, time ordering, finite non-negative numeric fields, integer/count bounds, and per-entry corruption isolation.
  - Component tests: ConfigPanel, ConfigDrawer, VoiceSettingsPanel, VoiceDrawer, PrimaryNavigation, SettingsHome, and TrainingFeedback, including draft apply/cancel, dirty-close confirmation, Escape, focus trapping, selection state, and grouped settings entry routing.
  - Playwright: Chromium flows cover three-page navigation, browser back, active-session navigation hiding, explicit plan apply/discard, completion, history, and stopped-session persistence.
- - Settings: native time input updates hour/minute atomically; weekday targets remain at least 44px; narrow-phone E2E covers reminder and data-management detail entry without horizontal overflow.
- - Playwright accessibility: recovery/onboarding flow and full-page axe audits.
+- Settings: native time input updates hour/minute atomically; weekday targets remain at least 44px; narrow-phone E2E covers reminder and data-management detail entry without horizontal overflow.
+- Playwright accessibility: recovery/onboarding flow and full-page axe audits.
+- Mobile presentation: component tests protect shared bottom-sheet and 44px control classes; Playwright covers 320×568 at 200% text, no horizontal overflow, core 44×44px targets, reduced-motion transition suppression, and axe serious/critical violations.
 
  ### Unit: getCountdownEvent (`src/hooks/useKegelEngine.test.ts`)
 
