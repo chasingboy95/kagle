@@ -1,9 +1,14 @@
 interface Props {
   planSummary: string;
   voiceSummary: string;
+  reminderSummary: string;
+  progressiveDisabled: boolean;
   onOpenPlan: () => void;
   onOpenVoice: () => void;
-  onOpenMore: () => void;
+  onOpenReminder: () => void;
+  onShowOnboarding: () => void;
+  onOpenData: () => void;
+  onReenableProgressive: () => void;
 }
 
 function SettingRow({ label, summary, onClick }: {
@@ -26,7 +31,18 @@ function SettingRow({ label, summary, onClick }: {
   );
 }
 
-export default function SettingsHome({ planSummary, voiceSummary, onOpenPlan, onOpenVoice, onOpenMore }: Props) {
+export default function SettingsHome({
+  planSummary,
+  voiceSummary,
+  reminderSummary,
+  progressiveDisabled,
+  onOpenPlan,
+  onOpenVoice,
+  onOpenReminder,
+  onShowOnboarding,
+  onOpenData,
+  onReenableProgressive,
+}: Props) {
   return (
     <main className="relative z-10 w-full max-w-sm flex-1 px-5 pt-[max(1.5rem,env(safe-area-inset-top))]">
       <header className="mb-6">
@@ -39,13 +55,18 @@ export default function SettingsHome({ planSummary, voiceSummary, onOpenPlan, on
         <div className="overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.03]">
           <SettingRow label="训练计划" summary={planSummary} onClick={onOpenPlan} />
           <SettingRow label="声音与反馈" summary={voiceSummary} onClick={onOpenVoice} />
+          <SettingRow label="训练提醒" summary={reminderSummary} onClick={onOpenReminder} />
         </div>
       </section>
 
       <section aria-labelledby="general-settings-title" className="mt-6">
         <h2 id="general-settings-title" className="mb-2 px-1 text-xs font-medium tracking-[0.12em] text-slate-500">通用</h2>
         <div className="overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.03]">
-          <SettingRow label="提醒、引导与数据" summary="训练提醒 · 新手引导 · 本地数据" onClick={onOpenMore} />
+          <SettingRow label="新手引导" summary="重新查看使用与安全说明" onClick={onShowOnboarding} />
+          {progressiveDisabled && (
+            <SettingRow label="渐进训练建议" summary="已关闭 · 点击重新开启" onClick={onReenableProgressive} />
+          )}
+          <SettingRow label="数据备份与恢复" summary="导出、导入和恢复本地数据" onClick={onOpenData} />
         </div>
       </section>
     </main>

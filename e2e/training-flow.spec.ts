@@ -64,6 +64,39 @@ test('switches between training, records, and settings then hides navigation dur
   await expect(page.getByRole('button', { name: '暂停' })).toBeVisible();
 });
 
+test('edits reminders with the system time input and opens data management on a narrow phone', async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 568 });
+  await page.context().addInitScript(() => {
+    localStorage.setItem('kegel.onboarding.v1', JSON.stringify(false));
+  });
+  await page.goto('.');
+  await page.waitForLoadState('networkidle');
+
+  await page.getByRole('button', { name: '设置', exact: true }).click();
+  await page.getByRole('button', { name: /训练提醒/ }).click();
+  await expect(page.getByRole('heading', { name: '训练提醒' })).toBeVisible();
+
+  const time = page.getByLabel('提醒时间');
+  await expect(time).toHaveAttribute('type', 'time');
+  if (await time.isDisabled()) {
+    await page.locator('label[for="schedule-enabled"]').click();
+  }
+  await time.fill('21:30');
+  await expect(time).toHaveValue('21:30');
+
+  const weekday = page.getByText('一', { exact: true });
+  const weekdayBox = await weekday.boundingBox();
+  expect(weekdayBox?.height).toBeGreaterThanOrEqual(44);
+  expect(weekdayBox?.width).toBeGreaterThanOrEqual(44);
+  await expect.poll(() => page.locator('.app-shell').evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
+
+  await page.getByRole('button', { name: '返回设置' }).click();
+  await page.getByRole('button', { name: /数据备份与恢复/ }).click();
+  await expect(page.getByRole('heading', { name: '数据备份与恢复' })).toBeVisible();
+  await expect(page.getByRole('button', { name: '导出本地数据' })).toBeVisible();
+  await expect(page.getByRole('button', { name: '选择备份文件' })).toBeVisible();
+});
+
 test('training plan changes require apply and dirty cancel can discard safely', async ({ page }) => {
   await page.context().addInitScript(() => {
     localStorage.setItem('kegel.onboarding.v1', JSON.stringify(false));

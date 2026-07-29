@@ -132,11 +132,8 @@ export default function DataManagement({
   };
 
   return (
-    <details className="w-full rounded-2xl border border-white/[0.06] bg-white/[0.03]">
-      <summary className="cursor-pointer list-none px-4 py-3 text-sm font-medium text-slate-300">
-        本地数据备份与恢复
-      </summary>
-      <div className="space-y-4 border-t border-white/[0.05] px-4 py-4">
+    <section className="w-full rounded-2xl border border-white/[0.06] bg-white/[0.03]">
+      <div className="space-y-4 px-4 py-4">
         <div>
           <p className="text-xs leading-5 text-slate-500">
             导出设置与训练记录为版本化 JSON 文件，不会上传到云端。
@@ -248,6 +245,6 @@ export default function DataManagement({
           </p>
         )}
       </div>
-    </details>
+    </section>
   );
 }
