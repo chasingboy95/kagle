@@ -1,22 +1,24 @@
 {
-  "cacheName": "kagle-pwa-v4-ff62e518",
+  "cacheName": "kagle-pwa-v4-56eaa380",
   "generatedAt": "build-time",
   "assets": [
-    "/kagle/assets/ConfigDrawer-18zEb6Vq.js",
-    "/kagle/assets/MoreMenu-DVN91zQq.js",
-    "/kagle/assets/Onboarding-TX5yu779.js",
+    "/kagle/assets/ConfigDrawer-Bgdo0UXK.js",
+    "/kagle/assets/DataManagement-B8Fqem8E.js",
+    "/kagle/assets/Onboarding-BsYAGu5i.js",
     "/kagle/assets/ProgressiveSuggestion-CEYnm6Ad.js",
-    "/kagle/assets/SessionRecovery--p1QvK02.js",
-    "/kagle/assets/TrainingFeedback-CgAjkPL1.js",
-    "/kagle/assets/TrainingHistory-igj72V8w.js",
+    "/kagle/assets/ScheduleSettings-B6szSaWq.js",
+    "/kagle/assets/SessionRecovery-BLNGi1uL.js",
+    "/kagle/assets/TrainingFeedback-B546DmAK.js",
+    "/kagle/assets/TrainingHistory-CRHmLYep.js",
     "/kagle/assets/VoiceDrawer-DysqPLvJ.js",
     "/kagle/assets/fascia-DCFoetpq.svg",
     "/kagle/assets/fibers-CuhFGZmi.svg",
-    "/kagle/assets/index-0IIhxM_d.css",
-    "/kagle/assets/index-b5RCJx2l.js",
+    "/kagle/assets/index-5v9dj1F1.css",
+    "/kagle/assets/index-A5agehUc.js",
     "/kagle/assets/jsx-runtime-CZcjcDnw.js",
     "/kagle/assets/react-9A9D8-nk.js",
     "/kagle/assets/timingWorker-DU-bSc-e.js",
+    "/kagle/assets/training-CKZx9AUb.js",
     "/kagle/assets/useModalFocus-CnqRgb7_.js"
   ]
 }
