@@ -44,7 +44,7 @@
 |---|---|---|---|---|
 | 1 | [#89 独立训练记录页](https://github.com/chasingboy95/kagle/issues/89) | 记录完全替换首页内容，筛选和返回真实生效 | 无 | 已完成 |
 | 2 | [#90 配置草稿与应用语义](https://github.com/chasingboy95/kagle/issues/90) | 计划、声音设置支持应用/取消和脏状态确认 | 无 | 已完成 |
-| 3 | [#91 一级导航重构](https://github.com/chasingboy95/kagle/issues/91) | 建立训练/记录/设置，训练态隐藏导航 | #89、#90 | 待实施 |
+| 3 | [#91 一级导航重构](https://github.com/chasingboy95/kagle/issues/91) | 建立训练/记录/设置，训练态隐藏导航 | #89、#90 | 已完成 |
 | 4 | [#92 设置页重组](https://github.com/chasingboy95/kagle/issues/92) | 原生时间选择、设置分组、数据管理二级页 | #91 | 待实施 |
 | 5 | [#93 视觉与交互统一](https://github.com/chasingboy95/kagle/issues/93) | 字号、触控、页面头、抽屉、动效和无障碍统一 | #91、#92 | 待实施 |
 

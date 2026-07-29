@@ -19,8 +19,8 @@
  - Accessibility: modal priority, initial/restored focus, focus traps, Tab/Escape rules, ARIA names/descriptions, reduced motion, live regions, and Playwright axe serious/critical violations.
  - Voice preflight: current-setting summary, preview success/failure, audible confirmation, silent choice, and controller handling for silent or unsupported playback.
  - Training record validation: ISO/calendar timestamps, time ordering, finite non-negative numeric fields, integer/count bounds, and per-entry corruption isolation.
- - Component tests: ConfigPanel, ConfigDrawer, VoiceSettingsPanel, VoiceDrawer, and TrainingFeedback, including draft apply/cancel, dirty-close confirmation, Escape, and focus trapping.
- - Playwright: Chromium flows cover explicit plan apply/discard, completion, history, and stopped-session persistence.
+ - Component tests: ConfigPanel, ConfigDrawer, VoiceSettingsPanel, VoiceDrawer, PrimaryNavigation, SettingsHome, and TrainingFeedback, including draft apply/cancel, dirty-close confirmation, Escape, focus trapping, selection state, and grouped settings entry routing.
+ - Playwright: Chromium flows cover three-page navigation, browser back, active-session navigation hiding, explicit plan apply/discard, completion, history, and stopped-session persistence.
  - Playwright accessibility: recovery/onboarding flow and full-page axe audits.
 
  ### Unit: getCountdownEvent (`src/hooks/useKegelEngine.test.ts`)

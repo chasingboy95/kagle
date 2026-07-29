@@ -63,9 +63,11 @@ test('main page respects reduced motion and has no serious axe violations', asyn
 
   // Verify main action buttons are accessible
   await expect(page.getByRole('button', { name: '开始训练' })).toBeVisible();
-  await expect(page.getByRole('button', { name: '调整计划' })).toBeVisible();
-  await expect(page.getByRole('button', { name: '声音与震动' })).toBeVisible();
-  await expect(page.getByRole('button', { name: '更多' })).toBeVisible();
+  const primaryNavigation = page.getByRole('navigation', { name: '主要导航' });
+  await expect(primaryNavigation).toBeVisible();
+  await expect(primaryNavigation.getByRole('button', { name: '训练', exact: true })).toHaveAttribute('aria-current', 'page');
+  await expect(primaryNavigation.getByRole('button', { name: '记录', exact: true })).toBeVisible();
+  await expect(primaryNavigation.getByRole('button', { name: '设置', exact: true })).toBeVisible();
 
   await expectNoSeriousAxeViolations(page);
 });
