@@ -34,6 +34,27 @@ test('history replaces the training home and uses page scrolling on a narrow pho
   await expect(page.getByRole('button', { name: '清除全部' })).toBeVisible();
 });
 
+test('training plan changes require apply and dirty cancel can discard safely', async ({ page }) => {
+  await page.context().addInitScript(() => {
+    localStorage.setItem('kegel.onboarding.v1', JSON.stringify(false));
+  });
+  await page.goto('.');
+  await page.waitForLoadState('networkidle');
+
+  await expect(page.getByText('3 秒收缩 · 3 秒保持 · 3 秒放松')).toBeVisible();
+  await page.getByRole('button', { name: '调整计划' }).click();
+  await page.getByRole('button', { name: '增加收缩' }).click();
+  await page.getByRole('button', { name: '取消' }).click();
+  await expect(page.getByRole('heading', { name: '放弃未应用的修改？' })).toBeVisible();
+  await page.getByRole('button', { name: '放弃修改' }).click();
+  await expect(page.getByText('3 秒收缩 · 3 秒保持 · 3 秒放松')).toBeVisible();
+
+  await page.getByRole('button', { name: '调整计划' }).click();
+  await page.getByRole('button', { name: '增加收缩' }).click();
+  await page.getByRole('button', { name: '应用此计划' }).click();
+  await expect(page.getByText('4 秒收缩 · 3 秒保持 · 3 秒放松')).toBeVisible();
+});
+
 test('completes one configured set and returns to the start screen', async ({ page }) => {
   // Pre-seed localStorage to skip onboarding modal on first visit
   await page.context().addInitScript(() => {
@@ -46,15 +67,12 @@ test('completes one configured set and returns to the start screen', async ({ pa
   await page.getByRole('button', { name: '调整计划' }).click();
   await expect(page.getByRole('dialog', { name: '调整训练计划' })).toBeVisible();
 
-  // Expand config details to access steppers
-  await page.locator('details').first().click();
-
   for (let repetition = 10; repetition > 1; repetition -= 1) {
     await page.getByRole('button', { name: '减少每组次数' }).click();
   }
 
-  // Close config drawer
-  await page.getByRole('button', { name: '关闭' }).click();
+  // Apply the draft before starting
+  await page.getByRole('button', { name: '应用此计划' }).click();
 
   await page.getByRole('button', { name: '开始训练' }).click();
   await expect(page.getByRole('button', { name: '暂停' })).toBeVisible();
@@ -84,14 +102,11 @@ test('completes training and views training history from feedback page', async (
   await page.getByRole('button', { name: '调整计划' }).click();
   await expect(page.getByRole('dialog', { name: '调整训练计划' })).toBeVisible();
 
-  // Expand config details to access steppers
-  await page.locator('details').first().click();
   for (let repetition = 10; repetition > 1; repetition -= 1) {
     await page.getByRole('button', { name: '减少每组次数' }).click();
   }
 
-  // Close config drawer
-  await page.getByRole('button', { name: '关闭' }).click();
+  await page.getByRole('button', { name: '应用此计划' }).click();
 
   await page.getByRole('button', { name: '开始训练' }).click();
 

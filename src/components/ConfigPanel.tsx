@@ -87,12 +87,10 @@ export default function ConfigPanel({
 
   const summary = `${config.contractTime}-${config.holdTime}-${config.relaxTime} × ${config.rounds} 次 = ${config.sets ?? 1} 组`;
 
-  const handlePresetChange = (id: string | null) => {
+  const handlePresetChange = (id: string) => {
     setPresetId(id);
-    if (id) {
-      const preset = TRAINING_PRESETS.find((p) => p.id === id);
-      if (preset) onChange({ ...preset.config });
-    }
+    const preset = TRAINING_PRESETS.find((p) => p.id === id);
+    if (preset) onChange({ ...preset.config });
   };
 
   const handleParamChange = (field: keyof TrainingConfig) => (value: number) => {
@@ -108,18 +106,17 @@ export default function ConfigPanel({
   const activePreset = presetId ? TRAINING_PRESETS.find((p) => p.id === presetId) : null;
 
   return (
-    <details className="group w-full rounded-2xl border border-white/[0.06] bg-white/[0.03] backdrop-blur-xl">
-      <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-3.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-indigo-300">
+    <section className="w-full rounded-2xl border border-white/[0.06] bg-white/[0.03] backdrop-blur-xl">
+      <div className="border-b border-white/[0.05] px-4 py-3.5">
         <span>
-          <span className="block text-[10px] font-medium tracking-[0.15em] text-slate-500">
-            {activePreset ? activePreset.label : '训练计划'}
+          <span className="block text-xs font-medium tracking-[0.12em] text-slate-500">
+            {activePreset ? activePreset.label : '自定义计划'}
           </span>
           <span className="mt-0.5 block text-sm text-slate-200 tabular-nums">{summary}</span>
         </span>
-        <span aria-hidden="true" className="text-slate-500 transition-transform group-open:rotate-180">⌄</span>
-      </summary>
+      </div>
 
-      <div className="space-y-1 border-t border-white/[0.05] px-4 pb-4 pt-2">
+      <div className="space-y-1 px-4 pb-4 pt-2">
         {/* Preset selector */}
         <div className="flex items-center gap-2 py-1.5">
           <span className="text-xs text-slate-400 tracking-wide flex-shrink-0">预设</span>
@@ -129,7 +126,7 @@ export default function ConfigPanel({
                 key={p.id}
                 type="button"
                 whileTap={{ scale: 0.95 }}
-                onClick={() => handlePresetChange(presetId === p.id ? null : p.id)}
+                onClick={() => handlePresetChange(p.id)}
                 disabled={disabled}
                 className={`px-2.5 py-1 rounded-full text-xs font-medium transition-colors select-none
                   ${presetId === p.id
@@ -231,6 +228,6 @@ export default function ConfigPanel({
           onDelete={onDeleteConfig}
         />
       </div>
-    </details>
+    </section>
   );
 }
