@@ -207,11 +207,10 @@ test('precache manifest lists hashed build assets and versioned cache', async ({
 
 // ── Update prompt UI (equivalent integration flow) ───────────
 //
-// The real activation path is gated behind a user click and a snapshot check
-// (see src/pwa/swProtocol.ts + src/main.tsx). Driving the full waiting-worker
-// lifecycle is impractical in Playwright, so these tests verify the equivalent,
-// user-visible contract of #60: the prompt UI renders, exposes the 立即更新
-// action, and a pending update NEVER auto-reloads the page.
+// Idle/feedback clients activate an available worker automatically. The prompt
+// remains the user-visible fallback while a live session blocks activation.
+// Driving a second waiting-worker lifecycle is impractical in Playwright, so
+// the safety decision is covered directly in swProtocol.test.ts.
 
 test('update prompt renders with an activate action', async ({ page }) => {
   // Block SW to prevent controllerchange → reload from interfering
@@ -243,13 +242,12 @@ test('update prompt renders with an activate action', async ({ page }) => {
   await expect(page.locator('#pwa-update-prompt button')).toHaveText('立即更新');
 });
 
-// ── Pending update must not auto-refresh ─────────────────────
+// ── Deferred update prompt must not refresh a live page ──────
 //
-// Core of #60: an available update must never force a reload on its own.
-// Activation only happens after the user clicks 立即更新 AND training is not
-// in progress (guarded in main.tsx via isTrainingInProgress).
+// Core of #60/#105: active training must never be interrupted. This verifies
+// the visible deferred-update state remains non-disruptive.
 
-test('pending update does not auto-reload the page', async ({ page }) => {
+test('deferred update prompt does not auto-reload the page', async ({ page }) => {
   // Block SW to prevent controllerchange → reload
   await page.route('**/sw.js', route => route.abort('blockedbyclient'));
 

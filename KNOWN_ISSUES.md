@@ -194,6 +194,14 @@
 
 ## Resolved on 2026-07-24
 
+### Installed PWA retained the old bottom navigation
+
+- **Status**: Resolved in automation; iPhone revalidation pending
+- **Severity**: High
+- **Affected area**: `src/main.tsx`, `src/pwa/swProtocol.ts`, `src/components/PrimaryNavigation.tsx`
+- **Description**: An installed iOS PWA could keep the pre-#103 bundle because an idle client still required manual service-worker activation. The sticky tab bar could also end above the visual viewport bottom on the reported device.
+- **Resolution**: Foreground entry now checks for updates, idle/feedback clients activate waiting workers automatically, live sessions still defer activation, and the tab bar is fixed to the visual viewport bottom with a matching content spacer. Unit and Playwright regressions cover activation safety and exact viewport anchoring; final iPhone confirmation remains required.
+
 ### Feedback completion controls
 
 - **Status**: Resolved

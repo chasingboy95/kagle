@@ -52,7 +52,7 @@ export default function PrimaryNavigation({ current, onNavigate }: Props) {
   return (
     <nav
       aria-label="主要导航"
-      className="sticky bottom-0 z-20 w-full shrink-0 bg-[#0b1220]/82 pb-[var(--safe-area-bottom)] backdrop-blur-2xl"
+      className="fixed inset-x-0 bottom-0 z-20 w-full bg-[#0b1220]/82 pb-[var(--safe-area-bottom)] backdrop-blur-2xl"
     >
       <div className="primary-navigation-content mx-auto grid h-14 w-full max-w-sm grid-cols-3 px-3">
         {items.map(({ page, label }) => {
