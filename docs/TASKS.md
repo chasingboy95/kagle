@@ -1,9 +1,10 @@
 # Task List
 
-**Last verified against repository:** 2026-07-28
+**Last verified against repository:** 2026-07-29
 
 ## In Progress
 
+- **Issue #88–#93: 移动端 UX 优化路线图**: 路线图已建立于 `docs/UX_MOBILE_ROADMAP.md`；按 #89 记录页、#90 配置提交语义、#91 一级导航、#92 设置重组、#93 视觉与交互统一的顺序逐项实施。
 - Verify the #82 standalone safe-area fix on an iPhone installed PWA; automated coverage confirms the root document cannot scroll and the app shell remains the only page scroller.
 - Verify the simplified voice-assistance modes on real iOS and Android devices.
 - Verify the revised completion view and simplified voice settings on a real mobile device.
