@@ -68,7 +68,16 @@ describe('ConfigPanel', () => {
     expect(body).not.toContain('诊断');
   });
 
-  it('toggles preset off when clicking the active preset again', () => {    const onChange = vi.fn();    render(<ConfigPanel config={DEFAULT_CONFIG} disabled={false} onChange={onChange} />);    // DEFAULT_CONFIG matches daily preset    expect(screen.getByText('日常训练')).toBeInTheDocument();    // Click the active preset to deselect    fireEvent.click(screen.getByRole('button', { name: '日常训练' }));    // Should switch to 自定义 mode without calling onChange (no config change)    expect(screen.getByText('训练计划')).toBeInTheDocument();  });
+  it('keeps the active preset selected when it is clicked again', () => {
+    const onChange = vi.fn();
+    render(<ConfigPanel config={DEFAULT_CONFIG} disabled={false} onChange={onChange} />);
+
+    const daily = screen.getByRole('button', { name: '日常训练' });
+    expect(daily).toHaveAttribute('aria-pressed', 'true');
+    fireEvent.click(daily);
+
+    expect(daily).toHaveAttribute('aria-pressed', 'true');
+    expect(onChange).toHaveBeenCalledWith(DEFAULT_CONFIG);
   });
 
   it('disables preset buttons when training is active', () => {

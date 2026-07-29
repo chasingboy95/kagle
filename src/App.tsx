@@ -235,7 +235,7 @@ export default function App() {
             settings={voice.settings}
             supported={voice.supported}
             hapticsSupported={voice.hapticsSupported}
-            onChange={voice.updateSettings}
+            onChange={(nextSettings) => voice.updateSettings(nextSettings)}
             onPreview={voice.preview}
             onClose={() => setShowVoiceDrawer(false)}
           />

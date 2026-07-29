@@ -1,5 +1,53 @@
 import { expect, test } from '@playwright/test';
 
+test('plan and voice drawers only commit drafts after explicit apply', async ({ page }) => {
+  await page.context().addInitScript(() => {
+    localStorage.setItem('kegel.onboarding.v1', JSON.stringify(false));
+    localStorage.setItem('kegel.training-config.v1', JSON.stringify({
+      contractTime: 3,
+      holdTime: 3,
+      relaxTime: 3,
+      rounds: 10,
+      sets: 1,
+      restBetweenSets: 30,
+    }));
+  });
+  await page.goto('.');
+  await page.waitForLoadState('networkidle');
+
+  await page.getByRole('button', { name: '调整计划' }).click();
+  await page.getByRole('button', { name: '减少每组次数' }).click();
+  await page.getByRole('button', { name: '取消' }).click();
+  await expect(page.getByRole('alertdialog', { name: '放弃训练计划修改？' })).toBeVisible();
+  await page.getByRole('button', { name: '放弃修改' }).click();
+  await expect.poll(() => page.evaluate(() =>
+    JSON.parse(localStorage.getItem('kegel.training-config.v1') ?? '{}').rounds,
+  )).toBe(10);
+
+  await page.getByRole('button', { name: '调整计划' }).click();
+  await page.getByRole('button', { name: '减少每组次数' }).click();
+  await page.getByRole('button', { name: '应用此计划' }).click();
+  await expect.poll(() => page.evaluate(() =>
+    JSON.parse(localStorage.getItem('kegel.training-config.v1') ?? '{}').rounds,
+  )).toBe(9);
+
+  await page.getByRole('button', { name: '声音与震动' }).click();
+  await page.getByText('语音辅助').click();
+  await page.getByText('启用辅助', { exact: true }).click();
+  await page.getByRole('button', { name: '关闭' }).click();
+  await expect(page.getByRole('alertdialog', { name: '放弃声音设置修改？' })).toBeVisible();
+  await page.getByRole('button', { name: '放弃修改' }).click();
+
+  await page.getByRole('button', { name: '声音与震动' }).click();
+  await page.getByText('语音辅助').click();
+  await expect(page.locator('#voice-enabled')).toBeChecked();
+  await page.getByText('启用辅助', { exact: true }).click();
+  await page.getByRole('button', { name: '应用设置' }).click();
+  await expect.poll(() => page.evaluate(() =>
+    JSON.parse(localStorage.getItem('kegel.voice-settings.v1') ?? '{}').enabled,
+  )).toBe(false);
+});
+
 test('history replaces the training home and uses page scrolling on a narrow phone', async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 568 });
   await page.context().addInitScript(() => {
@@ -46,15 +94,12 @@ test('completes one configured set and returns to the start screen', async ({ pa
   await page.getByRole('button', { name: '调整计划' }).click();
   await expect(page.getByRole('dialog', { name: '调整训练计划' })).toBeVisible();
 
-  // Expand config details to access steppers
-  await page.locator('details').first().click();
-
   for (let repetition = 10; repetition > 1; repetition -= 1) {
     await page.getByRole('button', { name: '减少每组次数' }).click();
   }
 
-  // Close config drawer
-  await page.getByRole('button', { name: '关闭' }).click();
+  // Apply config drawer changes
+  await page.getByRole('button', { name: '应用此计划' }).click();
 
   await page.getByRole('button', { name: '开始训练' }).click();
   await expect(page.getByRole('button', { name: '暂停' })).toBeVisible();
@@ -84,14 +129,12 @@ test('completes training and views training history from feedback page', async (
   await page.getByRole('button', { name: '调整计划' }).click();
   await expect(page.getByRole('dialog', { name: '调整训练计划' })).toBeVisible();
 
-  // Expand config details to access steppers
-  await page.locator('details').first().click();
   for (let repetition = 10; repetition > 1; repetition -= 1) {
     await page.getByRole('button', { name: '减少每组次数' }).click();
   }
 
-  // Close config drawer
-  await page.getByRole('button', { name: '关闭' }).click();
+  // Apply config drawer changes
+  await page.getByRole('button', { name: '应用此计划' }).click();
 
   await page.getByRole('button', { name: '开始训练' }).click();
 
