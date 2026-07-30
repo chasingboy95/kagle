@@ -142,3 +142,4 @@
 - [x] Sprint 1 continuous training UX.
 - [x] Basic PWA support with GitHub Pages subpath handling and iOS standalone metadata.
 - [x] Training engine, timer, progress, MuscleSphere animation, settings persistence, wake lock, and GitHub Pages deployment.
+- [x] **Issue #107: 手动部署到 Cloudflare Pages**: 新增仅由 `workflow_dispatch` 触发的生产部署工作流；限定 `main`，使用 GitHub Secrets 注入 Cloudflare Token 与 Account ID，部署前执行 lint、typecheck、coverage 与 build；构建基路径可配置，GitHub Pages 保持 `/kagle/`，Cloudflare Pages 使用 `/`，并自动验证 HTML、manifest、Service Worker 与预缓存路径。

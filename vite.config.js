@@ -7,6 +7,16 @@ import { createHash } from 'node:crypto'
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const DEFAULT_BASE_PATH = '/kagle/'
+
+function normalizeBasePath(value) {
+  const withLeadingSlash = value.startsWith('/') ? value : `/${value}`
+  return withLeadingSlash.endsWith('/') ? withLeadingSlash : `${withLeadingSlash}/`
+}
+
+const deploymentBase = normalizeBasePath(
+  process.env.DEPLOY_BASE_PATH || DEFAULT_BASE_PATH,
+)
 
 // 构建期生成 PWA 预缓存清单：扫描本次产物中的哈希资源（JS/CSS/SVG），
 // 写入 precache-manifest.json 供验证，并把资源列表与版本化缓存名注入
@@ -24,7 +34,7 @@ function precacheManifest() {
         /^assets\/[^/]+\.(js|css|svg)$/.test(file),
       )
       precacheAssets = assetFiles
-        .map((file) => `/kagle/${file}`)
+        .map((file) => `${deploymentBase}${file}`)
         .sort()
 
       // 资源哈希变化时缓存名随之变化，旧缓存在 activate 阶段被删除。
@@ -46,17 +56,32 @@ function precacheManifest() {
     },
     closeBundle() {
       const swPath = path.join(__dirname, 'dist', 'sw.js')
-      if (!existsSync(swPath)) return
-      const source = readFileSync(swPath, 'utf8')
+      const manifestPath = path.join(__dirname, 'dist', 'manifest.webmanifest')
+      if (!existsSync(swPath) || !existsSync(manifestPath)) return
+
+      const serviceWorker = readFileSync(swPath, 'utf8')
         .replace('__CACHE_NAME__', `'${cacheName}'`)
         .replace('__PRECACHE_ASSETS__', JSON.stringify(precacheAssets))
-      writeFileSync(swPath, source)
+        .replace(
+          `const BASE_PATH = '${DEFAULT_BASE_PATH}'`,
+          `const BASE_PATH = '${deploymentBase}'`,
+        )
+      writeFileSync(swPath, serviceWorker)
+
+      const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'))
+      manifest.start_url = deploymentBase
+      manifest.scope = deploymentBase
+      manifest.icons = manifest.icons.map((icon) => ({
+        ...icon,
+        src: `${deploymentBase}${path.posix.basename(icon.src)}`,
+      }))
+      writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`)
     },
   }
 }
 
 export default defineConfig({
-  base: '/kagle/',
+  base: deploymentBase,
   resolve: {
     alias: {
       '@': path.resolve(__dirname, 'src'),
