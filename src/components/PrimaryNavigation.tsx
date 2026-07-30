@@ -65,7 +65,7 @@ export default function PrimaryNavigation({ current, onNavigate }: Props) {
               aria-current={selected ? 'page' : undefined}
               onClick={() => onNavigate(page)}
               className={`relative flex min-h-11 flex-col items-center justify-center gap-0.5 text-xs font-medium transition-colors ${
-                selected ? 'text-indigo-300' : 'text-slate-500 hover:text-slate-300'
+                selected ? 'text-indigo-300' : 'text-slate-400 hover:text-slate-300'
               }`}
             >
               {selected && (
