@@ -8,7 +8,11 @@
   "background_color": "#111827",
   "theme_color": "#111827",
   "orientation": "portrait",
-  "categories": ["health", "fitness", "lifestyle"],
+  "categories": [
+    "health",
+    "fitness",
+    "lifestyle"
+  ],
   "icons": [
     {
       "src": "/kagle/icon-192.png",
