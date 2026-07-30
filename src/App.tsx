@@ -520,12 +520,6 @@ export default function App() {
           />
           </>
         )}
-        {isIdle && settingsDetail === null && (
-          <div
-            aria-hidden="true"
-            className="primary-navigation-spacer h-[calc(2.75rem+var(--safe-area-bottom))] w-full shrink-0"
-          />
-        )}
       </div>
       {isIdle && settingsDetail === null && (
         <PrimaryNavigation current={activePage} onNavigate={navigate} />

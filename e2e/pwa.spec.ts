@@ -48,6 +48,7 @@ test('root document stays fixed while the app shell owns mobile scrolling', asyn
 
     const shellStyle = getComputedStyle(appShell);
     const shellRect = appShell.getBoundingClientRect();
+    const rootStyle = getComputedStyle(document.querySelector<HTMLElement>('#root')!);
 
     return {
       viewportHeight: window.innerHeight,
@@ -55,11 +56,8 @@ test('root document stays fixed while the app shell owns mobile scrolling', asyn
       rootScrollHeight: rootScroller.scrollHeight,
       rootScrollTop: rootScroller.scrollTop,
       bodyOverflow: getComputedStyle(document.body).overflow,
-      htmlBackground: getComputedStyle(document.documentElement).backgroundColor,
-      bodyBackground: getComputedStyle(document.body).backgroundColor,
-      rootBackground: getComputedStyle(document.querySelector<HTMLElement>('#root')!).backgroundColor,
-      dockBackground: getComputedStyle(actionDock).backgroundColor,
-      themeColor: document.querySelector<HTMLMetaElement>('meta[name="theme-color"]')?.content,
+      rootDisplay: rootStyle.display,
+      rootFlexDirection: rootStyle.flexDirection,
       appOverflowY: shellStyle.overflowY,
       appPosition: shellStyle.position,
       appTop: shellRect.top,
@@ -74,10 +72,11 @@ test('root document stays fixed while the app shell owns mobile scrolling', asyn
   expect(metrics.rootScrollTop).toBe(0);
   expect(metrics.bodyOverflow).toBe('hidden');
   expect(metrics.appOverflowY).toBe('auto');
-  expect(metrics.appPosition).toBe('fixed');
-  expect(metrics.appTop).toBe(0);
-  expect(metrics.appBottom).toBe(metrics.viewportHeight);
-  expect(metrics.appClientHeight).toBe(metrics.viewportHeight);
+  // #root is the flex viewport root; .app-shell is a flex child that fills
+  // remaining space above the navigation, not a fixed overlay.
+  expect(metrics.rootDisplay).toBe('flex');
+  expect(metrics.rootFlexDirection).toBe('column');
+  expect(metrics.appPosition).toBe('static');
   expect(metrics.appScrollHeight).toBeGreaterThan(metrics.appClientHeight);
   expect(metrics.appScrollTop).toBeGreaterThan(0);
 });

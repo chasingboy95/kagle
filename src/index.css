@@ -25,12 +25,19 @@
 }
 
 html,
-body,
-#root {
+body {
   width: 100%;
-  height: 100%;
-  min-height: 0;
+  height: 100dvh;
   margin: 0;
+  overflow: hidden;
+  background: var(--color-warm-900);
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 100dvh;
   overflow: hidden;
   background: var(--color-warm-900);
 }
@@ -40,18 +47,27 @@ body {
   overscroll-behavior: none;
 }
 
+/* Safari / iOS PWA — override 100dvh with fill-available for older OS versions */
+@supports (-webkit-touch-callout: none) {
+  html {
+    height: -webkit-fill-available;
+  }
+}
+
 .app-shell {
-  position: fixed;
-  inset: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
   box-sizing: border-box;
   width: 100%;
-  min-height: 100dvh;
+  min-height: 0;
   overflow-x: hidden;
   overflow-y: auto;
   overscroll-behavior-y: none;
   padding-top: var(--safe-area-top);
   padding-left: var(--safe-area-left);
   padding-right: var(--safe-area-right);
+  margin: 0;
 }
 
 :where(button, a, input, select, summary, [role="button"]):focus-visible {
