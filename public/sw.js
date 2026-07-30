@@ -3,15 +3,16 @@
 //   旧缓存在 activate 阶段被安全清理。
 // - PRECACHE_ASSETS 为本次构建生成的哈希 JS/CSS/SVG，无需手工维护文件名。
 const CACHE_NAME = __CACHE_NAME__;
+const BASE_PATH = '/kagle/';
 
 const APP_SHELL = [
-  '/kagle/',
-  '/kagle/index.html',
-  '/kagle/manifest.webmanifest',
-  '/kagle/favicon.svg',
-  '/kagle/icon-192.png',
-  '/kagle/icon-512.png',
-  '/kagle/apple-touch-icon.png',
+  BASE_PATH,
+  `${BASE_PATH}index.html`,
+  `${BASE_PATH}manifest.webmanifest`,
+  `${BASE_PATH}favicon.svg`,
+  `${BASE_PATH}icon-192.png`,
+  `${BASE_PATH}icon-512.png`,
+  `${BASE_PATH}apple-touch-icon.png`,
 ];
 
 // 构建期注入的哈希资源。
@@ -28,7 +29,7 @@ const VOICE_FILES = [
 ];
 
 const VOICE_ASSETS = ['zh-CN', 'en-US'].flatMap((language) =>
-  VOICE_FILES.map((filename) => `/kagle/audio/${language}/${filename}`),
+  VOICE_FILES.map((filename) => `${BASE_PATH}audio/${language}/${filename}`),
 );
 
 // Cache on install but do NOT auto-activate. The new worker stays in the
@@ -87,7 +88,7 @@ async function networkFirst(request) {
   } catch {
     const cached = await caches.match(request);
     if (cached) return cached;
-    return caches.match('/kagle/index.html');
+    return caches.match(`${BASE_PATH}index.html`);
   }
 }
 

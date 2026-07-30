@@ -39,7 +39,7 @@
 | Session Recovery | Complete | Engine saves snapshots locally; strict schema validation accepts only recoverable status/phase combinations, bounded config and repetition values, finite non-negative timing, legal countdown markers, and valid timestamps. Corrupt or unknown snapshots are removed before the app remains safely idle. The higher-priority recovery dialog requires an explicit continue/discard choice, traps focus, and defers first-use onboarding until the app is idle. |
 | Session Statistics | Complete | The completion view shows objective current-session duration/repetitions plus post-write weekly completions, weekly active duration, current-session increase, and current streak. Enabled weekly goals add real remaining-day progress; calculation failure safely falls back to session-only results. |
 | Error Boundary | Complete | Global React ErrorBoundary wraps root <App />, ErrorRecoveryUI renders privacy-safe recovery page with reload/reset; onError only clears session snapshot, not all local data; full reset requires explicit confirmation; 10 component tests. |
-| CI/CD | Complete | All quality gates pass: tests, lint, TypeScript, build, and Playwright E2E. Deployment is automatic via GitHub Actions to GitHub Pages. |
+| CI/CD | Complete | All quality gates pass: tests, lint, TypeScript, build, and Playwright E2E. Deployment is automatic via GitHub Actions to GitHub Pages. A separate `workflow_dispatch` action can deploy `main` to Cloudflare Pages after rerunning lint, typecheck, coverage, build, and root-path validation; credentials remain in GitHub Secrets (#107). |
 
 ## Voice Behavior
 

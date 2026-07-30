@@ -2,6 +2,7 @@
 ## [Unreleased]
 
 ### Added
+- A manually triggered, `main`-only Cloudflare Pages deployment workflow with pre-deploy quality gates, secret-based credentials, configurable project name, deployment URL reporting, and root-path-aware PWA assets while preserving the existing `/kagle/` GitHub Pages build (#107).
 - A staged mobile UX roadmap covering the target training/records/settings information architecture, implementation dependencies, viewport/accessibility acceptance matrix, and per-issue rollback boundaries (#88).
 - Up to five named training-configuration favorites with one-click apply, rename/delete controls, strict versioned persistence, and legacy migration (#37).
 - Completion-page weekly progress computed from the same post-write history as the just-finished session: weekly completions/duration, current-session increase, streak, and optional goal remainder, with safe fallback (#40).

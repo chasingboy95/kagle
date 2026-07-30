@@ -19,7 +19,7 @@ A browser-based pelvic floor (Kegel) training timer with real-time visual animat
 - **Persistence**: localStorage
 - **Testing**: Vitest, React Testing Library, Playwright
 - **Linting**: Oxlint
-- **CI/CD**: GitHub Actions to GitHub Pages
+- **CI/CD**: GitHub Actions to GitHub Pages and manually triggered Cloudflare Pages deployment
 
 ## Setup
 
@@ -53,6 +53,14 @@ bun run preview
 CI (.github/workflows/ci.yml) runs on every PR and push to main. Deployment (.github/workflows/deploy.yml) proceeds only after CI passes on main, using the verified build artifact. Quality gates include tests, lint, TypeScript
 checks, a production build, and the Playwright browser smoke test first.
 Deployment is skipped if any quality check fails.
+
+Cloudflare Pages can be deployed manually from **Actions → Deploy to Cloudflare
+Pages → Run workflow** on the `main` branch. Add the repository secrets
+`CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` first, then enter the
+Cloudflare Pages project name (default: `kagle`). The manual workflow reruns
+lint, typecheck, coverage tests, and a root-path production build before
+deployment. GitHub Pages continues to build at `/kagle/`; Cloudflare Pages
+builds at `/`.
 
 ## Key Documentation
 
