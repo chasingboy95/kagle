@@ -94,7 +94,8 @@ test('root document stays fixed while the app shell owns mobile scrolling', asyn
 const ICONS = [
   { path: 'icon-192.png', desc: '192x192' },
   { path: 'icon-512.png', desc: '512x512' },
-  { path: 'apple-touch-icon.png', desc: 'apple touch' },
+  { path: 'apple-touch-icon.png', desc: 'apple touch root fallback' },
+  { path: 'apple-touch-icon-20260730.png', desc: 'versioned apple touch' },
   { path: 'favicon.svg', desc: 'favicon' },
 ];
 
@@ -104,6 +105,14 @@ for (const { path, desc } of ICONS) {
     expect(resp.status()).toBe(200);
   });
 }
+
+test('document selects the versioned Apple touch icon', async ({ request }) => {
+  const resp = await request.get(BASE);
+  expect(resp.status()).toBe(200);
+  expect(await resp.text()).toContain(
+    `rel="apple-touch-icon" sizes="180x180" href="${BASE}apple-touch-icon-20260730.png"`,
+  );
+});
 
 // ── Service Worker ────────────────────────────────────────────
 

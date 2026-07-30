@@ -1,8 +1,17 @@
 # Known Issues
 
-**Last updated:** 2026-07-28
+**Last updated:** 2026-07-30
 
 ## P1 — Functional Issues
+
+### iOS PWA retained a split bottom safe-area surface and letter placeholder icon
+
+- **Status**: Resolved in code; real-device reinstall verification pending (2026-07-30)
+- **Severity**: High
+- **Affected area**: `src/components/PrimaryNavigation.tsx`, `index.html`, Apple Touch Icon assets
+- **Description**: On an installed iOS PWA, the fixed 56px primary navigation could end at the Home Indicator boundary while WebKit painted the remaining safe area with the root canvas color, exposing a visible two-tone strip. An installation created before the real Apple Touch Icon was deployed continued to show the generated letter `K` placeholder.
+- **Resolution**: The primary navigation now uses the same opaque `#111827` surface as the root canvas and action dock. HTML selects a newly versioned 180×180 Apple Touch Icon URL, while `/apple-touch-icon.png` remains available as the conventional root fallback.
+- **Remaining verification**: Delete the existing Home Screen Web Clip, open the current production URL in Safari, add it to the Home Screen again, and confirm both the icon and bottom safe area on the physical iPhone. Existing installed icon artwork is not replaced by an ordinary web deployment.
 
 ### iOS PWA haptic audio fallback stayed suspended
 

@@ -154,6 +154,8 @@ test('bottom navigation owns the safe area once and stays visually compact', asy
   await expect(navigation.locator('svg')).toHaveCount(3);
   await expect(navigationContent).toHaveCSS('height', '56px');
   await expect(navigation).toHaveCSS('height', '80px');
+  await expect(navigation).toHaveCSS('background-color', 'rgb(17, 24, 39)');
+  await expect(actionDock).toHaveCSS('background-color', 'rgb(17, 24, 39)');
   await expect.poll(async () => {
     const box = await navigation.boundingBox();
     return box ? Math.round(box.y + box.height) : null;

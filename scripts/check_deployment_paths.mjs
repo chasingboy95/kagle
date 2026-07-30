@@ -36,7 +36,7 @@ for (const asset of precache.assets) {
 
 const expectedPublicPaths = [
   `${expectedBase}favicon.svg`,
-  `${expectedBase}apple-touch-icon.png`,
+  `${expectedBase}apple-touch-icon-20260730.png`,
   `${expectedBase}manifest.webmanifest`,
 ]
 

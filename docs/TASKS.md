@@ -1,9 +1,10 @@
 # Task List
 
-**Last verified against repository:** 2026-07-29
+**Last verified against repository:** 2026-07-30
 
 ## In Progress
 
+- **Issue #109: iOS PWA 底部安全区与安装图标回归**: 导航、操作坞和根画布已统一为不透明 `#111827` 底色；Apple Touch Icon 使用新的版本化 URL 并保留根目录回退。自动化验证完成后仍需在 iPhone 删除旧主屏幕 Web Clip 并重新添加，确认图标与底部安全区。
 - **Issue #88–#93: 移动端 UX 优化路线图**: #89–#93 的信息架构、设置重组、移动字号、触控、抽屉和 reduced-motion 基线均已完成自动化实施；下一步执行 iOS PWA、iOS Safari 与 Android Chrome 真机总验收。
 - Verify the #82 standalone safe-area fix on an iPhone installed PWA; automated coverage confirms the root document cannot scroll and the app shell remains the only page scroller.
 - Verify the simplified voice-assistance modes on real iOS and Android devices.
