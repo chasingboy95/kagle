@@ -375,8 +375,8 @@ export function MuscleSphere({
             cx={size / 2}
             cy={size / 2}
             r={ringRadius}
-            fill="rgb(30 41 59 / 0.8)"
-            stroke="rgba(148,163,184,0.02)"
+            fill="rgb(27 21 24 / 0.8)"
+            stroke="rgba(155,140,130,0.02)"
             strokeWidth={4}
           />
           <circle
@@ -384,7 +384,7 @@ export function MuscleSphere({
             cy={size / 2}
             r={ringRadius}
             fill="none"
-            stroke="rgba(148,163,184,0.08)"
+            stroke="rgba(155,140,130,0.08)"
             strokeWidth={4}
             strokeLinecap="round"
             strokeDasharray={ringCircumference}

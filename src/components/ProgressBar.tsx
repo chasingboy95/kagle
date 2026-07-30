@@ -18,7 +18,7 @@ export default function ProgressBar({ current, total }: Props) {
         <motion.div
           className="absolute inset-y-0 left-0 rounded-full"
           style={{
-            background: 'linear-gradient(90deg, #7DD3FC, #8B5CF6)',
+            background: 'linear-gradient(90deg, #e8944a, #d4726a)',
           }}
           initial={{ width: 0 }}
           animate={{ width: `${pct}%` }}
