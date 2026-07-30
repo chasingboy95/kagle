@@ -524,7 +524,7 @@ export default function App() {
           <>
             <div
               aria-hidden="true"
-              className="primary-navigation-spacer h-[calc(3.5rem+var(--safe-area-bottom))] w-full shrink-0"
+              className="primary-navigation-spacer h-[calc(3rem+var(--safe-area-bottom))] w-full shrink-0"
             />
             <PrimaryNavigation current={activePage} onNavigate={navigate} />
           </>

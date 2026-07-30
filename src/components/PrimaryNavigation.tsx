@@ -54,7 +54,7 @@ export default function PrimaryNavigation({ current, onNavigate }: Props) {
       aria-label="主要导航"
       className="fixed inset-x-0 bottom-0 z-20 w-full bg-[#111827] pb-[var(--safe-area-bottom)]"
     >
-      <div className="primary-navigation-content mx-auto grid h-14 w-full max-w-sm grid-cols-3 px-3">
+      <div className="primary-navigation-content mx-auto grid h-12 w-full max-w-sm grid-cols-3 px-3">
         {items.map(({ page, label }) => {
           const selected = current === page;
           return (
