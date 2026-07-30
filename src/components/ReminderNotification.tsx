@@ -19,26 +19,26 @@ export default function ReminderNotification({
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
           transition={{ duration: 0.25 }}
-          className="rounded-2xl border border-indigo-500/20 bg-indigo-500/10 p-4 backdrop-blur-xl"
+          className="rounded-2xl border border-accent/20 bg-accent/10 p-4 backdrop-blur-xl"
         >
-          <p className="text-sm font-medium text-indigo-200">
+          <p className="text-sm font-medium text-accent">
             今天是训练日
           </p>
-          <p className="mt-1 text-xs leading-5 text-indigo-300/70">
+          <p className="mt-1 text-xs leading-5 text-accent/70">
             开始一组训练，保持好习惯！
           </p>
           <div className="mt-3 flex gap-2">
             <button
               type="button"
               onClick={onStartTraining}
-              className="rounded-lg bg-indigo-500/30 px-4 py-2 text-xs font-medium text-indigo-100 transition-colors hover:bg-indigo-500/40"
+              className="rounded-lg bg-accent/30 px-4 py-2 text-xs font-medium text-warm-100 transition-colors hover:bg-accent/40"
             >
               开始训练
             </button>
             <button
               type="button"
               onClick={onDismiss}
-              className="rounded-lg bg-white/[0.06] px-4 py-2 text-xs font-medium text-slate-400 transition-colors hover:bg-white/10"
+              className="rounded-lg bg-warm-200/[0.06] px-4 py-2 text-xs font-medium text-warm-400 transition-colors hover:bg-warm-200/10"
             >
               稍后提醒
             </button>

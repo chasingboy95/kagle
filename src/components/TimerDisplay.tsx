@@ -42,7 +42,7 @@ export default function TimerDisplay({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -6 }}
             transition={{ duration: 0.25 }}
-            className="text-[11px] tracking-[0.2em] text-slate-400 font-medium"
+            className="text-[11px] tracking-[0.2em] text-warm-400 font-medium"
           >
             {actionHint(phase)}
           </motion.div>
@@ -55,28 +55,28 @@ export default function TimerDisplay({
         initial={{ opacity: 0.5, y: 6 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.15 }}
-        className="text-6xl sm:text-7xl font-light tracking-tight text-slate-100 tabular-nums"
+        className="text-6xl sm:text-7xl font-light tracking-tight text-warm-100 tabular-nums"
         style={{ fontVariantNumeric: 'tabular-nums' }}
       >
         {showTimer ? seconds : '--'}
       </motion.div>
 
       {/* 组信息 */}
-      <div className="flex items-center gap-2 text-xs text-slate-500 tabular-nums mt-1">
-        <span className="text-[10px] tracking-widest text-slate-600">组</span>
-        <span className="font-semibold text-slate-300 text-sm">
+      <div className="flex items-center gap-2 text-xs text-warm-400 tabular-nums mt-1">
+        <span className="text-[10px] tracking-widest text-warm-500">组</span>
+        <span className="font-semibold text-warm-200 text-sm">
           {showTimer ? currentSet : 0}
         </span>
-        <span className="text-slate-600">/</span>
-        <span className="text-slate-400">{totalSets}</span>
-        <span className="mx-2 text-slate-700">|</span>
-        <span className="text-[10px] tracking-widest text-slate-600">第</span>
-        <span className="font-semibold text-slate-300 text-sm">
+        <span className="text-warm-500">/</span>
+        <span className="text-warm-400">{totalSets}</span>
+        <span className="mx-2 text-warm-500">|</span>
+        <span className="text-[10px] tracking-widest text-warm-500">第</span>
+        <span className="font-semibold text-warm-200 text-sm">
           {showTimer ? currentRepetition : 0}
         </span>
-        <span className="text-slate-600">/</span>
-        <span className="text-slate-400">{totalRepetitions}</span>
-        <span className="text-[10px] tracking-widest text-slate-600">次</span>
+        <span className="text-warm-500">/</span>
+        <span className="text-warm-400">{totalRepetitions}</span>
+        <span className="text-[10px] tracking-widest text-warm-500">次</span>
       </div>
     </div>
   );

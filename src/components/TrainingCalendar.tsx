@@ -59,11 +59,11 @@ export default function TrainingCalendar({
   return (
     <section aria-labelledby="calendar-title" className="space-y-4">
       <header className="flex items-center justify-between">
-        <button type="button" onClick={() => changeMonth(-1)} aria-label="上个月" className="grid min-h-11 min-w-11 place-items-center rounded-lg bg-white/[0.06] text-slate-300">‹</button>
-        <h2 id="calendar-title" className="text-base font-semibold text-slate-100">
+        <button type="button" onClick={() => changeMonth(-1)} aria-label="上个月" className="grid min-h-11 min-w-11 place-items-center rounded-lg bg-warm-200/[0.06] text-warm-200">‹</button>
+        <h2 id="calendar-title" className="text-base font-semibold text-warm-100">
           {month.year}年{month.month}月
         </h2>
-        <button type="button" onClick={() => changeMonth(1)} aria-label="下个月" className="grid min-h-11 min-w-11 place-items-center rounded-lg bg-white/[0.06] text-slate-300">›</button>
+        <button type="button" onClick={() => changeMonth(1)} aria-label="下个月" className="grid min-h-11 min-w-11 place-items-center rounded-lg bg-warm-200/[0.06] text-warm-200">›</button>
       </header>
 
       <div className="grid grid-cols-2 gap-2 text-center sm:grid-cols-4">
@@ -73,15 +73,15 @@ export default function TrainingCalendar({
           ['累计时长', formatDuration(summary.completedDurationMs), ''],
           ['最长连续', summary.longestStreakDays, '天'],
         ].map(([label, value, unit]) => (
-          <div key={label} className="rounded-lg bg-white/5 px-1 py-2.5">
-            <div className="text-sm font-bold text-indigo-300">{value}{unit}</div>
-            <div className="mt-0.5 text-xs text-slate-500">{label}</div>
+          <div key={label} className="rounded-lg bg-warm-200/5 px-1 py-2.5">
+            <div className="text-sm font-bold text-accent">{value}{unit}</div>
+            <div className="mt-0.5 text-xs text-warm-400">{label}</div>
           </div>
         ))}
       </div>
 
       <div>
-        <div className="grid grid-cols-7 text-center text-xs text-slate-600">
+        <div className="grid grid-cols-7 text-center text-xs text-warm-500">
           {weekdays.map((weekday) => <span key={weekday} className="py-1">{weekday}</span>)}
         </div>
         <div className="grid grid-cols-7 gap-1">
@@ -104,10 +104,10 @@ export default function TrainingCalendar({
                 aria-label={`${month.month}月${dayNumber}日，${status}`}
                 aria-pressed={selected}
                 className={`relative min-h-11 rounded-lg text-xs transition-colors ${
-                  selected ? 'bg-indigo-500/30 text-white ring-1 ring-indigo-300'
+                  selected ? 'bg-accent/30 text-white ring-1 ring-accent'
                     : day?.completedCount ? 'bg-emerald-500/15 text-emerald-200'
                       : day?.stoppedCount ? 'bg-amber-500/15 text-amber-200'
-                        : 'bg-white/[0.025] text-slate-500'
+                        : 'bg-white/[0.025] text-warm-400'
                 }`}
               >
                 {dayNumber}
@@ -118,18 +118,18 @@ export default function TrainingCalendar({
         </div>
       </div>
 
-      <div className="flex items-center justify-center gap-4 text-xs text-slate-500">
+      <div className="flex items-center justify-center gap-4 text-xs text-warm-400">
         <span><span className="mr-1 inline-block h-2 w-2 rounded-sm bg-emerald-500/30" />有完成</span>
         <span><span className="mr-1 inline-block h-2 w-2 rounded-full bg-amber-300" />含中止</span>
       </div>
 
       {selectedDateKey && (
-        <div className="rounded-xl border border-white/[0.06] bg-black/10 p-3">
-          <h3 className="text-sm font-medium text-slate-200">
+        <div className="rounded-xl border border-warm-200/[0.06] bg-black/10 p-3">
+          <h3 className="text-sm font-medium text-warm-200">
             {Number(selectedDateKey.slice(5, 7))}月{Number(selectedDateKey.slice(8, 10))}日记录
           </h3>
           {!selectedDay ? (
-            <p className="py-3 text-xs text-slate-500">当天暂无训练记录</p>
+            <p className="py-3 text-xs text-warm-400">当天暂无训练记录</p>
           ) : (
             <div className="mt-2 space-y-2">
               {selectedDay.records.map((record) => (
@@ -137,7 +137,7 @@ export default function TrainingCalendar({
                   type="button"
                   key={record.id}
                   onClick={() => onOpenRecord(record.id)}
-                  className="flex min-h-11 w-full items-center justify-between rounded-lg bg-white/[0.05] px-3 py-2 text-left text-xs text-slate-300"
+                  className="flex min-h-11 w-full items-center justify-between rounded-lg bg-white/[0.05] px-3 py-2 text-left text-xs text-warm-200"
                   aria-label={`查看 ${timeLabel(record.endedAt, timeZone)} ${record.status === 'completed' ? '已完成' : '已中止'}记录详情`}
                 >
                   <span>{timeLabel(record.endedAt, timeZone)} · {record.completedReps}/{record.targetReps}次</span>

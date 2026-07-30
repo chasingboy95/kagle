@@ -23,7 +23,7 @@ export default function TrainingTrend({ records, timeZone }: Props) {
 
   if (trend.weeks.length === 0) {
     return (
-      <div className="text-center py-8 text-sm text-slate-500">
+      <div className="text-center py-8 text-sm text-warm-400">
         暂无足够数据生成趋势
       </div>
     );
@@ -33,12 +33,12 @@ export default function TrainingTrend({ records, timeZone }: Props) {
 
   return (
     <section aria-labelledby="trend-title" className="space-y-4">
-      <h2 id="trend-title" className="text-sm font-semibold text-slate-200">
+      <h2 id="trend-title" className="text-sm font-semibold text-warm-200">
         近四周趋势
       </h2>
 
       {!hasData && (
-        <div className="text-center py-4 text-xs text-slate-500">
+        <div className="text-center py-4 text-xs text-warm-400">
           完成训练后，这里会显示每周完成次数趋势
         </div>
       )}
@@ -47,7 +47,7 @@ export default function TrainingTrend({ records, timeZone }: Props) {
       <div className="space-y-3">
         {/* Completion count bars */}
         <div>
-          <p className="text-[10px] text-slate-500 mb-2">完成次数</p>
+          <p className="text-[10px] text-warm-400 mb-2">完成次数</p>
           <div className="flex items-end gap-3 h-24">
             {trend.weeks.map((week) => {
               const height = trend.maxCompletedCount > 0
@@ -55,16 +55,16 @@ export default function TrainingTrend({ records, timeZone }: Props) {
                 : 8;
               return (
                 <div key={week.weekKey} className="flex-1 flex flex-col items-center gap-1">
-                  <span className="text-[10px] font-medium tabular-nums text-slate-400">
+                  <span className="text-[10px] font-medium tabular-nums text-warm-400">
                     {week.completedCount}
                   </span>
                   <div
-                    className="w-full rounded-t bg-indigo-500/40 transition-all"
+                    className="w-full rounded-t bg-accent/40 transition-all"
                     style={{ height: `${height}%` }}
                     role="img"
                     aria-label={`${week.weekLabel}: ${week.completedCount}次完成`}
                   />
-                  <span className="text-[9px] text-slate-600">{week.weekLabel}</span>
+                  <span className="text-[9px] text-warm-500">{week.weekLabel}</span>
                 </div>
               );
             })}
@@ -74,7 +74,7 @@ export default function TrainingTrend({ records, timeZone }: Props) {
         {/* Duration bars */}
         {hasData && (
           <div>
-            <p className="text-[10px] text-slate-500 mb-2">累计时长</p>
+            <p className="text-[10px] text-warm-400 mb-2">累计时长</p>
             <div className="flex items-end gap-3 h-20">
               {trend.weeks.map((week) => {
                 const height = trend.maxDurationMs > 0
@@ -82,7 +82,7 @@ export default function TrainingTrend({ records, timeZone }: Props) {
                   : 8;
                 return (
                   <div key={week.weekKey} className="flex-1 flex flex-col items-center gap-1">
-                    <span className="text-[9px] tabular-nums text-slate-500">
+                    <span className="text-[9px] tabular-nums text-warm-400">
                       {formatDuration(week.totalDurationMs)}
                     </span>
                     <div
@@ -102,9 +102,9 @@ export default function TrainingTrend({ records, timeZone }: Props) {
         {hasData && (
           <div className="grid grid-cols-5 gap-2 text-center">
             {trend.weeks.map((week) => (
-              <div key={week.weekKey} className="rounded-lg bg-white/[0.03] py-2">
-                <div className="text-xs font-bold text-indigo-300">{week.completedDays}</div>
-                <div className="text-[9px] text-slate-600">训练天数</div>
+              <div key={week.weekKey} className="rounded-lg bg-warm-200/[0.03] py-2">
+                <div className="text-xs font-bold text-accent">{week.completedDays}</div>
+                <div className="text-[9px] text-warm-500">训练天数</div>
               </div>
             ))}
           </div>

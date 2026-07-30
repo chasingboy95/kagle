@@ -52,7 +52,7 @@ export default function PrimaryNavigation({ current, onNavigate }: Props) {
   return (
     <nav
       aria-label="主要导航"
-      className="fixed inset-x-0 bottom-0 z-20 w-full bg-[#111827] pb-[var(--safe-area-bottom)]"
+      className="fixed inset-x-0 bottom-0 z-20 w-full bg-warm-900 pb-[var(--safe-area-bottom)]"
     >
       <div className="primary-navigation-content mx-auto grid h-12 w-full max-w-sm grid-cols-3 px-3">
         {items.map(({ page, label }) => {
@@ -65,11 +65,11 @@ export default function PrimaryNavigation({ current, onNavigate }: Props) {
               aria-current={selected ? 'page' : undefined}
               onClick={() => onNavigate(page)}
               className={`relative flex min-h-11 flex-col items-center justify-center gap-0.5 text-xs font-medium transition-colors ${
-                selected ? 'text-indigo-300' : 'text-slate-400 hover:text-slate-300'
+                selected ? 'text-accent' : 'text-warm-400 hover:text-warm-200'
               }`}
             >
               {selected && (
-                <span aria-hidden="true" className="absolute top-1 h-1 w-1 rounded-full bg-indigo-300" />
+                <span aria-hidden="true" className="absolute top-1 h-1 w-1 rounded-full bg-accent" />
               )}
               <NavigationIcon page={page} />
               <span className="leading-none">{label}</span>

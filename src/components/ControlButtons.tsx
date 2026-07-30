@@ -40,9 +40,9 @@ export default function ControlButtons({
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.96 }}
             onClick={onStart}
-            className="w-4/5 max-w-[260px] h-14 rounded-[28px] bg-white text-slate-900
+            className="w-4/5 max-w-[260px] h-14 rounded-[28px] bg-white text-warm-900
               text-sm font-semibold tracking-wide shadow-lg shadow-white/8
-              active:bg-white/90 transition-colors select-none"
+              active:bg-warm-200/90 transition-colors select-none"
           >
             开始训练
           </motion.button>
@@ -63,8 +63,8 @@ export default function ControlButtons({
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.96 }}
             onClick={onPause}
-            className="h-12 px-8 rounded-[24px] bg-white/[0.08] text-slate-200
-              text-sm font-medium border border-white/[0.08]
+            className="h-12 px-8 rounded-[24px] bg-white/[0.08] text-warm-200
+              text-sm font-medium border border-warm-200/[0.08]
               hover:bg-white/[0.12] transition-colors select-none"
           >
             暂停
@@ -74,7 +74,7 @@ export default function ControlButtons({
             whileTap={{ scale: 0.96 }}
             onClick={onStop}
             className="h-12 px-8 rounded-[24px] bg-white/[0.05] text-red-400/70
-              text-sm font-medium border border-white/[0.06]
+              text-sm font-medium border border-warm-200/[0.06]
               hover:bg-white/[0.08] transition-colors select-none"
           >
             停止
@@ -96,9 +96,9 @@ export default function ControlButtons({
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.96 }}
             onClick={onResume}
-            className="h-14 px-10 rounded-[28px] bg-white text-slate-900
+            className="h-14 px-10 rounded-[28px] bg-white text-warm-900
               text-sm font-semibold tracking-wide shadow-lg shadow-white/8
-              active:bg-white/90 transition-colors select-none"
+              active:bg-warm-200/90 transition-colors select-none"
           >
             继续
           </motion.button>
@@ -107,7 +107,7 @@ export default function ControlButtons({
             whileTap={{ scale: 0.96 }}
             onClick={onStop}
             className="h-12 px-6 rounded-[24px] bg-white/[0.05] text-red-400/70
-              text-sm font-medium border border-white/[0.06]
+              text-sm font-medium border border-warm-200/[0.06]
               hover:bg-white/[0.08] transition-colors select-none"
           >
             停止
@@ -135,9 +135,9 @@ export default function ControlButtons({
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.96 }}
             onClick={onRestart}
-            className="h-14 px-10 rounded-[28px] bg-white text-slate-900
+            className="h-14 px-10 rounded-[28px] bg-white text-warm-900
               text-sm font-semibold tracking-wide shadow-lg shadow-white/8
-              active:bg-white/90 transition-colors select-none"
+              active:bg-warm-200/90 transition-colors select-none"
           >
             再来一次
           </motion.button>

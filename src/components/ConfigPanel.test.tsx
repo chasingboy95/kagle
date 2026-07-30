@@ -74,7 +74,7 @@ describe('ConfigPanel', () => {
 
     fireEvent.click(screen.getByRole('button', { name: '日常训练' }));
 
-    expect(screen.getByRole('button', { name: '日常训练' })).toHaveClass('bg-indigo-500/30');
+    expect(screen.getByRole('button', { name: '日常训练' })).toHaveClass('bg-accent/30');
     expect(onChange).toHaveBeenCalledWith({ ...DEFAULT_CONFIG });
   });
 

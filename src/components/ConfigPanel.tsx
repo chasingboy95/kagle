@@ -32,7 +32,7 @@ function Stepper({ label, value, min, max, step, unit, disabled, onChange }: Ste
 
   return (
     <div className="flex items-center justify-between py-1.5">
-      <span className="text-xs text-slate-400 tracking-wide">{label}</span>
+      <span className="text-xs text-warm-400 tracking-wide">{label}</span>
       <div className="flex items-center gap-2.5">
         <motion.button
           type="button"
@@ -40,13 +40,13 @@ function Stepper({ label, value, min, max, step, unit, disabled, onChange }: Ste
           onClick={dec}
           disabled={disabled || value <= min}
           className="min-h-11 min-w-11 rounded-full flex items-center justify-center text-sm
-            bg-white/[0.07] text-slate-300 disabled:opacity-15
+            bg-warm-200/[0.07] text-warm-200 disabled:opacity-15
             active:bg-white/[0.12] transition-colors select-none"
           aria-label={`减少${label}`}
         >
           −
         </motion.button>
-        <span className="w-9 text-center text-sm font-medium text-slate-200 tabular-nums select-none">
+        <span className="w-9 text-center text-sm font-medium text-warm-200 tabular-nums select-none">
           {value}
         </span>
         <motion.button
@@ -55,13 +55,13 @@ function Stepper({ label, value, min, max, step, unit, disabled, onChange }: Ste
           onClick={inc}
           disabled={disabled || value >= max}
           className="min-h-11 min-w-11 rounded-full flex items-center justify-center text-sm
-            bg-white/[0.07] text-slate-300 disabled:opacity-15
+            bg-warm-200/[0.07] text-warm-200 disabled:opacity-15
             active:bg-white/[0.12] transition-colors select-none"
           aria-label={`增加${label}`}
         >
           +
         </motion.button>
-        <span className="text-xs text-slate-600 w-4 tracking-wide">{unit}</span>
+        <span className="text-xs text-warm-500 w-4 tracking-wide">{unit}</span>
       </div>
     </div>
   );
@@ -107,19 +107,19 @@ export default function ConfigPanel({
 
   return (
     <section className="w-full">
-      <div className="border-b border-white/[0.05] px-4 py-3.5">
+      <div className="border-b border-warm-200/[0.05] px-4 py-3.5">
         <span>
-          <span className="block text-xs font-medium tracking-[0.12em] text-slate-500">
+          <span className="block text-xs font-medium tracking-[0.12em] text-warm-400">
             {activePreset ? activePreset.label : '自定义计划'}
           </span>
-          <span className="mt-0.5 block text-sm text-slate-200 tabular-nums">{summary}</span>
+          <span className="mt-0.5 block text-sm text-warm-200 tabular-nums">{summary}</span>
         </span>
       </div>
 
       <div className="space-y-1 px-4 pb-4 pt-2">
         {/* Preset selector */}
         <div className="flex items-center gap-2 py-1.5">
-          <span className="text-xs text-slate-400 tracking-wide flex-shrink-0">预设</span>
+          <span className="text-xs text-warm-400 tracking-wide flex-shrink-0">预设</span>
           <div className="flex gap-1 flex-wrap">
             {TRAINING_PRESETS.map((p) => (
               <motion.button
@@ -130,8 +130,8 @@ export default function ConfigPanel({
                 disabled={disabled}
                 className={`min-h-11 px-3 py-2 rounded-full text-xs font-medium transition-colors select-none
                   ${presetId === p.id
-                    ? 'bg-indigo-500/30 text-indigo-200'
-                    : 'bg-white/[0.06] text-slate-400 hover:bg-white/[0.10] hover:text-slate-300'
+                    ? 'bg-accent/30 text-accent'
+                    : 'bg-warm-200/[0.06] text-warm-400 hover:bg-white/[0.10] hover:text-warm-200'
                   }
                   disabled:opacity-20`}
                 aria-label={p.label}
@@ -141,13 +141,13 @@ export default function ConfigPanel({
             ))}
           </div>
         </div>
-        <p className="text-xs text-slate-600 leading-4">
+        <p className="text-xs text-warm-500 leading-4">
           {activePreset
             ? activePreset.description
             : '自定义节奏模板，不代表医疗建议'}
         </p>
 
-        <div className="h-px bg-white/[0.04] mt-1" />
+        <div className="h-px bg-warm-200/[0.04] mt-1" />
 
         <Stepper
           label="收缩"
@@ -159,7 +159,7 @@ export default function ConfigPanel({
           disabled={disabled}
           onChange={handleParamChange('contractTime')}
         />
-        <div className="h-px bg-white/[0.04]" />
+        <div className="h-px bg-warm-200/[0.04]" />
         <Stepper
           label="保持"
           value={config.holdTime}
@@ -170,7 +170,7 @@ export default function ConfigPanel({
           disabled={disabled}
           onChange={handleParamChange('holdTime')}
         />
-        <div className="h-px bg-white/[0.04]" />
+        <div className="h-px bg-warm-200/[0.04]" />
         <Stepper
           label="放松"
           value={config.relaxTime}
@@ -181,7 +181,7 @@ export default function ConfigPanel({
           disabled={disabled}
           onChange={handleParamChange('relaxTime')}
         />
-        <div className="h-px bg-white/[0.04]" />
+        <div className="h-px bg-warm-200/[0.04]" />
         <Stepper
           label="每组次数"
           value={config.rounds}
@@ -192,10 +192,10 @@ export default function ConfigPanel({
           disabled={disabled}
           onChange={handleParamChange('rounds')}
         />
-        <p className="pt-1 text-right text-xs leading-4 text-slate-600">
+        <p className="pt-1 text-right text-xs leading-4 text-warm-500">
           完成以上次数计为 1 组
         </p>
-        <div className="h-px bg-white/[0.04]" />
+        <div className="h-px bg-warm-200/[0.04]" />
         <Stepper
           label="组数"
           value={config.sets ?? 1}
@@ -206,7 +206,7 @@ export default function ConfigPanel({
           disabled={disabled}
           onChange={handleParamChange('sets')}
         />
-        <div className="h-px bg-white/[0.04]" />
+        <div className="h-px bg-warm-200/[0.04]" />
         <Stepper
           label="组间休息"
           value={config.restBetweenSets ?? 30}
@@ -217,7 +217,7 @@ export default function ConfigPanel({
           disabled={disabled}
           onChange={handleParamChange('restBetweenSets')}
         />
-        <div className="h-px bg-white/[0.04]" />
+        <div className="h-px bg-warm-200/[0.04]" />
         <SavedConfigs
           config={config}
           disabled={disabled}

@@ -87,13 +87,13 @@ export default function TrainingHistory({
           type="button"
           onClick={onClose}
           aria-label="返回训练"
-          className="grid min-h-11 min-w-11 place-items-center rounded-full text-xl text-slate-300 transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300"
+          className="grid min-h-11 min-w-11 place-items-center rounded-full text-xl text-warm-200 transition-colors hover:bg-warm-200/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
         >
           <span aria-hidden="true">‹</span>
         </button>
         <div>
           <h1 className="text-lg font-semibold text-white">训练记录</h1>
-          <p className="text-xs text-slate-400">查看进度、日历和训练详情</p>
+          <p className="text-xs text-warm-400">查看进度、日历和训练详情</p>
         </div>
       </header>
       <WeeklyGoal
@@ -107,7 +107,7 @@ export default function TrainingHistory({
           type="button"
           onClick={() => setView('list')}
           aria-pressed={view === 'list'}
-          className={`min-h-11 rounded-lg py-2 text-sm ${view === 'list' ? 'bg-white/10 text-white' : 'text-slate-500'}`}
+          className={`min-h-11 rounded-lg py-2 text-sm ${view === 'list' ? 'bg-warm-200/10 text-white' : 'text-warm-400'}`}
         >
           列表
         </button>
@@ -115,7 +115,7 @@ export default function TrainingHistory({
           type="button"
           onClick={() => setView('calendar')}
           aria-pressed={view === 'calendar'}
-          className={`min-h-11 rounded-lg py-2 text-sm ${view === 'calendar' ? 'bg-white/10 text-white' : 'text-slate-500'}`}
+          className={`min-h-11 rounded-lg py-2 text-sm ${view === 'calendar' ? 'bg-warm-200/10 text-white' : 'text-warm-400'}`}
         >
           日历
         </button>
@@ -123,7 +123,7 @@ export default function TrainingHistory({
           type="button"
           onClick={() => setView('trend')}
           aria-pressed={view === 'trend'}
-          className={`min-h-11 rounded-lg py-2 text-sm ${view === 'trend' ? 'bg-white/10 text-white' : 'text-slate-500'}`}
+          className={`min-h-11 rounded-lg py-2 text-sm ${view === 'trend' ? 'bg-warm-200/10 text-white' : 'text-warm-400'}`}
         >
           趋势
         </button>
@@ -137,21 +137,21 @@ export default function TrainingHistory({
         <>
       {/* Stats row */}
       <div className="grid grid-cols-2 gap-2 text-center sm:grid-cols-4">
-        <div className="rounded-lg bg-white/5 px-2 py-3">
-          <div className="text-lg font-bold text-indigo-300">{stats.weeklyCompletions}</div>
-          <div className="text-xs text-slate-400 mt-0.5">本周完成</div>
+        <div className="rounded-lg bg-warm-200/5 px-2 py-3">
+          <div className="text-lg font-bold text-accent">{stats.weeklyCompletions}</div>
+          <div className="text-xs text-warm-400 mt-0.5">本周完成</div>
         </div>
-        <div className="rounded-lg bg-white/5 px-2 py-3">
-          <div className="text-lg font-bold text-indigo-300">{stats.streakDays}</div>
-          <div className="text-xs text-slate-400 mt-0.5">连续天数</div>
+        <div className="rounded-lg bg-warm-200/5 px-2 py-3">
+          <div className="text-lg font-bold text-accent">{stats.streakDays}</div>
+          <div className="text-xs text-warm-400 mt-0.5">连续天数</div>
         </div>
-        <div className="rounded-lg bg-white/5 px-2 py-3">
-          <div className="text-lg font-bold text-indigo-300">{stats.totalCompletions}</div>
-          <div className="text-xs text-slate-400 mt-0.5">总次数</div>
+        <div className="rounded-lg bg-warm-200/5 px-2 py-3">
+          <div className="text-lg font-bold text-accent">{stats.totalCompletions}</div>
+          <div className="text-xs text-warm-400 mt-0.5">总次数</div>
         </div>
-        <div className="rounded-lg bg-white/5 px-2 py-3">
-          <div className="text-lg font-bold text-indigo-300">{formatDuration(stats.totalDurationMs)}</div>
-          <div className="text-xs text-slate-400 mt-0.5">累计时长</div>
+        <div className="rounded-lg bg-warm-200/5 px-2 py-3">
+          <div className="text-lg font-bold text-accent">{formatDuration(stats.totalDurationMs)}</div>
+          <div className="text-xs text-warm-400 mt-0.5">累计时长</div>
         </div>
       </div>
 
@@ -166,8 +166,8 @@ export default function TrainingHistory({
                   aria-pressed={statusFilter === value}
                   className={`min-h-11 flex-1 rounded-md py-2 text-xs transition-colors ${
                     statusFilter === value
-                      ? 'bg-white/10 text-white'
-                      : 'text-slate-500 hover:text-slate-300'
+                      ? 'bg-warm-200/10 text-white'
+                      : 'text-warm-400 hover:text-warm-200'
                   }`}
                 >
                   {label}
@@ -177,7 +177,7 @@ export default function TrainingHistory({
           )}
       {/* Records list */}
       {filteredRecords.length === 0 ? (
-        <p className="text-sm text-slate-500 text-center py-8">
+        <p className="text-sm text-warm-400 text-center py-8">
           {records.length === 0
             ? '暂无训练记录'
             : statusFilter === 'completed'
@@ -191,12 +191,12 @@ export default function TrainingHistory({
               type="button"
               key={r.id}
               onClick={() => setSelectedRecordId(r.id)}
-              className="flex min-h-11 w-full items-center justify-between rounded-lg bg-white/5 px-3 py-2.5 text-left transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300"
+              className="flex min-h-11 w-full items-center justify-between rounded-lg bg-warm-200/5 px-3 py-2.5 text-left transition-colors hover:bg-warm-200/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
               aria-label={`查看 ${formatDate(r.endedAt)} 训练记录详情`}
             >
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-slate-200 truncate">
+                  <span className="text-sm text-warm-200 truncate">
                     {formatDate(r.endedAt)}
                   </span>
                   {r.status === 'stopped' && (
@@ -205,11 +205,11 @@ export default function TrainingHistory({
                     </span>
                   )}
                 </div>
-                <div className="text-xs text-slate-400 mt-0.5">
+                <div className="text-xs text-warm-400 mt-0.5">
                   {r.completedReps}/{r.targetReps}次 · {formatDuration(r.actualDurationMs)}
                 </div>
               </div>
-              <span aria-hidden="true" className="ml-2 shrink-0 text-slate-500">›</span>
+              <span aria-hidden="true" className="ml-2 shrink-0 text-warm-400">›</span>
             </button>
           ))}
         </div>

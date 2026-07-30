@@ -28,19 +28,19 @@ export default function ConfirmClearAllDialog({
         aria-modal="true"
         aria-labelledby="clear-all-dialog-title"
         aria-describedby="clear-all-dialog-desc"
-        className="mx-4 w-full max-w-sm rounded-2xl border border-white/[0.06] bg-slate-900 p-6 shadow-xl"
+        className="mx-4 w-full max-w-sm rounded-2xl border border-warm-200/[0.06] bg-warm-900 p-6 shadow-xl"
       >
         <h2
           id="clear-all-dialog-title"
-          className="text-lg font-semibold text-slate-100"
+          className="text-lg font-semibold text-warm-100"
         >
           清除全部记录
         </h2>
 
-        <p id="clear-all-dialog-desc" className="mt-2 text-sm leading-5 text-slate-400">
+        <p id="clear-all-dialog-desc" className="mt-2 text-sm leading-5 text-warm-400">
           {desc}
         </p>
-        <p className="mt-1 text-xs leading-4 text-slate-500">
+        <p className="mt-1 text-xs leading-4 text-warm-400">
           清除前将自动备份当前数据，您可通过「数据备份与恢复」功能还原。
         </p>
 
@@ -49,7 +49,7 @@ export default function ConfirmClearAllDialog({
             type="button"
             onClick={onCancel}
             data-autofocus
-            className="flex-1 rounded-lg bg-white/10 py-2 text-sm font-medium text-slate-300 transition-colors hover:bg-white/15"
+            className="flex-1 rounded-lg bg-warm-200/10 py-2 text-sm font-medium text-warm-200 transition-colors hover:bg-warm-200/15"
           >
             取消
           </button>

@@ -21,9 +21,9 @@ export default function ProgressiveSuggestion({
 
   if (isSame) {
     return (
-      <div className="w-full max-w-sm mx-auto rounded-xl bg-slate-500/10 border border-slate-500/20 p-4">
-        <p className="text-sm text-slate-400 leading-relaxed">
-          <span className="text-slate-300 font-medium">训练提示</span>
+      <div className="w-full max-w-sm mx-auto rounded-xl bg-warm-500/10 border border-warm-500/20 p-4">
+        <p className="text-sm text-warm-400 leading-relaxed">
+          <span className="text-warm-200 font-medium">训练提示</span>
           {' '}{suggestion.reason}
         </p>
       </div>
@@ -34,25 +34,25 @@ export default function ProgressiveSuggestion({
     <div className={`w-full max-w-sm mx-auto rounded-xl p-4 space-y-3 ${
       isDowngrade
         ? 'bg-amber-500/10 border border-amber-500/20'
-        : 'bg-indigo-500/10 border border-indigo-500/20'
+        : 'bg-accent/10 border border-accent/20'
     }`}>
-      <p className="text-sm text-slate-300 leading-relaxed">
+      <p className="text-sm text-warm-200 leading-relaxed">
         <span className={`font-medium ${
-          isDowngrade ? 'text-amber-300' : 'text-indigo-300'
+          isDowngrade ? 'text-amber-300' : 'text-accent'
         }`}>
           {isDowngrade ? '训练调整' : '训练建议'}
         </span>
         {' '}{suggestion.reason}
       </p>
       <div className="flex items-center gap-2 text-xs">
-        <span className="text-slate-500">
+        <span className="text-warm-400">
           {LABEL_MAP[suggestion.changedKey] || suggestion.changedKey}
           {': '}
           {suggestion.before[suggestion.changedKey]}
         </span>
-        <span className={isDowngrade ? 'text-amber-400' : 'text-indigo-400'}>→</span>
+        <span className={isDowngrade ? 'text-amber-400' : 'text-accent'}>→</span>
         <span className={`font-semibold ${
-          isDowngrade ? 'text-amber-300' : 'text-indigo-300'
+          isDowngrade ? 'text-amber-300' : 'text-accent'
         }`}>
           {suggestion.after[suggestion.changedKey]}
         </span>
@@ -63,20 +63,20 @@ export default function ProgressiveSuggestion({
           className={`flex-1 rounded-lg py-2 text-sm font-medium transition-colors ${
             isDowngrade
               ? 'bg-amber-500/20 text-amber-300 hover:bg-amber-500/30'
-              : 'bg-indigo-500/20 text-indigo-300 hover:bg-indigo-500/30'
+              : 'bg-accent/20 text-accent hover:bg-accent/30'
           }`}
         >
           {isDowngrade ? '采纳调整' : '接受建议'}
         </button>
         <button
           onClick={() => onAction('ignore')}
-          className="flex-1 rounded-lg bg-white/5 text-slate-400 py-2 text-sm font-medium hover:bg-white/10 transition-colors"
+          className="flex-1 rounded-lg bg-warm-200/5 text-warm-400 py-2 text-sm font-medium hover:bg-warm-200/10 transition-colors"
         >
           暂不考虑
         </button>
         <button
           onClick={() => onAction('dismiss')}
-          className="px-3 rounded-lg bg-white/5 text-slate-500 py-2 text-sm hover:bg-white/10 transition-colors"
+          className="px-3 rounded-lg bg-warm-200/5 text-warm-400 py-2 text-sm hover:bg-warm-200/10 transition-colors"
         >
           不再提示
         </button>

@@ -56,7 +56,7 @@ export default function TrainingRecordDetail({
         <button
           type="button"
           onClick={onBack}
-          className="rounded-lg bg-white/[0.06] px-3 py-2 text-sm text-slate-300 hover:bg-white/10"
+          className="rounded-lg bg-warm-200/[0.06] px-3 py-2 text-sm text-warm-200 hover:bg-warm-200/10"
         >
           返回记录
         </button>
@@ -69,36 +69,36 @@ export default function TrainingRecordDetail({
         </span>
       </header>
 
-      <div className="rounded-2xl border border-white/[0.06] bg-white/[0.03] p-4">
-        <h2 id="record-detail-title" className="text-lg font-semibold text-slate-100">训练记录详情</h2>
-        <p className="mt-1 text-xs text-slate-500">
+      <div className="rounded-2xl border border-warm-200/[0.06] bg-warm-200/[0.03] p-4">
+        <h2 id="record-detail-title" className="text-lg font-semibold text-warm-100">训练记录详情</h2>
+        <p className="mt-1 text-xs text-warm-400">
           {preset ? `预设 · ${preset.label}` : '自定义配置'}
         </p>
 
         <dl className="mt-4 divide-y divide-white/[0.05]">
           <div className="flex justify-between gap-4 py-3">
-            <dt className="text-sm text-slate-500">开始时间</dt>
-            <dd className="text-right text-sm text-slate-200">{formatDateTime(record.startedAt)}</dd>
+            <dt className="text-sm text-warm-400">开始时间</dt>
+            <dd className="text-right text-sm text-warm-200">{formatDateTime(record.startedAt)}</dd>
           </div>
           <div className="flex justify-between gap-4 py-3">
-            <dt className="text-sm text-slate-500">结束时间</dt>
-            <dd className="text-right text-sm text-slate-200">{formatDateTime(record.endedAt)}</dd>
+            <dt className="text-sm text-warm-400">结束时间</dt>
+            <dd className="text-right text-sm text-warm-200">{formatDateTime(record.endedAt)}</dd>
           </div>
           <div className="flex justify-between gap-4 py-3">
-            <dt className="text-sm text-slate-500">训练节奏</dt>
-            <dd className="text-right text-sm text-slate-200">
+            <dt className="text-sm text-warm-400">训练节奏</dt>
+            <dd className="text-right text-sm text-warm-200">
               收缩 {record.contractSec}秒 · 保持 {record.holdSec}秒 · 放松 {record.relaxSec}秒
             </dd>
           </div>
           <div className="flex justify-between gap-4 py-3">
-            <dt className="text-sm text-slate-500">目标与完成</dt>
-            <dd className="text-right text-sm text-slate-200">
+            <dt className="text-sm text-warm-400">目标与完成</dt>
+            <dd className="text-right text-sm text-warm-200">
               {record.completedReps} / {record.targetReps} 次
             </dd>
           </div>
           <div className="flex justify-between gap-4 py-3">
-            <dt className="text-sm text-slate-500">实际活动时长</dt>
-            <dd className="text-right text-sm text-slate-200">{formatDuration(record.actualDurationMs)}</dd>
+            <dt className="text-sm text-warm-400">实际活动时长</dt>
+            <dd className="text-right text-sm text-warm-200">{formatDuration(record.actualDurationMs)}</dd>
           </div>
         </dl>
       </div>
@@ -110,7 +110,7 @@ export default function TrainingRecordDetail({
             <button
               type="button"
               onClick={() => setConfirmingDelete(false)}
-              className="flex-1 rounded-lg bg-white/10 py-2 text-sm text-slate-200"
+              className="flex-1 rounded-lg bg-warm-200/10 py-2 text-sm text-warm-200"
             >
               取消
             </button>

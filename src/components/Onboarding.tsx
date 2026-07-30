@@ -61,7 +61,7 @@ export default function Onboarding({ onComplete }: Props) {
           initial={reducedMotion ? false : { opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: reducedMotion ? 0 : 0.25 }}
-          className="w-full max-w-sm bg-slate-900 border border-white/[0.08] rounded-2xl px-6 py-6 space-y-5"
+          className="w-full max-w-sm bg-warm-900 border border-warm-200/[0.08] rounded-2xl px-6 py-6 space-y-5"
         >
           {/* Page indicator */}
           <div
@@ -73,17 +73,17 @@ export default function Onboarding({ onComplete }: Props) {
               <div
                 key={i}
                 className={`w-1.5 h-1.5 rounded-full transition-colors ${
-                  i === page ? 'bg-indigo-400' : 'bg-white/15'
+                  i === page ? 'bg-accent' : 'bg-warm-200/15'
                 }`}
               />
             ))}
           </div>
 
-          <h2 id="onboarding-title" className="text-lg font-semibold text-slate-100 text-center">
+          <h2 id="onboarding-title" className="text-lg font-semibold text-warm-100 text-center">
             {PAGES[page].title}
           </h2>
 
-          <p id="onboarding-body" className="text-sm text-slate-400 leading-relaxed whitespace-pre-line text-center">
+          <p id="onboarding-body" className="text-sm text-warm-400 leading-relaxed whitespace-pre-line text-center">
             {PAGES[page].body}
           </p>
 
@@ -91,7 +91,7 @@ export default function Onboarding({ onComplete }: Props) {
             <button
               type="button"
               onClick={close}
-              className="flex-1 py-2.5 rounded-lg text-sm font-medium text-slate-500 hover:text-slate-300 transition-colors"
+              className="flex-1 py-2.5 rounded-lg text-sm font-medium text-warm-400 hover:text-warm-200 transition-colors"
             >
               跳过
             </button>
@@ -99,7 +99,7 @@ export default function Onboarding({ onComplete }: Props) {
               type="button"
               onClick={next}
               data-autofocus
-              className="flex-1 py-2.5 rounded-lg text-sm font-medium bg-indigo-500/30 text-indigo-200 hover:bg-indigo-500/40 transition-colors"
+              className="flex-1 py-2.5 rounded-lg text-sm font-medium bg-accent/30 text-accent hover:bg-accent/40 transition-colors"
             >
               {isLast ? '开始训练' : '下一步'}
             </button>

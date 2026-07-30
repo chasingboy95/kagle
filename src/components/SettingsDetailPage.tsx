@@ -15,13 +15,13 @@ export default function SettingsDetailPage({ title, description, onBack, childre
           type="button"
           aria-label="返回设置"
           onClick={onBack}
-          className="grid min-h-11 min-w-11 place-items-center rounded-full text-xl text-slate-300 hover:bg-white/10"
+          className="grid min-h-11 min-w-11 place-items-center rounded-full text-xl text-warm-200 hover:bg-warm-200/10"
         >
           <span aria-hidden="true">‹</span>
         </button>
         <div className="pt-1">
           <h1 className="text-lg font-semibold text-white">{title}</h1>
-          <p className="mt-0.5 text-xs leading-5 text-slate-500">{description}</p>
+          <p className="mt-0.5 text-xs leading-5 text-warm-400">{description}</p>
         </div>
       </header>
       {children}

@@ -132,23 +132,23 @@ export default function DataManagement({
   };
 
   return (
-    <section className="w-full rounded-2xl border border-white/[0.06] bg-white/[0.03]">
+    <section className="w-full rounded-2xl border border-warm-200/[0.06] bg-warm-200/[0.03]">
       <div className="space-y-4 px-4 py-4">
         <div>
-          <p className="text-xs leading-5 text-slate-500">
+          <p className="text-xs leading-5 text-warm-400">
             导出设置与训练记录为版本化 JSON 文件，不会上传到云端。
           </p>
           <button
             type="button"
             onClick={exportData}
             disabled={disabled}
-            className="mt-2 rounded-lg bg-white/[0.07] px-3 py-2 text-xs font-medium text-slate-200 disabled:opacity-30"
+            className="mt-2 rounded-lg bg-warm-200/[0.07] px-3 py-2 text-xs font-medium text-warm-200 disabled:opacity-30"
           >
             导出本地数据
           </button>
         </div>
 
-        <div className="border-t border-white/[0.05] pt-3">
+        <div className="border-t border-warm-200/[0.05] pt-3">
           <input
             ref={inputRef}
             type="file"
@@ -161,7 +161,7 @@ export default function DataManagement({
             type="button"
             onClick={() => inputRef.current?.click()}
             disabled={disabled}
-            className="rounded-lg bg-white/[0.07] px-3 py-2 text-xs font-medium text-slate-200 disabled:opacity-30"
+            className="rounded-lg bg-warm-200/[0.07] px-3 py-2 text-xs font-medium text-warm-200 disabled:opacity-30"
           >
             选择备份文件
           </button>
@@ -170,7 +170,7 @@ export default function DataManagement({
               type="button"
               onClick={chooseAutomaticBackup}
               disabled={disabled}
-              className="ml-2 rounded-lg bg-white/[0.07] px-3 py-2 text-xs font-medium text-slate-200 disabled:opacity-30"
+              className="ml-2 rounded-lg bg-warm-200/[0.07] px-3 py-2 text-xs font-medium text-warm-200 disabled:opacity-30"
             >
               恢复上次导入前备份
             </button>
@@ -180,32 +180,32 @@ export default function DataManagement({
               type="button"
               onClick={chooseClearAllBackup}
               disabled={disabled}
-              className="ml-2 rounded-lg bg-white/[0.07] px-3 py-2 text-xs font-medium text-slate-200 disabled:opacity-30"
+              className="ml-2 rounded-lg bg-warm-200/[0.07] px-3 py-2 text-xs font-medium text-warm-200 disabled:opacity-30"
             >
               恢复清除前备份
             </button>
           )}
-          {fileName && <span className="ml-2 text-[10px] text-slate-500">{fileName}</span>}
+          {fileName && <span className="ml-2 text-[10px] text-warm-400">{fileName}</span>}
         </div>
 
         {preview && (
-          <section aria-labelledby="import-preview-title" className="space-y-3 rounded-xl bg-white/[0.035] p-3">
+          <section aria-labelledby="import-preview-title" className="space-y-3 rounded-xl bg-warm-200/[0.035] p-3">
             <div>
-              <h3 id="import-preview-title" className="text-xs font-medium text-slate-200">
+              <h3 id="import-preview-title" className="text-xs font-medium text-warm-200">
                 导入摘要
               </h3>
-              <dl className="mt-2 grid grid-cols-2 gap-2 text-[10px] text-slate-500">
-                <div><dt>备份版本</dt><dd className="text-slate-300">v{preview.schemaVersion}</dd></div>
-                <div><dt>导出时间</dt><dd className="text-slate-300">{new Date(preview.exportedAt).toLocaleString()}</dd></div>
-                <div><dt>训练配置</dt><dd className="text-slate-300">{preview.trainingSummary}</dd></div>
-                <div><dt>配置收藏</dt><dd className="text-slate-300">{preview.savedConfigCount} 个</dd></div>
-                <div><dt>完成记录</dt><dd className="text-slate-300">{preview.completedCount} 条</dd></div>
-                <div><dt>中止记录</dt><dd className="text-slate-300">{preview.stoppedCount} 条</dd></div>
+              <dl className="mt-2 grid grid-cols-2 gap-2 text-[10px] text-warm-400">
+                <div><dt>备份版本</dt><dd className="text-warm-200">v{preview.schemaVersion}</dd></div>
+                <div><dt>导出时间</dt><dd className="text-warm-200">{new Date(preview.exportedAt).toLocaleString()}</dd></div>
+                <div><dt>训练配置</dt><dd className="text-warm-200">{preview.trainingSummary}</dd></div>
+                <div><dt>配置收藏</dt><dd className="text-warm-200">{preview.savedConfigCount} 个</dd></div>
+                <div><dt>完成记录</dt><dd className="text-warm-200">{preview.completedCount} 条</dd></div>
+                <div><dt>中止记录</dt><dd className="text-warm-200">{preview.stoppedCount} 条</dd></div>
               </dl>
             </div>
 
             <fieldset className="space-y-2">
-              <legend className="text-xs font-medium text-slate-300">导入方式</legend>
+              <legend className="text-xs font-medium text-warm-200">导入方式</legend>
               {STRATEGIES.map((option) => (
                 <label key={option.id} className="flex cursor-pointer items-start gap-2">
                   <input
@@ -218,21 +218,21 @@ export default function DataManagement({
                     className="mt-0.5"
                   />
                   <span>
-                    <span className="block text-xs text-slate-300">{option.label}</span>
-                    <span className="block text-[10px] leading-4 text-slate-600">{option.description}</span>
+                    <span className="block text-xs text-warm-200">{option.label}</span>
+                    <span className="block text-[10px] leading-4 text-warm-500">{option.description}</span>
                   </span>
                 </label>
               ))}
             </fieldset>
 
-            <p className="text-[10px] leading-4 text-slate-500">
+            <p className="text-[10px] leading-4 text-warm-400">
               导入前会自动保存本机数据；文件校验失败时不会写入任何内容。
             </p>
             <button
               type="button"
               onClick={importData}
               disabled={disabled}
-              className="w-full rounded-lg bg-indigo-500/20 py-2 text-xs font-medium text-indigo-200 disabled:opacity-30"
+              className="w-full rounded-lg bg-accent/20 py-2 text-xs font-medium text-accent disabled:opacity-30"
             >
               确认导入
             </button>

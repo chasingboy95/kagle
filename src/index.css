@@ -1,5 +1,22 @@
 @import "tailwindcss";
 
+/* Warm Breath palette — kegel training app */
+@theme {
+  --color-warm-50: #faf6f2;
+  --color-warm-100: #f0e8e0;
+  --color-warm-200: #e6ded8;
+  --color-warm-300: #c4b8ae;
+  --color-warm-400: #9b8c82;
+  --color-warm-500: #6b5e56;
+  --color-warm-600: #4a3e38;
+  --color-warm-700: #332a26;
+  --color-warm-800: #251e20;
+  --color-warm-900: #1b1518;
+  --color-warm-950: #140f12;
+  --color-accent: #e8944a;
+  --color-accent-soft: #d4726a;
+}
+
 :root {
   --safe-area-top: env(safe-area-inset-top);
   --safe-area-bottom: env(safe-area-inset-bottom);
@@ -15,7 +32,7 @@ body,
   min-height: 0;
   margin: 0;
   overflow: hidden;
-  background: #111827;
+  background: var(--color-warm-900);
 }
 
 body {
@@ -39,7 +56,7 @@ body {
 }
 
 :where(button, a, input, select, summary, [role="button"]):focus-visible {
-  outline: 2px solid #a5b4fc;
+  outline: 2px solid var(--color-accent);
   outline-offset: 2px;
 }
 

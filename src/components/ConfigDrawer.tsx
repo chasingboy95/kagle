@@ -47,17 +47,17 @@ export default function ConfigDrawer({ config, savedConfigs, onApply, onSaveConf
         aria-label="调整训练计划"
         tabIndex={-1}
         onClick={(e) => e.stopPropagation()}
-        className="bottom-sheet flex max-h-[85vh] w-full max-w-lg flex-col rounded-t-2xl border-t border-white/[0.06] bg-slate-900"
+        className="bottom-sheet flex max-h-[85vh] w-full max-w-lg flex-col rounded-t-2xl border-t border-warm-200/[0.06] bg-warm-900"
       >
-        <div aria-hidden="true" className="mx-auto mt-2 h-1 w-10 shrink-0 rounded-full bg-white/20" />
-        <div className="flex items-center justify-between border-b border-white/[0.05] px-5 py-3">
-          <h2 className="text-sm font-semibold text-slate-200">调整训练计划</h2>
+        <div aria-hidden="true" className="mx-auto mt-2 h-1 w-10 shrink-0 rounded-full bg-warm-200/20" />
+        <div className="flex items-center justify-between border-b border-warm-200/[0.05] px-5 py-3">
+          <h2 className="text-sm font-semibold text-warm-200">调整训练计划</h2>
           <button
             type="button"
             onClick={requestClose}
             data-autofocus
             aria-label="关闭训练计划"
-            className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/5 text-lg text-slate-400 hover:bg-white/10"
+            className="flex h-11 w-11 items-center justify-center rounded-xl bg-warm-200/5 text-lg text-warm-400 hover:bg-warm-200/10"
           >
             ×
           </button>
@@ -65,8 +65,8 @@ export default function ConfigDrawer({ config, savedConfigs, onApply, onSaveConf
 
         {confirmClose ? (
           <section className="px-5 py-8 text-center" aria-labelledby="discard-plan-title">
-            <h3 id="discard-plan-title" className="text-base font-semibold text-slate-100">放弃未应用的修改？</h3>
-            <p className="mt-2 text-sm leading-6 text-slate-400">训练计划尚未应用，关闭后本次修改不会保留。</p>
+            <h3 id="discard-plan-title" className="text-base font-semibold text-warm-100">放弃未应用的修改？</h3>
+            <p className="mt-2 text-sm leading-6 text-warm-400">训练计划尚未应用，关闭后本次修改不会保留。</p>
             <div className="mt-6 grid grid-cols-2 gap-3">
               <button
                 type="button"
@@ -79,7 +79,7 @@ export default function ConfigDrawer({ config, savedConfigs, onApply, onSaveConf
                 type="button"
                 autoFocus
                 onClick={() => setConfirmClose(false)}
-                className="h-11 rounded-xl bg-white/10 text-sm font-medium text-slate-100 hover:bg-white/15"
+                className="h-11 rounded-xl bg-warm-200/10 text-sm font-medium text-warm-100 hover:bg-warm-200/15"
               >
                 继续编辑
               </button>
@@ -98,18 +98,18 @@ export default function ConfigDrawer({ config, savedConfigs, onApply, onSaveConf
                 onDeleteConfig={onDeleteConfig}
               />
             </div>
-            <div className="grid grid-cols-2 gap-3 border-t border-white/[0.05] px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-4">
+            <div className="grid grid-cols-2 gap-3 border-t border-warm-200/[0.05] px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-4">
               <button
                 type="button"
                 onClick={requestClose}
-                className="h-11 rounded-xl bg-white/[0.06] text-sm font-medium text-slate-300 hover:bg-white/10"
+                className="h-11 rounded-xl bg-warm-200/[0.06] text-sm font-medium text-warm-200 hover:bg-warm-200/10"
               >
                 取消
               </button>
               <button
                 type="button"
                 onClick={apply}
-                className="h-11 rounded-xl bg-indigo-500 text-sm font-semibold text-white hover:bg-indigo-400"
+                className="h-11 rounded-xl bg-accent text-sm font-semibold text-white hover:bg-accent"
               >
                 应用此计划
               </button>

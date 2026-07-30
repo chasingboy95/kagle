@@ -15,7 +15,7 @@ export default function TrainingStatus({
 }: Props) {
   return (
     <div className="text-center" aria-live="polite" aria-atomic="true">
-      <h1 className="text-sm font-semibold tracking-[0.15em] text-slate-300/90">
+      <h1 className="text-sm font-semibold tracking-[0.15em] text-warm-200/90">
         Kegel Training
       </h1>
       <div className="mt-1.5 flex items-center justify-center gap-1.5">
@@ -24,7 +24,7 @@ export default function TrainingStatus({
             key="running"
             initial={{ opacity: 0, y: 2 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-[10px] tracking-wider text-slate-500"
+            className="text-[10px] tracking-wider text-warm-400"
           >
             第 {currentRepetition} / {totalRepetitions} 次
           </motion.span>
@@ -33,7 +33,7 @@ export default function TrainingStatus({
             key="ready"
             initial={{ opacity: 0, y: 2 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-[10px] tracking-wider text-slate-500"
+            className="text-[10px] tracking-wider text-warm-400"
           >
             准备开始
           </motion.span>

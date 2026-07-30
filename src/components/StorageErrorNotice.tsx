@@ -22,7 +22,7 @@ export default function StorageErrorNotice({ errors, onDismiss }: Props) {
   return (
     <div
       role="alert"
-      className="fixed left-4 right-4 top-4 z-50 mx-auto max-w-sm rounded-xl border border-amber-400/20 bg-slate-900/95 px-4 py-3 text-sm text-amber-100 shadow-xl"
+      className="fixed left-4 right-4 top-4 z-50 mx-auto max-w-sm rounded-xl border border-amber-400/20 bg-warm-900/95 px-4 py-3 text-sm text-amber-100 shadow-xl"
     >
       <div className="flex items-start gap-3">
         <div className="flex-1 min-w-0">
@@ -62,7 +62,7 @@ export default function StorageErrorNotice({ errors, onDismiss }: Props) {
             <button
               type="button"
               onClick={primary.retry}
-              className="rounded-md px-2 py-1 text-xs font-medium text-amber-300 hover:bg-white/10"
+              className="rounded-md px-2 py-1 text-xs font-medium text-amber-300 hover:bg-warm-200/10"
             >
               重试
             </button>
@@ -70,7 +70,7 @@ export default function StorageErrorNotice({ errors, onDismiss }: Props) {
           <button
             type="button"
             onClick={onDismiss}
-            className="rounded-md px-2 py-1 text-xs font-medium text-amber-300 hover:bg-white/10"
+            className="rounded-md px-2 py-1 text-xs font-medium text-amber-300 hover:bg-warm-200/10"
           >
             知道了
           </button>

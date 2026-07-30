@@ -283,7 +283,7 @@ export default function App() {
       )}
 
       <div
-        className="app-shell relative bg-gradient-to-b from-[#020617] via-slate-900 to-[#111827] flex flex-col items-center selection:bg-white/10"
+        className="app-shell relative bg-gradient-to-b from-warm-950 via-warm-900 to-warm-900 flex flex-col items-center selection:bg-warm-200/10"
         aria-hidden={hasModal || undefined}
         inert={hasModal || undefined}
         data-reduced-motion={reducedMotion ? 'true' : 'false'}
@@ -298,7 +298,7 @@ export default function App() {
               : { duration: 25, repeat: Infinity, ease: 'easeInOut' }}
             className="absolute -top-1/4 -left-1/4 w-[150%] h-[150%]"
             style={{
-              background: 'radial-gradient(ellipse 60% 50% at 50% 30%, rgba(99,102,241,0.06), transparent 70%)',
+              background: 'radial-gradient(ellipse 60% 50% at 50% 30%, rgba(232,148,74,0.06), transparent 70%)',
             }}
           />
         </div>
@@ -307,7 +307,7 @@ export default function App() {
           <main className="relative z-10 w-full max-w-sm flex-1 px-5 pb-6 pt-[max(1rem,env(safe-area-inset-top))]">
             <Suspense fallback={
               <div className="flex items-center justify-center py-20">
-                <div className="h-6 w-6 animate-pulse rounded-full bg-slate-700" />
+                <div className="h-6 w-6 animate-pulse rounded-full bg-warm-600" />
               </div>
             }>
               <TrainingHistory
@@ -368,7 +368,7 @@ export default function App() {
             <div className="flex flex-col items-center w-full max-w-sm px-5 flex-1">
           {isIdle && (
             <div className="w-full pt-6 pb-2">
-              <h1 className="text-sm font-semibold text-slate-300">盆底肌训练</h1>
+              <h1 className="text-sm font-semibold text-warm-200">盆底肌训练</h1>
             </div>
           )}
 
@@ -382,7 +382,7 @@ export default function App() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -8 }}
                   transition={{ duration: 0.25 }}
-                  className="text-base font-semibold tracking-wide text-slate-200/90"
+                  className="text-base font-semibold tracking-wide text-warm-200/90"
                 >
                   {actionHint(state.phase)}
                 </motion.div>
@@ -392,7 +392,7 @@ export default function App() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="text-base font-semibold text-slate-400/60"
+                  className="text-base font-semibold text-warm-400/60"
                 >
                   准备开始
                 </motion.div>
@@ -402,7 +402,7 @@ export default function App() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="text-base font-semibold text-slate-400/60"
+                  className="text-base font-semibold text-warm-400/60"
                 >
                   {actionHint(state.phase) || ''}
                 </motion.div>
@@ -422,7 +422,7 @@ export default function App() {
                 >
                   <Suspense fallback={
                     <div className="flex items-center justify-center py-20">
-                      <div className="h-6 w-6 animate-pulse rounded-full bg-slate-700" />
+                      <div className="h-6 w-6 animate-pulse rounded-full bg-warm-600" />
                     </div>
                   }>
                     <TrainingFeedback
@@ -489,7 +489,7 @@ export default function App() {
                       <button
                         type="button"
                         onClick={reenableProgressiveSuggestions}
-                        className="w-full rounded-lg bg-white/5 text-slate-500 py-2 text-xs font-medium hover:bg-white/10 transition-colors"
+                        className="w-full rounded-lg bg-warm-200/5 text-warm-400 py-2 text-xs font-medium hover:bg-warm-200/10 transition-colors"
                       >
                         重新开启渐进建议
                       </button>
