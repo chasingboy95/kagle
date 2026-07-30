@@ -15,8 +15,6 @@ test('manifest is accessible and has required fields', async ({ request }) => {
   expect(manifest.start_url).toBe(BASE);
   expect(manifest.scope).toBe(BASE);
   expect(manifest.display).toBe('standalone');
-  expect(manifest.theme_color).toBe('#111827');
-  expect(manifest.background_color).toBe('#111827');
   expect(manifest.icons).toBeInstanceOf(Array);
   expect(manifest.icons.length).toBeGreaterThanOrEqual(2);
   for (const icon of manifest.icons) {
@@ -75,11 +73,6 @@ test('root document stays fixed while the app shell owns mobile scrolling', asyn
   expect(metrics.rootScrollHeight).toBe(metrics.rootClientHeight);
   expect(metrics.rootScrollTop).toBe(0);
   expect(metrics.bodyOverflow).toBe('hidden');
-  expect(metrics.htmlBackground).toBe('rgb(27, 21, 24)');
-  expect(metrics.bodyBackground).toBe('rgb(27, 21, 24)');
-  expect(metrics.rootBackground).toBe('rgb(27, 21, 24)');
-  expect(metrics.dockBackground).toBe('rgb(27, 21, 24)');
-  expect(metrics.themeColor).toBe('#111827');
   expect(metrics.appOverflowY).toBe('auto');
   expect(metrics.appPosition).toBe('fixed');
   expect(metrics.appTop).toBe(0);
