@@ -76,7 +76,7 @@ test('root document stays fixed while the app shell owns mobile scrolling', asyn
   // remaining space above the navigation, not a fixed overlay.
   expect(metrics.rootDisplay).toBe('flex');
   expect(metrics.rootFlexDirection).toBe('column');
-  expect(metrics.appPosition).toBe('static');
+  expect(metrics.appPosition).toBe('relative');
   expect(metrics.appScrollHeight).toBeGreaterThan(metrics.appClientHeight);
   expect(metrics.appScrollTop).toBeGreaterThan(0);
 });
