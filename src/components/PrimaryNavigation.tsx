@@ -14,7 +14,7 @@ const items: Array<{ page: PrimaryPage; label: string }> = [
 function NavigationIcon({ page }: { page: PrimaryPage }) {
   if (page === 'training') {
     return (
-      <svg aria-hidden="true" className="size-6" viewBox="0 0 24 24" fill="none">
+      <svg aria-hidden="true" className="size-5" viewBox="0 0 24 24" fill="none">
         <circle cx="12" cy="12" r="7.5" stroke="currentColor" strokeWidth="1.7" />
         <circle cx="12" cy="12" r="2.5" stroke="currentColor" strokeWidth="1.7" />
       </svg>
@@ -23,7 +23,7 @@ function NavigationIcon({ page }: { page: PrimaryPage }) {
 
   if (page === 'records') {
     return (
-      <svg aria-hidden="true" className="size-6" viewBox="0 0 24 24" fill="none">
+      <svg aria-hidden="true" className="size-5" viewBox="0 0 24 24" fill="none">
         <path
           d="M7 4.75h10A2.25 2.25 0 0 1 19.25 7v10A2.25 2.25 0 0 1 17 19.25H7A2.25 2.25 0 0 1 4.75 17V7A2.25 2.25 0 0 1 7 4.75Z"
           stroke="currentColor"
@@ -35,7 +35,7 @@ function NavigationIcon({ page }: { page: PrimaryPage }) {
   }
 
   return (
-    <svg aria-hidden="true" className="size-6" viewBox="0 0 24 24" fill="none">
+    <svg aria-hidden="true" className="size-5" viewBox="0 0 24 24" fill="none">
       <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.7" />
       <path
         d="M19 12a7.1 7.1 0 0 0-.08-1l1.57-1.22-1.8-3.12-1.86.75a7.2 7.2 0 0 0-1.72-1L14.82 4h-3.6l-.29 2.4a7.2 7.2 0 0 0-1.72 1l-1.86-.75-1.8 3.12L7.12 11a7.1 7.1 0 0 0 0 2l-1.57 1.22 1.8 3.12 1.86-.75a7.2 7.2 0 0 0 1.72 1l.29 2.4h3.6l.29-2.4a7.2 7.2 0 0 0 1.72-1l1.86.75 1.8-3.12L18.92 13c.05-.33.08-.66.08-1Z"
@@ -54,7 +54,7 @@ export default function PrimaryNavigation({ current, onNavigate }: Props) {
       aria-label="主要导航"
       className="fixed inset-x-0 bottom-0 z-20 w-full bg-warm-900 pb-[var(--safe-area-bottom)]"
     >
-      <div className="primary-navigation-content mx-auto grid h-12 w-full max-w-sm grid-cols-3 px-3">
+      <div className="primary-navigation-content mx-auto grid h-11 w-full max-w-sm grid-cols-3 px-3">
         {items.map(({ page, label }) => {
           const selected = current === page;
           return (
