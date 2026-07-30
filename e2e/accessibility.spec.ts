@@ -169,7 +169,7 @@ test('bottom navigation owns the safe area once and stays visually compact', asy
   ]);
   expect(buttonBox).not.toBeNull();
   expect(navigationBox).not.toBeNull();
-  expect(Math.round(navigationBox!.y - (buttonBox!.y + buttonBox!.height))).toBe(24);
+  expect(Math.round(navigationBox!.y - (buttonBox!.y + buttonBox!.height))).toBe(16);
 
   await startButton.click();
   await expect(navigation).toBeHidden();

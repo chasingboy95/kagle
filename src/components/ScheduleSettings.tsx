@@ -65,7 +65,7 @@ export default function ScheduleSettings({
                 className={`flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-xl text-xs font-medium transition-colors ${
                   settings.daysOfWeek.includes(index)
                     ? 'bg-accent/30 text-accent'
-                    : 'bg-warm-200/[0.06] text-warm-400 hover:bg-white/[0.10]'
+                    : 'bg-warm-200/[0.06] text-warm-400 hover:bg-warm-200/[0.10]'
                 }`}
               >
                 <input

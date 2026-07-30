@@ -41,7 +41,7 @@ function Stepper({ label, value, min, max, step, unit, disabled, onChange }: Ste
           disabled={disabled || value <= min}
           className="min-h-11 min-w-11 rounded-full flex items-center justify-center text-sm
             bg-warm-200/[0.07] text-warm-200 disabled:opacity-15
-            active:bg-white/[0.12] transition-colors select-none"
+            active:bg-warm-200/[0.12] transition-colors select-none"
           aria-label={`减少${label}`}
         >
           −
@@ -56,7 +56,7 @@ function Stepper({ label, value, min, max, step, unit, disabled, onChange }: Ste
           disabled={disabled || value >= max}
           className="min-h-11 min-w-11 rounded-full flex items-center justify-center text-sm
             bg-warm-200/[0.07] text-warm-200 disabled:opacity-15
-            active:bg-white/[0.12] transition-colors select-none"
+            active:bg-warm-200/[0.12] transition-colors select-none"
           aria-label={`增加${label}`}
         >
           +
@@ -131,7 +131,7 @@ export default function ConfigPanel({
                 className={`min-h-11 px-3 py-2 rounded-full text-xs font-medium transition-colors select-none
                   ${presetId === p.id
                     ? 'bg-accent/30 text-accent'
-                    : 'bg-warm-200/[0.06] text-warm-400 hover:bg-white/[0.10] hover:text-warm-200'
+                    : 'bg-warm-200/[0.06] text-warm-400 hover:bg-warm-200/[0.10] hover:text-warm-200'
                   }
                   disabled:opacity-20`}
                 aria-label={p.label}

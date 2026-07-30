@@ -63,9 +63,9 @@ export default function ControlButtons({
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.96 }}
             onClick={onPause}
-            className="h-12 px-8 rounded-[24px] bg-white/[0.08] text-warm-200
+            className="h-12 px-8 rounded-[24px] bg-warm-200/[0.08] text-warm-200
               text-sm font-medium border border-warm-200/[0.08]
-              hover:bg-white/[0.12] transition-colors select-none"
+              hover:bg-warm-200/[0.12] transition-colors select-none"
           >
             暂停
           </motion.button>
@@ -73,9 +73,9 @@ export default function ControlButtons({
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.96 }}
             onClick={onStop}
-            className="h-12 px-8 rounded-[24px] bg-white/[0.05] text-red-400/70
+            className="h-12 px-8 rounded-[24px] bg-warm-200/[0.05] text-red-400/70
               text-sm font-medium border border-warm-200/[0.06]
-              hover:bg-white/[0.08] transition-colors select-none"
+              hover:bg-warm-200/[0.08] transition-colors select-none"
           >
             停止
           </motion.button>
@@ -106,9 +106,9 @@ export default function ControlButtons({
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.96 }}
             onClick={onStop}
-            className="h-12 px-6 rounded-[24px] bg-white/[0.05] text-red-400/70
+            className="h-12 px-6 rounded-[24px] bg-warm-200/[0.05] text-red-400/70
               text-sm font-medium border border-warm-200/[0.06]
-              hover:bg-white/[0.08] transition-colors select-none"
+              hover:bg-warm-200/[0.08] transition-colors select-none"
           >
             停止
           </motion.button>

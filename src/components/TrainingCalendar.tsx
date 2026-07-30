@@ -104,10 +104,10 @@ export default function TrainingCalendar({
                 aria-label={`${month.month}月${dayNumber}日，${status}`}
                 aria-pressed={selected}
                 className={`relative min-h-11 rounded-lg text-xs transition-colors ${
-                  selected ? 'bg-accent/30 text-white ring-1 ring-accent'
+                  selected ? 'bg-accent/30 text-warm-900 ring-1 ring-accent'
                     : day?.completedCount ? 'bg-emerald-500/15 text-emerald-200'
                       : day?.stoppedCount ? 'bg-amber-500/15 text-amber-200'
-                        : 'bg-white/[0.025] text-warm-400'
+                        : 'bg-warm-200/[0.025] text-warm-400'
                 }`}
               >
                 {dayNumber}
@@ -137,7 +137,7 @@ export default function TrainingCalendar({
                   type="button"
                   key={record.id}
                   onClick={() => onOpenRecord(record.id)}
-                  className="flex min-h-11 w-full items-center justify-between rounded-lg bg-white/[0.05] px-3 py-2 text-left text-xs text-warm-200"
+                  className="flex min-h-11 w-full items-center justify-between rounded-lg bg-warm-200/[0.05] px-3 py-2 text-left text-xs text-warm-200"
                   aria-label={`查看 ${timeLabel(record.endedAt, timeZone)} ${record.status === 'completed' ? '已完成' : '已中止'}记录详情`}
                 >
                   <span>{timeLabel(record.endedAt, timeZone)} · {record.completedReps}/{record.targetReps}次</span>

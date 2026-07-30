@@ -20,7 +20,7 @@ export default function SettingsDetailPage({ title, description, onBack, childre
           <span aria-hidden="true">‹</span>
         </button>
         <div className="pt-1">
-          <h1 className="text-lg font-semibold text-white">{title}</h1>
+          <h1 className="text-lg font-semibold text-warm-100">{title}</h1>
           <p className="mt-0.5 text-xs leading-5 text-warm-400">{description}</p>
         </div>
       </header>

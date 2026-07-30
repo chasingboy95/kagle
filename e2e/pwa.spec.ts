@@ -75,10 +75,10 @@ test('root document stays fixed while the app shell owns mobile scrolling', asyn
   expect(metrics.rootScrollHeight).toBe(metrics.rootClientHeight);
   expect(metrics.rootScrollTop).toBe(0);
   expect(metrics.bodyOverflow).toBe('hidden');
-  expect(metrics.htmlBackground).toBe('rgb(17, 24, 39)');
-  expect(metrics.bodyBackground).toBe('rgb(17, 24, 39)');
-  expect(metrics.rootBackground).toBe('rgb(17, 24, 39)');
-  expect(metrics.dockBackground).toBe('rgb(17, 24, 39)');
+  expect(metrics.htmlBackground).toBe('rgb(27, 21, 24)');
+  expect(metrics.bodyBackground).toBe('rgb(27, 21, 24)');
+  expect(metrics.rootBackground).toBe('rgb(27, 21, 24)');
+  expect(metrics.dockBackground).toBe('rgb(27, 21, 24)');
   expect(metrics.themeColor).toBe('#111827');
   expect(metrics.appOverflowY).toBe('auto');
   expect(metrics.appPosition).toBe('fixed');

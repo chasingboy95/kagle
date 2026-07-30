@@ -92,7 +92,7 @@ export default function TrainingHistory({
           <span aria-hidden="true">‹</span>
         </button>
         <div>
-          <h1 className="text-lg font-semibold text-white">训练记录</h1>
+          <h1 className="text-lg font-semibold text-warm-100">训练记录</h1>
           <p className="text-xs text-warm-400">查看进度、日历和训练详情</p>
         </div>
       </header>
@@ -107,7 +107,7 @@ export default function TrainingHistory({
           type="button"
           onClick={() => setView('list')}
           aria-pressed={view === 'list'}
-          className={`min-h-11 rounded-lg py-2 text-sm ${view === 'list' ? 'bg-warm-200/10 text-white' : 'text-warm-400'}`}
+          className={`min-h-11 rounded-lg py-2 text-sm ${view === 'list' ? 'bg-warm-200/10 text-warm-100' : 'text-warm-400'}`}
         >
           列表
         </button>
@@ -115,7 +115,7 @@ export default function TrainingHistory({
           type="button"
           onClick={() => setView('calendar')}
           aria-pressed={view === 'calendar'}
-          className={`min-h-11 rounded-lg py-2 text-sm ${view === 'calendar' ? 'bg-warm-200/10 text-white' : 'text-warm-400'}`}
+          className={`min-h-11 rounded-lg py-2 text-sm ${view === 'calendar' ? 'bg-warm-200/10 text-warm-100' : 'text-warm-400'}`}
         >
           日历
         </button>
@@ -123,7 +123,7 @@ export default function TrainingHistory({
           type="button"
           onClick={() => setView('trend')}
           aria-pressed={view === 'trend'}
-          className={`min-h-11 rounded-lg py-2 text-sm ${view === 'trend' ? 'bg-warm-200/10 text-white' : 'text-warm-400'}`}
+          className={`min-h-11 rounded-lg py-2 text-sm ${view === 'trend' ? 'bg-warm-200/10 text-warm-100' : 'text-warm-400'}`}
         >
           趋势
         </button>
@@ -166,7 +166,7 @@ export default function TrainingHistory({
                   aria-pressed={statusFilter === value}
                   className={`min-h-11 flex-1 rounded-md py-2 text-xs transition-colors ${
                     statusFilter === value
-                      ? 'bg-warm-200/10 text-white'
+                      ? 'bg-warm-200/10 text-warm-100'
                       : 'text-warm-400 hover:text-warm-200'
                   }`}
                 >

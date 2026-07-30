@@ -89,7 +89,7 @@ export default function VoiceDrawer({ settings, supported, hapticsSupported, onA
               <button type="button" onClick={requestClose} className="h-11 rounded-xl bg-warm-200/[0.06] text-sm font-medium text-warm-200 hover:bg-warm-200/10">
                 取消
               </button>
-              <button type="button" onClick={apply} className="h-11 rounded-xl bg-accent text-sm font-semibold text-white hover:bg-accent">
+              <button type="button" onClick={apply} className="h-11 rounded-xl bg-accent text-sm font-semibold text-warm-900 hover:bg-accent">
                 应用设置
               </button>
             </div>

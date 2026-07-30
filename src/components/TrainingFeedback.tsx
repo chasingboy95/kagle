@@ -82,24 +82,24 @@ export default function TrainingFeedback({
       <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-warm-200/10 text-3xl">
         ✓
       </div>
-      <h2 className="text-xl font-semibold text-white">训练完成</h2>
+      <h2 className="text-xl font-semibold text-warm-100">训练完成</h2>
       <p className="mt-1 text-sm text-warm-400">
         {completionSummary(completedRepetitions, totalRepetitions)}
       </p>
 
       <div className="mt-5 grid grid-cols-3 gap-3 text-sm text-warm-200">
         <div className="rounded-2xl bg-warm-200/5 p-3">
-          <div className="text-2xl font-semibold text-white">{formatDuration(durationMs)}</div>
+          <div className="text-2xl font-semibold text-warm-100">{formatDuration(durationMs)}</div>
           <div className="mt-0.5">训练时长</div>
         </div>
         <div className="rounded-2xl bg-warm-200/5 p-3">
-          <div className="text-2xl font-semibold text-white tabular-nums">
+          <div className="text-2xl font-semibold text-warm-100 tabular-nums">
             {completedSets}/{totalSets}
           </div>
           <div className="mt-0.5">完成组数</div>
         </div>
         <div className="rounded-2xl bg-warm-200/5 p-3">
-          <div className="text-2xl font-semibold text-white tabular-nums">
+          <div className="text-2xl font-semibold text-warm-100 tabular-nums">
             {completedRepetitions}/{totalRepetitions}
           </div>
           <div className="mt-0.5">完成次数</div>
@@ -145,7 +145,7 @@ export default function TrainingFeedback({
         {onRestart && (
           <button
             onClick={onRestart}
-            className="w-full rounded-full bg-warm-200/10 py-3 text-sm font-medium text-white transition-colors active:bg-warm-200/15"
+            className="w-full rounded-full bg-warm-200/10 py-3 text-sm font-medium text-warm-100 transition-colors active:bg-warm-200/15"
           >
             再次训练
           </button>

@@ -109,7 +109,7 @@ export default function ConfigDrawer({ config, savedConfigs, onApply, onSaveConf
               <button
                 type="button"
                 onClick={apply}
-                className="h-11 rounded-xl bg-accent text-sm font-semibold text-white hover:bg-accent"
+                className="h-11 rounded-xl bg-accent text-sm font-semibold text-warm-900 hover:bg-accent"
               >
                 应用此计划
               </button>

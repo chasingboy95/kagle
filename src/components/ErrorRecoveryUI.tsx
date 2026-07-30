@@ -36,7 +36,7 @@ export default function ErrorRecoveryUI({
         <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-red-500/10 text-2xl">
           !
         </div>
-        <h2 className="text-lg font-semibold text-white">
+        <h2 className="text-lg font-semibold text-warm-100">
           出了点问题
         </h2>
         <p className="mt-2 text-sm text-warm-400 leading-relaxed">
@@ -70,7 +70,7 @@ export default function ErrorRecoveryUI({
               </p>
               <button
                 onClick={onConfirmReset}
-                className="w-full rounded-full bg-red-500 py-3 text-sm font-medium text-white transition-colors active:bg-red-600"
+                className="w-full rounded-full bg-red-500 py-3 text-sm font-medium text-warm-100 transition-colors active:bg-red-600"
               >
                 确认清除
               </button>
