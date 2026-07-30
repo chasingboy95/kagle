@@ -37,7 +37,7 @@ body {
   display: flex;
   flex-direction: column;
   width: 100%;
-  min-height: 100dvh;
+  height: 100dvh;
   overflow: hidden;
   background: var(--color-warm-900);
 }
@@ -49,7 +49,7 @@ body {
 
 /* Safari / iOS PWA — override 100dvh with fill-available for older OS versions */
 @supports (-webkit-touch-callout: none) {
-  html {
+  html, #root {
     height: -webkit-fill-available;
   }
 }
