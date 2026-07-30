@@ -304,7 +304,7 @@ export default function App() {
         </div>
 
         {activePage === 'records' && isIdle ? (
-          <main className="relative z-10 w-full max-w-sm flex-1 px-5 pb-6 pt-[max(1rem,env(safe-area-inset-top))]">
+          <main className="relative z-10 w-full max-w-sm flex-1 px-5 pb-6 pt-4">
             <Suspense fallback={
               <div className="flex items-center justify-center py-20">
                 <div className="h-6 w-6 animate-pulse rounded-full bg-warm-600" />
@@ -367,7 +367,7 @@ export default function App() {
           <>
             <div className="flex flex-col items-center w-full max-w-sm px-5 flex-1">
           {isIdle && (
-            <div className="w-full pt-6 pb-2">
+            <div className="w-full pt-3 pb-2">
               <h1 className="text-sm font-semibold text-warm-200">盆底肌训练</h1>
             </div>
           )}

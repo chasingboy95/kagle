@@ -9,7 +9,7 @@ interface Props {
 
 export default function SettingsDetailPage({ title, description, onBack, children }: Props) {
   return (
-    <main className="relative z-10 w-full max-w-sm flex-1 px-5 pt-[max(1rem,env(safe-area-inset-top))] pb-6">
+    <main className="relative z-10 w-full max-w-sm flex-1 px-5 pt-4 pb-6">
       <header className="mb-5 flex items-start gap-3">
         <button
           type="button"

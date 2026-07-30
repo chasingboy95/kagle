@@ -44,7 +44,7 @@ export default function SettingsHome({
   onReenableProgressive,
 }: Props) {
   return (
-    <main className="relative z-10 w-full max-w-sm flex-1 px-5 pt-[max(1.5rem,env(safe-area-inset-top))]">
+    <main className="relative z-10 w-full max-w-sm flex-1 px-5 pt-4">
       <header className="mb-6">
         <h1 className="text-xl font-semibold text-warm-100">设置</h1>
         <p className="mt-1 text-sm text-warm-400">调整训练方式和应用偏好</p>
