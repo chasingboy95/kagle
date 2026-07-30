@@ -12,6 +12,7 @@
 - Optional pre-training audio self-check showing the active mode, countdown, and volume, with a short preview, audible confirmation, explicit silent choice, and non-technical fallback guidance (#39).
 
 ### Fixed
+- iOS installed PWAs now use one opaque `#111827` surface across the primary navigation, action dock, and Home Indicator safe area so WebKit cannot expose a contrasting bottom strip; the Apple Touch Icon also uses a new versioned URL to avoid reusing the original letter-placeholder install metadata while preserving the conventional root fallback (#109).
 - iOS installed PWAs now pin the primary navigation to the visual viewport bottom instead of relying on sticky scroll geometry, reserve matching in-flow space, check for updates whenever the app returns to the foreground, and automatically activate waiting service workers while no training is active; live sessions still defer updates (#105).
 - Bottom navigation now uses a compact 56px translucent tab bar with consistent linear SVG icons, a restrained active indicator, and a single safe-area owner; the idle action dock and records page no longer stack an extra Home Indicator inset (#103).
 - iOS installed-PWA haptic fallback audio is now unlocked from start/resume/restart user gestures, and haptic events remain active and deduplicated when audible guidance is set to silent (#81).

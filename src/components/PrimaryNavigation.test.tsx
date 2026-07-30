@@ -10,7 +10,8 @@ describe('PrimaryNavigation', () => {
     expect(screen.getByRole('button', { name: '记录' })).toHaveAttribute('aria-current', 'page');
     expect(screen.getByRole('button', { name: '训练' })).not.toHaveAttribute('aria-current');
     const navigation = screen.getByRole('navigation', { name: '主要导航' });
-    expect(navigation).toHaveClass('fixed', 'bottom-0');
+    expect(navigation).toHaveClass('fixed', 'bottom-0', 'bg-[#111827]');
+    expect(navigation).not.toHaveClass('bg-[#0b1220]/82', 'backdrop-blur-2xl');
     expect(navigation.querySelectorAll('svg')).toHaveLength(3);
     expect(screen.getByRole('button', { name: '记录' })).not.toHaveClass('bg-white/[0.08]');
 

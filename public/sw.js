@@ -13,6 +13,7 @@ const APP_SHELL = [
   `${BASE_PATH}icon-192.png`,
   `${BASE_PATH}icon-512.png`,
   `${BASE_PATH}apple-touch-icon.png`,
+  `${BASE_PATH}apple-touch-icon-20260730.png`,
 ];
 
 // 构建期注入的哈希资源。
